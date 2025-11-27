@@ -35,7 +35,10 @@
     <!-- HEADER -->
     <div class="d-flex justify-content-between align-items-center py-2 px-3 bg-white shadow-sm mb-3">
         <div class="d-flex align-items-center">
-            <h4 class="fw-bold m-0 text-primary me-3"><i class="fas fa-mug-hot"></i> Kape Ni Asero</h4>
+        <h4 class="fw-bold m-0 me-3">
+    <img src="{{ asset('ka.png') }}" alt="Kape Ni Asero Logo" style="height: 35px; filter: invert(1);" class="me-2"> 
+    Kape Ni Asero
+</h4>   
             <div class="border-start ps-3 text-muted">
                 <small>Cashier: <strong class="text-dark">{{ Auth::user()->name }}</strong></small>
                 <span class="badge bg-info text-dark ms-1">{{ Auth::user()->role }}</span>

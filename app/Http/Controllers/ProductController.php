@@ -27,9 +27,14 @@ class ProductController extends Controller
             'category' => 'required',
         ]);
 
-        Product::create($request->all());
-        return redirect()->route('products.index')->with('success', 'Product created.');
+        $product = Product::create($request->all());
+
+        // CHANGE: Redirect to Edit page so they can add ingredients immediately
+        return redirect()->route('products.edit', $product->id)
+                         ->with('success', 'Product created! Now add the recipe ingredients.');
     }
+
+
 
     // UPDATED EDIT FUNCTION
     public function edit(Product $product)

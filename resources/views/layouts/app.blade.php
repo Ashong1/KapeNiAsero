@@ -13,6 +13,16 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     
     <style>
+        /* CSS to hide the number input arrows */
+        input::-webkit-outer-spin-button,
+        input::-webkit-inner-spin-button {
+            -webkit-appearance: none;
+            margin: 0;
+        }
+        input[type=number] {
+            -moz-appearance: textfield; /* Firefox hide arrows */
+        }
+
         :root {
             /* PALETTE COMPLIMENTING LOGO */
             --color-mocha: #3A241D;    /* Deep Mocha Brown / Primary & Background */
@@ -49,20 +59,17 @@
 
         /* 3. LEFT SIDE: CARD WRAPPER */
         .auth-card-wrapper {
-            
-            width: 40%;
+            width: 60%;
             display: flex;
             justify-content: flex-end;
             align-items: center;
             min-height: 100%;
-            padding-right: 100px;
-            margin-left: 240px;
+            padding-right: 50px;
         }
 
         /* 4. RIGHT SIDE: IMAGE CONTAINER */
         .auth-image-container {
-            
-            width: 43%;
+            width: 40%;
             min-height: 100%;
             background-image: url("{{ asset('coffee_right_transparent.png') }}");
             background-repeat: no-repeat;
@@ -70,56 +77,47 @@
             background-size: cover;
         }
         
-        /* 5. FULLY TRANSPARENT CARD STYLING & READABILITY FIXES */
+        /* 5. CARD STYLING (FULLY TRANSPARENT) */
         .card { 
+            /* FIX: Make card background fully transparent */
             background-color: transparent !important;
             border-color: transparent !important;
             box-shadow: none !important;
             
-            max-width: 600px;
+            max-width: 750px;
             width: 90%;
             margin: 0; 
         }
-        /* TEXT SIZING FIXES */
-        .navbar-brand { font-size: 2.8rem !important; margin-left: 0 !important;} /* INCREASED BRAND SIZE */
-        .navbar-nav .nav-link { font-size: 1.1rem !important; }
-        .card-header h4 { font-size: 1.75rem !important; }
-        
 
-        /* FIX: Ensure ALL text and labels inside the transparent card are light */
-        .card-header,
+        /* FIX: Set ALL text and labels inside the transparent card to light Cream */
         .card-body,
         .card .col-form-label,
         .card .form-check-label {
             color: var(--color-cream) !important; 
         }
 
-        /* FINAL FIX: WHITE OUTLINE INPUT STYLE */
+        /* Input Styling (Transparent Background and White Outline) */
         .card .form-control {
-            /* Input background remains transparent */
             background-color: transparent !important;
-            
-            /* NEW: Set solid white border on all sides */
-            border: 1px solid var(--color-cream) !important;
-            border-radius: 4px !important; /* Small radius for modern look */
-            
-            padding-left: 0.8rem !important; /* Increase internal padding */
+            border: 1px solid var(--color-cream) !important; /* White Outline */
+            border-radius: 4px !important; 
+            padding-left: 0.8rem !important; 
             height: 48px;
-            
-            /* Text remains light/readable */
-            color: var(--color-cream) !important; 
+            color: var(--color-cream) !important; /* Text entered is light */
         }
 
-        /* Redefine focus state for the white outline design */
+        /* Redefine focus state for the transparent input */
         .form-control:focus {
-            border-color: var(--color-sienna) !important; /* Sienna accent border on focus */
-            box-shadow: 0 0 0 1px var(--color-sienna) !important; /* Add thin shadow */
+            border-color: var(--color-sienna) !important; 
+            box-shadow: 0 0 0 0.25rem rgba(180, 140, 107, 0.25);
         }
         
         /* Card Header Styling (Transparent Mocha) */
         .card-header {
+            /* Full transparency for the header background */
             background-color: rgba(58, 36, 29, 0.85) !important; 
             border-bottom: 1px solid var(--color-sienna) !important;
+            color: var(--color-cream) !important; /* Header text remains light */
         }
         
         /* General Theming */
@@ -134,6 +132,10 @@
         .btn-primary:hover { 
             background-color: #A06F51 !important; 
             border-color: #A06F51 !important; 
+        }
+        .form-control:focus {
+            border-color: var(--color-sienna); 
+            box-shadow: 0 0 0 0.25rem rgba(180, 140, 107, 0.25);
         }
         .card a {
             color: var(--color-sienna);
@@ -150,8 +152,8 @@
         <nav class="navbar navbar-expand-md navbar-dark navbar-transparent">
             <div class="container">
                 <a class="navbar-brand fw-bold" href="{{ url('/') }}">
-                    <img src="{{ asset('ka.png') }}" alt="Kape Ni Asero Logo" style="height: 70px;" class="me-2">
-                    Kape Ni Asero
+                    <img src="{{ asset('ka.png') }}" alt="Kape Ni Asero Logo" style="height: 45px;" class="me-2">
+                    Kape Ni Asero POS
                 </a>
                 <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="{{ __('Toggle navigation') }}">
                     <span class="navbar-toggler-icon"></span>

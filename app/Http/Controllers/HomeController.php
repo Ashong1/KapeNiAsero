@@ -21,17 +21,21 @@ class HomeController extends Controller
         $user = Auth::user();
 
         // 1. TRAFFIC COP LOGIC
-        // If the user is NOT an admin, send them straight to the POS page.
         if ($user->role !== 'admin') {
             return redirect()->route('products.index');
         }
 
         // 2. ADMIN DASHBOARD DATA
-        // Calculate Total Sales Today
-        $todaySales = Order::whereDate('created_at', Carbon::today())->sum('total_price');
         
-        // Count Orders Today
-        $todayOrders = Order::whereDate('created_at', Carbon::today())->count();
+        // Calculate Total Sales Today (EXCLUDING VOIDED ORDERS)
+        $todaySales = Order::whereDate('created_at', Carbon::today())
+                            ->where('status', '!=', 'voided') // <--- ADDED THIS FILTER
+                            ->sum('total_price');
+        
+        // Count Orders Today (EXCLUDING VOIDED ORDERS)
+        $todayOrders = Order::whereDate('created_at', Carbon::today())
+                            ->where('status', '!=', 'voided') // <--- ADDED THIS FILTER
+                            ->count();
 
         // Find Ingredients that are running low (Stock <= Alert Level)
         $lowStockIngredients = Ingredient::whereColumn('stock', '<=', 'reorder_level')->get();

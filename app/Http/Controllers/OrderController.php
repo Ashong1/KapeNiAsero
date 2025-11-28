@@ -98,4 +98,33 @@ class OrderController extends Controller
         // Stream it (Open in browser) instead of force download
         return $pdf->stream('receipt-'.$order->id.'.pdf');
     }
+    public function voidOrder(Order $order)
+    {
+        // 1. Security Check: Only allow voiding if currently 'completed'
+        if ($order->status === 'voided') {
+            return redirect()->back()->with('error', 'Order is already voided.');
+        }
+
+        // 2. Return Stock to Inventory
+        // We need to loop through the items sold and reverse the deduction
+        foreach ($order->items as $item) {
+            $product = $item->product;
+            
+            // Check if product has ingredients (recipe)
+            if ($product && !$product->ingredients->isEmpty()) {
+                foreach ($product->ingredients as $ingredient) {
+                    // Calculate how much was used for this line item
+                    $quantityUsed = $ingredient->pivot->quantity_needed * $item->quantity;
+                    
+                    // Add it back to stock
+                    $ingredient->increment('stock', $quantityUsed);
+                }
+            }
+        }
+
+        // 3. Update Order Status
+        $order->update(['status' => 'voided']);
+
+        return redirect()->back()->with('success', "Order #{$order->id} has been voided and inventory restored.");
+    }
 }

@@ -8,24 +8,16 @@
 <body class="bg-light">
 <div class="container mt-5">
     
-    <!-- UPDATED HEADER WITH NAVIGATION BUTTONS -->
+    <!-- HEADER -->
     <div class="d-flex justify-content-between align-items-center mb-4">
         <div>
             <h2 class="fw-bold text-dark"><i class="fas fa-boxes me-2"></i>Ingredient Inventory</h2>
             <p class="text-muted">Manage raw material stocks and alert levels.</p>
         </div>
         <div>
-            <!-- Dashboard Button -->
             <a href="{{ route('home') }}" class="btn btn-outline-secondary btn-sm me-2">
                 <i class="fas fa-chart-line"></i> Dashboard
             </a>
-            
-            <!-- Warehouse Button (Disabled/Active State) -->
-            <a href="#" class="btn btn-dark btn-sm me-2 disabled">
-                <i class="fas fa-boxes"></i> Warehouse
-            </a>
-
-            <!-- POS Button -->
             <a href="{{ route('products.index') }}" class="btn btn-primary btn-sm">
                 <i class="fas fa-cash-register"></i> Go to POS
             </a>
@@ -33,6 +25,11 @@
     </div>
 
     @if(session('success')) <div class="alert alert-success">{{ session('success') }}</div> @endif
+    @if($errors->any())
+        <div class="alert alert-danger">
+            <ul class="mb-0">@foreach($errors->all() as $err) <li>{{ $err }}</li> @endforeach</ul>
+        </div>
+    @endif
 
     <div class="row">
         <!-- ADD FORM -->
@@ -45,6 +42,19 @@
                         <label class="fw-bold small">Material Name</label>
                         <input type="text" name="name" class="form-control" placeholder="e.g. Milk" required>
                     </div>
+                    
+                    <!-- NEW SUPPLIER DROPDOWN -->
+                    <div class="mb-2">
+                        <label class="fw-bold small">Supplier</label>
+                        <select name="supplier_id" class="form-select">
+                            <option value="">-- No Supplier --</option>
+                            @foreach($suppliers as $supplier)
+                                <option value="{{ $supplier->id }}">{{ $supplier->name }}</option>
+                            @endforeach
+                        </select>
+                        <div class="form-text small"><a href="{{ route('suppliers.create') }}">Add new supplier</a></div>
+                    </div>
+
                     <div class="mb-2">
                         <label class="fw-bold small">Unit</label>
                         <select name="unit" class="form-select">
@@ -78,6 +88,7 @@
                         <thead class="table-light">
                             <tr>
                                 <th>Ingredient</th>
+                                <th>Supplier</th>
                                 <th>Current Stock</th>
                                 <th>Status</th>
                                 <th>Action</th>
@@ -86,12 +97,22 @@
                         <tbody>
                             @foreach($ingredients as $ing)
                             <tr>
-                                <td class="fw-bold">{{ $ing->name }}</td>
+                                <td>
+                                    <span class="fw-bold">{{ $ing->name }}</span><br>
+                                    <small class="text-muted">Reorder at: {{ $ing->reorder_level }} {{ $ing->unit }}</small>
+                                </td>
+                                <td>
+                                    @if($ing->supplier)
+                                        <span class="badge bg-light text-dark border">{{ $ing->supplier->name }}</span>
+                                    @else
+                                        <span class="text-muted small">-</span>
+                                    @endif
+                                </td>
                                 <td>
                                     <!-- Inline Edit Form -->
                                     <form action="{{ route('ingredients.update', $ing->id) }}" method="POST" class="d-flex align-items-center gap-2">
                                         @csrf @method('PUT')
-                                        <input type="number" name="stock" value="{{ $ing->stock }}" class="form-control form-control-sm" style="width: 100px;" step="0.01">
+                                        <input type="number" name="stock" value="{{ $ing->stock }}" class="form-control form-control-sm" style="width: 90px;" step="0.01">
                                         <span class="text-muted small">{{ $ing->unit }}</span>
                                         <button class="btn btn-sm btn-outline-success py-0" title="Save Update">✓</button>
                                     </form>
@@ -106,16 +127,11 @@
                                 <td>
                                     <form action="{{ route('ingredients.destroy', $ing->id) }}" method="POST">
                                         @csrf @method('DELETE')
-                                        <button class="btn btn-sm btn-link text-danger text-decoration-none" onclick="return confirm('Delete this material from inventory?')">Delete</button>
+                                        <button class="btn btn-sm btn-link text-danger text-decoration-none" onclick="return confirm('Delete this material?')">Delete</button>
                                     </form>
                                 </td>
                             </tr>
                             @endforeach
-                            @if($ingredients->isEmpty())
-                                <tr>
-                                    <td colspan="4" class="text-center py-4 text-muted">No raw materials added yet.</td>
-                                </tr>
-                            @endif
                         </tbody>
                     </table>
                 </div>

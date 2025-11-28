@@ -5,13 +5,19 @@ namespace App\Http\Controllers;
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use App\Models\Ingredient;
+use App\Models\Supplier; // <--- Import Supplier Model
 
 class IngredientController extends Controller
 {
     public function index()
     {
-        $ingredients = Ingredient::all();
-        return view('ingredients.index', compact('ingredients'));
+        // Fetch ingredients with their linked supplier (eager loading)
+        $ingredients = Ingredient::with('supplier')->get();
+        
+        // Fetch all suppliers for the dropdown list
+        $suppliers = Supplier::all(); 
+
+        return view('ingredients.index', compact('ingredients', 'suppliers'));
     }
 
     public function store(Request $request)
@@ -20,7 +26,8 @@ class IngredientController extends Controller
             'name' => 'required|string',
             'unit' => 'required|string',
             'stock' => 'required|numeric|min:0',
-            'reorder_level' => 'required|numeric'
+            'reorder_level' => 'required|numeric',
+            'supplier_id' => 'nullable|exists:suppliers,id' // <--- Validate Supplier
         ]);
 
         Ingredient::create($request->all());
@@ -29,8 +36,12 @@ class IngredientController extends Controller
 
     public function update(Request $request, Ingredient $ingredient)
     {
-        $request->validate(['stock' => 'required|numeric|min:0']);
-        $ingredient->update($request->only('stock')); // Only update stock for quick edit
+        $request->validate([
+            'stock' => 'required|numeric|min:0',
+            // Optional: Allow updating other fields if needed in the future
+        ]);
+        
+        $ingredient->update($request->only('stock')); 
         return redirect()->back()->with('success', 'Stock updated.');
     }
 

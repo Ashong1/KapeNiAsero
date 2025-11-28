@@ -42,7 +42,9 @@ class IngredientController extends Controller
         ]);
         
         $ingredient->update($request->only('stock')); 
+    $this->logActivity('Stock Update', "Updated {$ingredient->name} stock to {$ingredient->stock}");
         return redirect()->back()->with('success', 'Stock updated.');
+        
     }
 
     public function destroy(Ingredient $ingredient)

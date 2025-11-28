@@ -25,9 +25,9 @@
 </head>
 <body>
 
-<div class="container mt-4">
+<div class="container mt-4 pb-5">
     
-    <!-- Alerts for Void Actions -->
+    <!-- Alerts -->
     @if(session('success'))
         <div class="alert alert-success alert-dismissible fade show shadow-sm" role="alert">
             <i class="fas fa-check-circle me-2"></i> {{ session('success') }}
@@ -249,6 +249,60 @@
         </div>
 
     </div> <!-- End Row -->
+
+    <!-- NEW SECTION: AUDIT LOG -->
+    <div class="row mt-4">
+        <div class="col-12">
+            <div class="card shadow-sm border-0">
+                <div class="card-header bg-white py-3 border-bottom">
+                    <h5 class="m-0 fw-bold text-dark"><i class="fas fa-clipboard-list me-2"></i>System Activity Log</h5>
+                </div>
+                <div class="card-body p-0">
+                    <div class="table-responsive">
+                        <table class="table table-hover table-striped mb-0 small">
+                            <thead class="bg-light">
+                                <tr>
+                                    <th>User</th>
+                                    <th>Action</th>
+                                    <th>Details</th>
+                                    <th>Time</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <!-- Direct Data Fetch for Dashboard (Quick Implementation) -->
+                                @php
+                                    $logs = \App\Models\ActivityLog::with('user')->latest()->take(10)->get();
+                                @endphp
+
+                                @forelse($logs as $log)
+                                <tr>
+                                    <td class="fw-bold">{{ $log->user->name ?? 'System' }}</td>
+                                    <td>
+                                        @if(str_contains($log->action, 'Void'))
+                                            <span class="badge bg-danger">{{ $log->action }}</span>
+                                        @elseif(str_contains($log->action, 'Stock'))
+                                            <span class="badge bg-warning text-dark">{{ $log->action }}</span>
+                                        @else
+                                            <span class="badge bg-secondary">{{ $log->action }}</span>
+                                        @endif
+                                    </td>
+                                    <td class="text-muted">{{ $log->details }}</td>
+                                    <td class="text-secondary">{{ $log->created_at->diffForHumans() }}</td>
+                                </tr>
+                                @empty
+                                <tr>
+                                    <td colspan="4" class="text-center py-3 text-muted">No activity recorded yet.</td>
+                                </tr>
+                                @endforelse
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <!-- END AUDIT LOG -->
+
 </div>
 
 <!-- Bootstrap JS Bundle -->

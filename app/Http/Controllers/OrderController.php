@@ -72,6 +72,7 @@ class OrderController extends Controller
             }
 
             DB::commit();
+            $this->logActivity('New Order', "Order #{$order->id} - Total: {$order->total_price}");
 
             // CHANGE: Return the order_id so we can print the receipt
             return response()->json([
@@ -124,7 +125,10 @@ class OrderController extends Controller
 
         // 3. Update Order Status
         $order->update(['status' => 'voided']);
+        $this->logActivity('Void Order', "Voided Order #{$order->id}");
 
         return redirect()->back()->with('success', "Order #{$order->id} has been voided and inventory restored.");
+        
     }
+    
 }

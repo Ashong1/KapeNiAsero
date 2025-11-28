@@ -1,29 +1,40 @@
-@extends('layouts.app')
-
-@section('content')
-<div class="container mt-4">
-    <div class="row justify-content-center">
-        <div class="col-md-6">
-            <div class="card shadow-lg">
-                <div class="card-header bg-warning text-dark">
-                    <h4 class="mb-0">Edit Category</h4>
-                </div>
-                <div class="card-body">
-                    <form action="{{ route('categories.update', $category->id) }}" method="POST">
-                        @csrf
-                        @method('PUT')
-                        <div class="mb-3">
-                            <label class="form-label fw-bold">Category Name</label>
-                            <input type="text" name="name" value="{{ $category->name }}" class="form-control" required>
-                        </div>
-                        <div class="d-flex justify-content-between">
-                            <a href="{{ route('categories.index') }}" class="btn btn-secondary">Cancel</a>
-                            <button type="submit" class="btn btn-primary">Update Category</button>
-                        </div>
-                    </form>
-                </div>
-            </div>
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Edit Category | Kape Ni Asero</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        :root { --primary-coffee: #6F4E37; --text-dark: #2C1810; --border-light: #EFEBE9; }
+        body { font-family: 'Inter', sans-serif; background: #F5F5F7; color: var(--text-dark); display: flex; align-items: center; justify-content: center; min-height: 100vh; }
+        .card-custom { border: none; border-radius: 24px; box-shadow: 0 20px 40px rgba(0,0,0,0.08); overflow: hidden; width: 100%; max-width: 500px; background: white; }
+        .form-control { padding: 0.8rem; border-radius: 12px; border: 1px solid var(--border-light); }
+        .form-control:focus { border-color: var(--primary-coffee); box-shadow: 0 0 0 4px rgba(111, 78, 55, 0.1); }
+        .btn-warning { background: #FFB300; border: none; padding: 0.8rem; border-radius: 12px; font-weight: 600; width: 100%; color: #3E2723; }
+        .btn-warning:hover { background: #FFCA28; }
+    </style>
+</head>
+<body>
+    <div class="card card-custom p-4">
+        <div class="text-center mb-4">
+            <div class="bg-warning-subtle rounded-circle d-inline-flex p-3 mb-3"><i class="fas fa-edit fa-2x text-warning-emphasis"></i></div>
+            <h4 class="fw-bold">Edit Category</h4>
+            <p class="text-muted small">Update category details</p>
         </div>
+        <form action="{{ route('categories.update', $category->id) }}" method="POST">
+            @csrf @method('PUT')
+            <div class="mb-4">
+                <label class="form-label text-uppercase small fw-bold text-secondary">Category Name</label>
+                <input type="text" name="name" value="{{ $category->name }}" class="form-control" required>
+            </div>
+            <div class="d-flex gap-2">
+                <a href="{{ route('categories.index') }}" class="btn btn-light w-50 text-secondary fw-bold" style="padding:0.8rem;">Cancel</a>
+                <button type="submit" class="btn btn-warning w-50">Update</button>
+            </div>
+        </form>
     </div>
-</div>
-@endsection
+</body>
+</html>

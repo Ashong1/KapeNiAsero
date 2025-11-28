@@ -3,24 +3,22 @@
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
+    
     <meta name="csrf-token" content="{{ csrf_token() }}">
 
     <title>Kape Ni Asero</title>
 
-    <!-- Fonts -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
     
-    <!-- Icons -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 
-    <!-- Scripts -->
     @vite(['resources/sass/app.scss', 'resources/js/app.js'])
 
     <style>
         :root {
-            /* NEW PALETTE FROM LOGIN PAGE */
+            /* BRAND PALETTE */
             --primary-coffee: #6F4E37;
             --dark-coffee: #3E2723;
             --text-dark: #2C1810;
@@ -37,14 +35,27 @@
             background: linear-gradient(135deg, var(--primary-coffee) 0%, var(--dark-coffee) 100%);
             min-height: 100vh;
             color: var(--text-dark);
+            /* Prevent horizontal scroll on mobile */
+            overflow-x: hidden; 
         }
 
-        /* Navbar Styling */
+        /* FLEXBOX LAYOUT FOR STICKY FOOTER */
+        #app {
+            display: flex;
+            flex-direction: column;
+            min-height: 100vh;
+        }
+
+        main {
+            flex: 1;
+        }
+
+        /* NAVBAR STYLING */
         .navbar {
             background-color: rgba(255, 255, 255, 0.95) !important;
-            box-shadow: 0 4px 20px rgba(0,0,0,0.1);
-            padding-top: 0.75rem;
-            padding-bottom: 0.75rem;
+            backdrop-filter: blur(10px); /* Glass effect */
+            box-shadow: 0 4px 20px rgba(0,0,0,0.08);
+            transition: all 0.3s ease;
         }
 
         .navbar-brand {
@@ -59,19 +70,21 @@
             color: var(--text-medium) !important;
             font-weight: 500;
             transition: color 0.2s;
+            padding: 0.5rem 1rem; /* Larger touch target */
         }
         
         .nav-link:hover, .nav-link.active {
             color: var(--primary-coffee) !important;
         }
 
-        /* Global Card Styling */
+        /* CARD STYLING */
         .card {
             border: none;
             border-radius: 20px;
             box-shadow: 0 10px 30px rgba(0,0,0,0.15);
             background: var(--surface-white);
             overflow: hidden;
+            margin-bottom: 1.5rem;
         }
 
         .card-header {
@@ -82,7 +95,7 @@
             padding: 1.25rem 1.5rem;
         }
 
-        /* Inputs */
+        /* FORM ELEMENTS */
         .form-control, .form-select {
             border: 2px solid var(--input-border);
             border-radius: 12px;
@@ -95,7 +108,7 @@
             box-shadow: 0 0 0 4px rgba(111, 78, 55, 0.1);
         }
 
-        /* Buttons */
+        /* BUTTONS */
         .btn-primary {
             background-color: var(--primary-coffee);
             border-color: var(--primary-coffee);
@@ -103,6 +116,7 @@
             padding: 0.6rem 1.2rem;
             font-weight: 600;
             box-shadow: 0 4px 12px rgba(111, 78, 55, 0.2);
+            transition: all 0.2s;
         }
 
         .btn-primary:hover {
@@ -111,38 +125,76 @@
             transform: translateY(-1px);
         }
 
-        /* Table Styling for Index pages */
-        .table thead th {
-            background-color: var(--surface-cream);
-            color: var(--primary-coffee);
-            font-weight: 600;
-            border-bottom: 2px solid var(--border-light);
-        }
-        
-        /* Dropdown Menu */
+        /* DROPDOWN MENU */
         .dropdown-menu {
             border: none;
             border-radius: 12px;
             box-shadow: 0 10px 30px rgba(0,0,0,0.1);
             padding: 0.5rem;
         }
+        
         .dropdown-item {
             border-radius: 8px;
-            padding: 0.5rem 1rem;
+            padding: 0.7rem 1rem; /* Taller for mobile touch */
             color: var(--text-dark);
         }
+        
         .dropdown-item:hover {
             background-color: var(--surface-cream);
             color: var(--primary-coffee);
+        }
+
+        /* FOOTER */
+        .app-footer {
+            background-color: rgba(255, 255, 255, 0.9);
+            color: var(--text-medium);
+            padding: 1rem 0;
+            margin-top: auto;
+            font-size: 0.9rem;
+            text-align: center;
+        }
+
+        /* RESPONSIVE MEDIA QUERIES */
+        @media (max-width: 768px) {
+            .navbar-brand {
+                font-size: 1.1rem;
+            }
+            
+            .navbar-brand img {
+                height: 32px !important; /* Smaller logo on mobile */
+            }
+
+            .card {
+                border-radius: 12px; /* Tighter corners on mobile */
+                box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+            }
+
+            .card-header {
+                padding: 1rem;
+            }
+
+            .card-body {
+                padding: 1rem;
+            }
+
+            .container {
+                padding-left: 1rem;
+                padding-right: 1rem;
+            }
+            
+            /* Better mobile table handling */
+            .table-responsive {
+                border-radius: 12px;
+                overflow: hidden;
+            }
         }
     </style>
 </head>
 <body>
     <div id="app">
-        <nav class="navbar navbar-expand-md navbar-light">
+        <nav class="navbar navbar-expand-md navbar-light sticky-top">
             <div class="container">
                 <a class="navbar-brand" href="{{ url('/') }}">
-                    <!-- UPDATED LOGO HERE -->
                     <img src="{{ asset('ka.png') }}" alt="Kape Ni Asero" style="height: 40px;" class="me-2">
                     Kape Ni Asero
                 </a>
@@ -151,19 +203,21 @@
                 </button>
 
                 <div class="collapse navbar-collapse" id="navbarSupportedContent">
-                    <!-- Left Side Of Navbar -->
                     <ul class="navbar-nav me-auto">
                         @auth
                             <li class="nav-item">
-                                <a class="nav-link" href="{{ route('home') }}">Dashboard</a>
+                                <a class="nav-link {{ request()->routeIs('home') ? 'active' : '' }}" href="{{ route('home') }}">
+                                    <i class="fas fa-chart-line d-md-none me-2"></i>Dashboard
+                                </a>
                             </li>
                             <li class="nav-item">
-                                <a class="nav-link" href="{{ route('products.index') }}">POS</a>
+                                <a class="nav-link {{ request()->routeIs('products.index') ? 'active' : '' }}" href="{{ route('products.index') }}">
+                                    <i class="fas fa-cash-register d-md-none me-2"></i>POS
+                                </a>
                             </li>
                         @endauth
                     </ul>
 
-                    <!-- Right Side Of Navbar -->
                     <ul class="navbar-nav ms-auto">
                         @guest
                             @if (Route::has('login'))
@@ -183,18 +237,25 @@
                                     <i class="fas fa-user-circle me-1"></i> {{ Auth::user()->name }}
                                 </a>
 
-                                <div class="dropdown-menu dropdown-menu-end" aria-labelledby="navbarDropdown">
+                                <div class="dropdown-menu dropdown-menu-end shadow-lg" aria-labelledby="navbarDropdown">
                                     @if(Auth::user()->role == 'admin')
-                                        <a class="dropdown-item" href="{{ route('ingredients.index') }}"><i class="fas fa-boxes me-2 text-muted"></i> Warehouse</a>
-                                        <a class="dropdown-item" href="{{ route('categories.index') }}"><i class="fas fa-tags me-2 text-muted"></i> Categories</a>
-                                        <a class="dropdown-item" href="{{ route('suppliers.index') }}"><i class="fas fa-truck me-2 text-muted"></i> Suppliers</a>
+                                        <div class="dropdown-header text-uppercase small text-muted fw-bold">Administration</div>
+                                        <a class="dropdown-item" href="{{ route('ingredients.index') }}">
+                                            <i class="fas fa-boxes me-2 text-muted" style="width: 20px;"></i> Warehouse
+                                        </a>
+                                        <a class="dropdown-item" href="{{ route('categories.index') }}">
+                                            <i class="fas fa-tags me-2 text-muted" style="width: 20px;"></i> Categories
+                                        </a>
+                                        <a class="dropdown-item" href="{{ route('suppliers.index') }}">
+                                            <i class="fas fa-truck me-2 text-muted" style="width: 20px;"></i> Suppliers
+                                        </a>
                                         <div class="dropdown-divider"></div>
                                     @endif
                                     
-                                    <a class="dropdown-item" href="{{ route('logout') }}"
+                                    <a class="dropdown-item text-danger" href="{{ route('logout') }}"
                                        onclick="event.preventDefault();
                                                      document.getElementById('logout-form').submit();">
-                                        <i class="fas fa-sign-out-alt me-2 text-danger"></i> {{ __('Logout') }}
+                                        <i class="fas fa-sign-out-alt me-2" style="width: 20px;"></i> {{ __('Logout') }}
                                     </a>
 
                                     <form id="logout-form" action="{{ route('logout') }}" method="POST" class="d-none">
@@ -208,12 +269,17 @@
             </div>
         </nav>
 
-        <main class="py-4">
+        <main class="py-3 py-md-4">
             @yield('content')
         </main>
+
+        <footer class="app-footer">
+            <div class="container">
+                <small>&copy; {{ date('Y') }} Kape Ni Asero. All rights reserved.</small>
+            </div>
+        </footer>
     </div>
     
-    <!-- Bootstrap JS -->
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 </body>
 </html>

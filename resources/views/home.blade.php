@@ -5,294 +5,403 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Admin Dashboard | Kape Ni Asero</title>
     
-    <!-- Fonts & Icons -->
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     
     <style>
         :root {
-            /* Consistent Palette */
+            /* BRAND PALETTE */
             --primary-coffee: #6F4E37;
+            --primary-coffee-hover: #5A3D2B;
             --dark-coffee: #3E2723;
-            --accent-gold: #8B7355;
+            --accent-gold: #C5A065;
             --surface-cream: #FFF8E7;
-            --surface-white: #FFFFFF;
+            --surface-glass: rgba(255, 255, 255, 0.92);
             --text-dark: #2C1810;
-            --text-light: #FFF8E7;
-            --success-green: #689F38;
-            --border-light: #F0E5D0;
-            --input-border: #E8DCC8;
-            --color-danger: #D84315;
+            --text-secondary: #6D5E57;
+            --success-green: #558B2F;
+            --danger-red: #D32F2F;
+            --border-light: #EFEBE9;
         }
 
         body {
             font-family: 'Inter', sans-serif;
-            background: linear-gradient(135deg, var(--primary-coffee) 0%, var(--dark-coffee) 100%);
+            background: linear-gradient(135deg, #F5F5F5 0%, #E0E0E0 100%);
+            background-image: radial-gradient(at 0% 0%, rgba(111, 78, 55, 0.05) 0px, transparent 50%),
+                              radial-gradient(at 100% 100%, rgba(197, 160, 101, 0.1) 0px, transparent 50%);
             color: var(--text-dark);
             min-height: 100vh;
-            padding-bottom: 2rem;
+            padding-bottom: 3rem;
         }
 
-        /* HEADER styling */
-        .dashboard-header {
-            background-color: rgba(255, 255, 255, 0.95);
-            border-bottom: 1px solid var(--border-light);
-            padding: 1rem 2rem;
-            margin-bottom: 2rem;
-            box-shadow: 0 4px 20px rgba(0,0,0,0.1);
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            border-radius: 16px;
+        /* --- PREMIUM NAVBAR STYLING --- */
+        .navbar-premium {
+            background-color: var(--surface-glass);
+            backdrop-filter: blur(16px);
+            -webkit-backdrop-filter: blur(16px);
+            border-bottom: 1px solid rgba(255, 255, 255, 0.5);
+            box-shadow: 0 4px 24px -1px rgba(62, 39, 35, 0.06);
+            padding: 0.8rem 1rem;
+            margin-bottom: 2.5rem;
+            border-radius: 24px;
+            margin-top: 1rem;
         }
 
-        .navbar-brand {
-            font-weight: 700;
-            color: var(--primary-coffee) !important;
-            font-size: 1.5rem;
+        .navbar-brand-wrapper {
             display: flex;
             align-items: center;
+            gap: 1rem;
+        }
+
+        .logo-container {
+            background: white;
+            padding: 6px;
+            border-radius: 14px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.05);
+            transition: transform 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+        }
+
+        .navbar-brand:hover .logo-container {
+            transform: scale(1.05) rotate(-3deg);
+        }
+
+        .brand-text {
+            line-height: 1.1;
+        }
+
+        .brand-title {
+            font-weight: 800;
+            font-size: 1.1rem;
+            color: var(--text-dark);
+            letter-spacing: -0.02em;
+        }
+
+        .brand-subtitle {
+            font-size: 0.75rem;
+            color: var(--text-secondary);
+            font-weight: 500;
+        }
+
+        /* Nav Pills & Buttons */
+        .nav-pill-custom {
+            border-radius: 12px;
+            padding: 0.5rem 1rem;
+            font-weight: 600;
+            font-size: 0.9rem;
+            color: var(--text-secondary);
+            transition: all 0.2s ease;
+            border: 1px solid transparent;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
             text-decoration: none;
         }
 
-        /* BUTTONS */
-        .btn-glass {
-            background: rgba(255, 255, 255, 0.2);
-            border: 1px solid rgba(255, 255, 255, 0.4);
+        .nav-pill-custom:hover {
+            background-color: rgba(111, 78, 55, 0.08);
             color: var(--primary-coffee);
-            font-weight: 600;
-            transition: all 0.2s;
-        }
-        .btn-glass:hover {
-            background: rgba(255, 255, 255, 0.4);
-            transform: translateY(-2px);
-            color: var(--dark-coffee);
+            transform: translateY(-1px);
         }
 
-        .btn-primary {
-            background-color: var(--primary-coffee);
-            border-color: var(--primary-coffee);
-            color: white;
-        }
-        .btn-primary:hover {
-            background-color: #5A3D2B;
-            border-color: #5A3D2B;
-        }
-
-        .btn-outline-dark {
-            border-color: var(--primary-coffee);
-            color: var(--primary-coffee);
-        }
-        .btn-outline-dark:hover {
+        .nav-pill-custom.active {
             background-color: var(--primary-coffee);
             color: white;
+            box-shadow: 0 4px 12px rgba(111, 78, 55, 0.25);
         }
 
-        /* CARDS */
-        .card {
-            border: none;
-            border-radius: 20px;
-            background: var(--surface-white);
-            box-shadow: 0 10px 30px rgba(0,0,0,0.15);
-            overflow: hidden;
-            transition: transform 0.2s;
-        }
-        .card:hover {
-            transform: translateY(-5px);
-        }
-
-        .card-header {
-            background-color: var(--surface-cream);
-            border-bottom: 1px solid var(--border-light);
-            color: var(--primary-coffee);
-            font-weight: 700;
-            padding: 1.25rem 1.5rem;
-        }
-
-        /* KPI CARDS */
-        .kpi-icon-wrapper {
-            width: 50px;
-            height: 50px;
+        .btn-action {
             border-radius: 12px;
+            padding: 0.5rem 1.2rem;
+            font-weight: 600;
+            font-size: 0.9rem;
+            transition: all 0.2s ease;
             display: flex;
             align-items: center;
-            justify-content: center;
-            font-size: 1.5rem;
+            gap: 0.5rem;
         }
 
-        /* TABLE STYLING */
-        .table thead th {
-            background-color: var(--surface-cream);
+        .btn-create {
+            background: white;
+            border: 1px solid var(--border-light);
+            color: var(--text-dark);
+            box-shadow: 0 2px 6px rgba(0,0,0,0.02);
+        }
+        .btn-create:hover {
+            border-color: var(--success-green);
+            color: var(--success-green);
+            background: #F1F8E9;
+        }
+
+        .btn-pos {
+            background: linear-gradient(135deg, var(--primary-coffee) 0%, var(--dark-coffee) 100%);
+            color: white;
+            border: none;
+            box-shadow: 0 4px 15px rgba(111, 78, 55, 0.3);
+        }
+        .btn-pos:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(111, 78, 55, 0.4);
+            color: white;
+        }
+
+        /* Mobile Toggler */
+        .navbar-toggler {
+            border: none;
+            padding: 0.5rem;
+            border-radius: 10px;
             color: var(--primary-coffee);
-            font-weight: 600;
-            border-bottom: 2px solid var(--border-light);
+            background-color: rgba(111, 78, 55, 0.05);
+            transition: background 0.2s;
+        }
+        .navbar-toggler:focus {
+            box-shadow: 0 0 0 3px rgba(111, 78, 55, 0.1);
+            background-color: rgba(111, 78, 55, 0.1);
+        }
+
+        /* --- CARDS & WIDGETS --- */
+        .card-custom {
+            border: none;
+            border-radius: 20px;
+            background: white;
+            box-shadow: 0 10px 40px -10px rgba(0,0,0,0.08);
+            transition: transform 0.3s cubic-bezier(0.34, 1.56, 0.64, 1), box-shadow 0.3s;
+            overflow: hidden;
+        }
+        .card-custom:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 15px 50px -10px rgba(0,0,0,0.12);
+        }
+
+        .kpi-card {
+            position: relative;
+            overflow: hidden;
+        }
+        .kpi-bg-icon {
+            position: absolute;
+            right: -10px;
+            bottom: -10px;
+            font-size: 5rem;
+            opacity: 0.05;
+            transform: rotate(-15deg);
+        }
+
+        .table-card-header {
+            background: transparent;
+            border-bottom: 1px solid var(--border-light);
+            padding: 1.5rem;
+        }
+
+        /* TABLE */
+        .table > :not(caption) > * > * {
+            padding: 1rem 1rem;
+            background-color: transparent;
+            border-bottom-color: var(--border-light);
+        }
+        .table thead th {
+            font-size: 0.75rem;
             text-transform: uppercase;
-            font-size: 0.8rem;
-            letter-spacing: 0.5px;
+            letter-spacing: 0.05em;
+            color: var(--text-secondary);
+            font-weight: 600;
         }
         
-        .badge-status {
-            padding: 0.5em 0.8em;
-            border-radius: 8px;
-            font-weight: 600;
+        /* ALERTS */
+        .alert-floating {
+            border-radius: 16px;
+            border: none;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+            margin-bottom: 1.5rem;
         }
     </style>
 </head>
 <body>
 
-<div class="container mt-4 pb-5">
+<div class="container">
     
-    <!-- Alerts -->
+    <nav class="navbar navbar-expand-lg navbar-premium">
+        <div class="container-fluid px-1">
+            <a class="navbar-brand p-0" href="#">
+                <div class="navbar-brand-wrapper">
+                    <div class="logo-container">
+                        <img src="{{ asset('ka.png') }}" alt="Logo" style="height: 38px; width: auto;">
+                    </div>
+                    <div class="brand-info">
+                        <div class="brand-title">KAPE NI ASERO</div>
+                        <div class="brand-subtitle">
+                            Admin Dashboard <span class="mx-1">•</span> 
+                            <span class="text-primary-coffee fw-bold">{{ Auth::user()->name }}</span>
+                        </div>
+                    </div>
+                </div>
+            </a>
+
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#mainNav" aria-controls="mainNav" aria-expanded="false" aria-label="Toggle navigation">
+                <i class="fas fa-bars fs-5"></i>
+            </button>
+
+            <div class="collapse navbar-collapse mt-3 mt-lg-0" id="mainNav">
+                <div class="ms-auto d-flex flex-column flex-lg-row align-items-stretch align-items-lg-center gap-2 gap-lg-3">
+                    
+                    @if(Auth::user()->role == 'admin')
+                        <div class="d-flex flex-column flex-lg-row gap-1 bg-light p-1 rounded-4 border border-light">
+                            <a href="{{ route('ingredients.index') }}" class="nav-pill-custom">
+                                <i class="fas fa-boxes fa-sm"></i> Stock
+                            </a>
+                            <a href="{{ route('categories.index') }}" class="nav-pill-custom">
+                                <i class="fas fa-tags fa-sm"></i> Categories
+                            </a>
+                            <a href="{{ route('suppliers.index') }}" class="nav-pill-custom">
+                                <i class="fas fa-truck fa-sm"></i> Suppliers
+                            </a>
+                        </div>
+
+                        <div class="vr d-none d-lg-block mx-1 opacity-25"></div>
+
+                        <a href="{{ route('products.create') }}" class="btn btn-action btn-create">
+                            <i class="fas fa-plus-circle text-success"></i> New Item
+                        </a>
+                        <a href="{{ route('products.index') }}" class="btn btn-action btn-pos">
+                            <i class="fas fa-cash-register"></i> POS System
+                        </a>
+                    @endif
+
+                    <div class="d-lg-none mt-2 border-top pt-2"></div>
+                    <a href="{{ route('logout') }}" 
+                       class="btn btn-action btn-light text-danger border-0 d-flex justify-content-center" 
+                       onclick="event.preventDefault(); document.getElementById('logout-form').submit();"
+                       title="Sign Out">
+                        <span class="d-lg-none">Sign Out</span>
+                        <i class="fas fa-sign-out-alt"></i>
+                    </a>
+                    <form id="logout-form" action="{{ route('logout') }}" method="POST" class="d-none">@csrf</form>
+                </div>
+            </div>
+        </div>
+    </nav>
+
     @if(session('success'))
-        <div class="alert alert-success alert-dismissible fade show shadow-lg border-0" style="background: #D1E7DD; color: #0F5132;">
-            <i class="fas fa-check-circle me-2"></i> {{ session('success') }}
-            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+        <div class="alert alert-success alert-dismissible fade show alert-floating d-flex align-items-center" role="alert">
+            <i class="fas fa-check-circle fs-4 me-3 text-success"></i>
+            <div>{{ session('success') }}</div>
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
         </div>
     @endif
     @if(session('error'))
-        <div class="alert alert-danger alert-dismissible fade show shadow-lg border-0" style="background: #F8D7DA; color: #842029;">
-            <i class="fas fa-exclamation-circle me-2"></i> {{ session('error') }}
-            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+        <div class="alert alert-danger alert-dismissible fade show alert-floating d-flex align-items-center" role="alert">
+            <i class="fas fa-exclamation-circle fs-4 me-3 text-danger"></i>
+            <div>{{ session('error') }}</div>
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
         </div>
     @endif
 
-    <!-- HEADER -->
-    <div class="dashboard-header">
-        <div class="d-flex align-items-center">
-            <div class="bg-white p-2 rounded-circle me-3 shadow-sm border border-light">
-                <img src="{{ asset('ka.png') }}" alt="Logo" style="height: 45px;"> 
-            </div>
-            <div>
-                <h4 class="fw-bold m-0 text-dark">Admin Dashboard</h4>
-                <div class="small text-muted">
-                    Welcome, <strong style="color: var(--primary-coffee);">{{ Auth::user()->name }}</strong> 
-                    <span class="badge bg-warning text-dark ms-1">{{ ucfirst(Auth::user()->role) }}</span>
-                </div>
-            </div>
-        </div>
-        
-        <div class="d-flex gap-2">
-            @if(Auth::user()->role == 'admin')
-                <div class="btn-group shadow-sm">
-                    <a href="{{ route('ingredients.index') }}" class="btn btn-light border text-dark btn-sm fw-medium"><i class="fas fa-boxes text-muted me-1"></i> Stock</a>
-                    <a href="{{ route('categories.index') }}" class="btn btn-light border text-dark btn-sm fw-medium"><i class="fas fa-tags text-muted me-1"></i> Cats</a>
-                    <a href="{{ route('suppliers.index') }}" class="btn btn-light border text-dark btn-sm fw-medium"><i class="fas fa-truck text-muted me-1"></i> Suppliers</a>
-                </div>
-                <a href="{{ route('products.create') }}" class="btn btn-outline-light text-dark bg-white fw-bold btn-sm shadow-sm"><i class="fas fa-plus text-success"></i> New Item</a>
-                <a href="{{ route('products.index') }}" class="btn btn-primary btn-sm fw-bold shadow-sm"><i class="fas fa-cash-register"></i> Open POS</a>
-            @endif
-            
-            <a href="{{ route('logout') }}" class="btn btn-danger btn-sm shadow-sm d-flex align-items-center justify-content-center" style="width: 34px;"
-               onclick="event.preventDefault(); document.getElementById('logout-form').submit();">
-               <i class="fas fa-power-off"></i>
-            </a>
-            <form id="logout-form" action="{{ route('logout') }}" method="POST" class="d-none">@csrf</form>
-        </div>
-    </div>
-
-    <!-- KPI CARDS -->
-    <div class="row mb-4 g-4">
-        <!-- Sales -->
+    <div class="row mb-5 g-4">
         <div class="col-md-4">
-            <div class="card h-100 p-3">
-                <div class="d-flex justify-content-between align-items-center">
-                    <div>
-                        <p class="text-muted small text-uppercase fw-bold mb-1">Total Sales</p>
-                        <h2 class="fw-bold mb-0" style="color: var(--success-green);">₱{{ number_format($todaySales, 2) }}</h2>
-                    </div>
-                    <div class="kpi-icon-wrapper" style="background: rgba(104, 159, 56, 0.1); color: var(--success-green);">
-                        <i class="fas fa-coins"></i>
+            <div class="card card-custom kpi-card h-100 p-4">
+                <i class="fas fa-coins kpi-bg-icon text-warning"></i>
+                <div class="d-flex flex-column h-100 position-relative">
+                    <span class="text-uppercase text-secondary fw-bold small tracking-wide mb-2">Total Sales Today</span>
+                    <h2 class="display-6 fw-bold mb-0 text-dark">₱{{ number_format($todaySales, 2) }}</h2>
+                    <div class="mt-auto pt-3 text-success small fw-medium">
+                        <i class="fas fa-arrow-up me-1"></i> Keep it brewing!
                     </div>
                 </div>
             </div>
         </div>
 
-        <!-- Orders -->
         <div class="col-md-4">
-            <div class="card h-100 p-3">
-                <div class="d-flex justify-content-between align-items-center">
-                    <div>
-                        <p class="text-muted small text-uppercase fw-bold mb-1">Orders Today</p>
-                        <h2 class="fw-bold mb-0" style="color: var(--primary-coffee);">{{ $todayOrders }}</h2>
-                    </div>
-                    <div class="kpi-icon-wrapper" style="background: rgba(111, 78, 55, 0.1); color: var(--primary-coffee);">
-                        <i class="fas fa-receipt"></i>
+            <div class="card card-custom kpi-card h-100 p-4">
+                <i class="fas fa-receipt kpi-bg-icon text-primary"></i>
+                <div class="d-flex flex-column h-100 position-relative">
+                    <span class="text-uppercase text-secondary fw-bold small tracking-wide mb-2">Transactions</span>
+                    <h2 class="display-6 fw-bold mb-0 text-dark">{{ $todayOrders }}</h2>
+                    <div class="mt-auto pt-3 text-primary-coffee small fw-medium">
+                        <i class="fas fa-coffee me-1"></i> Orders served
                     </div>
                 </div>
             </div>
         </div>
 
-        <!-- Alerts -->
         <div class="col-md-4">
-            <div class="card h-100 p-3">
-                <div class="d-flex justify-content-between align-items-center">
-                    <div>
-                        <p class="text-muted small text-uppercase fw-bold mb-1">Low Stock Alerts</p>
-                        <h2 class="fw-bold mb-0" style="color: var(--color-danger);">{{ $lowStockIngredients->count() }}</h2>
-                    </div>
-                    <div class="kpi-icon-wrapper" style="background: rgba(216, 67, 21, 0.1); color: var(--color-danger);">
-                        <i class="fas fa-exclamation-triangle"></i>
+            <div class="card card-custom kpi-card h-100 p-4" style="border-bottom: 4px solid var(--danger-red);">
+                <i class="fas fa-exclamation-triangle kpi-bg-icon text-danger"></i>
+                <div class="d-flex flex-column h-100 position-relative">
+                    <span class="text-uppercase text-secondary fw-bold small tracking-wide mb-2">Low Stock Alerts</span>
+                    <h2 class="display-6 fw-bold mb-0" style="color: var(--danger-red);">{{ $lowStockIngredients->count() }}</h2>
+                    <div class="mt-auto pt-3 text-danger small fw-medium">
+                        <i class="fas fa-bell me-1"></i> Action needed
                     </div>
                 </div>
             </div>
         </div>
     </div>
 
-    <!-- MAIN CONTENT -->
     <div class="row g-4">
         
-        <!-- Transaction Table -->
         <div class="col-lg-8">
-            <div class="card h-100">
-                <div class="card-header d-flex justify-content-between align-items-center">
-                    <h5 class="m-0 fw-bold"><i class="fas fa-history me-2"></i>Recent Transactions</h5>
-                    <span class="badge bg-white text-dark border shadow-sm">Today</span>
+            <div class="card card-custom h-100">
+                <div class="table-card-header d-flex justify-content-between align-items-center">
+                    <h5 class="m-0 fw-bold text-dark">Recent Activity</h5>
+                    <span class="badge bg-light text-dark border">Today</span>
                 </div>
                 <div class="table-responsive">
                     <table class="table table-hover mb-0 align-middle">
-                        <thead>
+                        <thead class="bg-light">
                             <tr>
-                                <th class="ps-4">Order #</th>
-                                <th>Cashier</th>
-                                <th>Total</th>
+                                <th class="ps-4">Order ID</th>
+                                <th>Barista</th>
+                                <th>Amount</th>
                                 <th>Status</th>
-                                <th class="text-end pe-4">Action</th>
+                                <th class="text-end pe-4">Actions</th>
                             </tr>
                         </thead>
                         <tbody>
                             @forelse($recentOrders as $order)
-                            <tr class="{{ $order->status === 'voided' ? 'opacity-50 bg-light' : '' }}">
-                                <td class="ps-4 fw-bold text-secondary">#{{ $order->id }}</td>
-                                <td class="text-dark">{{ $order->user->name }}</td>
+                            <tr class="{{ $order->status === 'voided' ? 'text-muted fst-italic' : '' }}">
+                                <td class="ps-4 fw-bold font-monospace">#{{ $order->id }}</td>
+                                <td>
+                                    <div class="d-flex align-items-center gap-2">
+                                        <div class="rounded-circle bg-light d-flex align-items-center justify-content-center text-secondary" style="width:24px;height:24px;font-size:0.7rem;">
+                                            <i class="fas fa-user"></i>
+                                        </div>
+                                        {{ $order->user->name }}
+                                    </div>
+                                </td>
                                 <td>
                                     @if($order->status === 'voided')
-                                        <span class="text-decoration-line-through text-muted">₱{{ number_format($order->total_price, 2) }}</span>
+                                        <span class="text-decoration-line-through">₱{{ number_format($order->total_price, 2) }}</span>
                                     @else
-                                        <span class="fw-bold" style="color: var(--success-green);">₱{{ number_format($order->total_price, 2) }}</span>
+                                        <span class="fw-bold text-success">₱{{ number_format($order->total_price, 2) }}</span>
                                     @endif
                                 </td>
                                 <td>
                                     @if($order->status === 'voided')
-                                        <span class="badge bg-danger badge-status">VOID</span>
+                                        <span class="badge bg-danger-subtle text-danger border border-danger-subtle rounded-pill px-3">Void</span>
                                     @else
-                                        <span class="badge bg-success badge-status" style="background-color: var(--success-green) !important;">PAID</span>
+                                        <span class="badge bg-success-subtle text-success border border-success-subtle rounded-pill px-3">Paid</span>
                                     @endif
                                 </td>
                                 <td class="text-end pe-4">
                                     @if($order->status !== 'voided')
-                                        <a href="{{ route('orders.receipt', $order->id) }}" target="_blank" class="btn btn-sm btn-light border text-muted" title="Receipt"><i class="fas fa-print"></i></a>
-                                        <form action="{{ route('orders.void', $order->id) }}" method="POST" class="d-inline" onsubmit="return confirm('Confirm VOID for Order #{{ $order->id }}?');">
+                                        <a href="{{ route('orders.receipt', $order->id) }}" target="_blank" class="btn btn-sm btn-light text-secondary me-1" title="Print Receipt">
+                                            <i class="fas fa-print"></i>
+                                        </a>
+                                        <form action="{{ route('orders.void', $order->id) }}" method="POST" class="d-inline" onsubmit="return confirm('Are you sure you want to VOID Order #{{ $order->id }}? This cannot be undone.');">
                                             @csrf
-                                            <button class="btn btn-sm btn-outline-danger border-0" title="Void"><i class="fas fa-ban"></i></button>
+                                            <button class="btn btn-sm btn-light text-danger" title="Void Order"><i class="fas fa-ban"></i></button>
                                         </form>
                                     @else
-                                        <small class="text-muted fst-italic">Cancelled</small>
+                                        <span class="small"><i class="fas fa-times-circle"></i></span>
                                     @endif
                                 </td>
                             </tr>
                             @empty
-                            <tr><td colspan="5" class="text-center py-4 text-muted">No sales yet today.</td></tr>
+                            <tr>
+                                <td colspan="5" class="text-center py-5 text-muted">
+                                    <i class="fas fa-mug-hot fa-2x mb-3 opacity-25"></i>
+                                    <p class="mb-0">No transactions recorded yet today.</p>
+                                </td>
+                            </tr>
                             @endforelse
                         </tbody>
                     </table>
@@ -300,87 +409,86 @@
             </div>
         </div>
 
-        <!-- Stock Alerts List -->
         <div class="col-lg-4">
-            <div class="card h-100">
-                <div class="card-header d-flex justify-content-between align-items-center">
-                    <h5 class="m-0 fw-bold text-danger"><i class="fas fa-box-open me-2"></i>Critical Stock</h5>
-                    <a href="{{ route('ingredients.index') }}" class="btn btn-sm btn-outline-danger rounded-pill px-3 shadow-sm bg-white">Fix</a>
+            <div class="card card-custom h-100">
+                <div class="table-card-header d-flex justify-content-between align-items-center bg-danger-subtle bg-opacity-10">
+                    <h5 class="m-0 fw-bold text-danger"><i class="fas fa-clipboard-list me-2"></i>Critical Stock</h5>
+                    <a href="{{ route('ingredients.index') }}" class="btn btn-sm btn-white text-danger border shadow-sm rounded-pill px-3">Manage</a>
                 </div>
-                <ul class="list-group list-group-flush rounded-bottom">
+                <div class="list-group list-group-flush">
                     @forelse($lowStockIngredients as $ing)
-                    <li class="list-group-item d-flex justify-content-between align-items-center py-3">
-                        <div>
-                            <span class="fw-bold text-dark d-block">{{ $ing->name }}</span>
-                            @if($ing->supplier)
-                                <small class="text-muted" style="font-size: 0.8em;"><i class="fas fa-truck fa-xs me-1"></i> {{ $ing->supplier->name }}</small>
-                            @else
-                                <small class="text-muted fst-italic" style="font-size: 0.8em;">No supplier linked</small>
-                            @endif
+                    <div class="list-group-item p-3 border-light">
+                        <div class="d-flex justify-content-between align-items-start mb-1">
+                            <span class="fw-bold text-dark">{{ $ing->name }}</span>
+                            <span class="badge bg-danger rounded-pill">{{ $ing->stock }} {{ $ing->unit }}</span>
                         </div>
-                        <div class="text-end">
-                            <span class="badge bg-danger rounded-pill mb-1">{{ $ing->stock }} {{ $ing->unit }}</span>
-                            <br>
-                            <small class="text-muted" style="font-size: 0.75rem;">Min: {{ $ing->reorder_level }}</small>
+                        <div class="d-flex justify-content-between align-items-center">
+                            <small class="text-muted">
+                                <i class="fas fa-truck fa-xs me-1"></i> {{ $ing->supplier->name ?? 'No Supplier' }}
+                            </small>
+                            <small class="text-danger fw-medium" style="font-size:0.75rem;">Below {{ $ing->reorder_level }}</small>
                         </div>
-                    </li>
+                        <div class="progress mt-2" style="height: 4px;">
+                            <div class="progress-bar bg-danger" style="width: {{ min(100, ($ing->stock / max(1, $ing->reorder_level)) * 50) }}%"></div>
+                        </div>
+                    </div>
                     @empty
-                    <li class="list-group-item text-center text-muted py-5 border-0">
-                        <i class="fas fa-check-circle fa-4x mb-3 opacity-25" style="color: var(--success-green);"></i><br>
-                        <h6 class="fw-bold" style="color: var(--success-green);">All Good!</h6>
-                        <p class="small mb-0">Inventory levels are healthy.</p>
-                    </li>
+                    <div class="text-center py-5">
+                        <div class="mb-3 text-success opacity-25">
+                            <i class="fas fa-check-circle fa-4x"></i>
+                        </div>
+                        <h6 class="fw-bold text-success">Inventory Healthy</h6>
+                        <p class="text-muted small px-4">All ingredients are above their reorder levels. Great job!</p>
+                    </div>
                     @endforelse
-                </ul>
+                </div>
             </div>
         </div>
 
     </div>
 
-    <!-- AUDIT LOG -->
     <div class="row mt-4">
         <div class="col-12">
-            <div class="card">
-                <div class="card-header">
-                    <h5 class="m-0 fw-bold"><i class="fas fa-shield-alt me-2"></i>Audit Log</h5>
+            <div class="card card-custom">
+                <div class="card-header bg-white border-0 pt-4 px-4 pb-0">
+                    <h6 class="text-uppercase text-secondary fw-bold small letter-spacing-wide">System Audit Log</h6>
                 </div>
-                <div class="table-responsive">
-                    <table class="table table-striped mb-0 small">
-                        <thead>
-                            <tr>
-                                <th class="ps-4 py-3">User</th>
-                                <th class="py-3">Action</th>
-                                <th class="py-3">Details</th>
-                                <th class="py-3 text-end pe-4">Time</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            @php
-                                $logs = \App\Models\ActivityLog::with('user')->latest()->take(5)->get();
-                            @endphp
-
-                            @forelse($logs as $log)
-                            <tr>
-                                <td class="ps-4 fw-bold" style="color: var(--primary-coffee);">{{ $log->user->name ?? 'System' }}</td>
-                                <td>
-                                    @if(str_contains($log->action, 'Void'))
-                                        <span class="badge bg-danger text-white shadow-sm px-2 py-1 rounded">{{ $log->action }}</span>
-                                    @elseif(str_contains($log->action, 'Stock'))
-                                        <span class="badge text-dark bg-warning shadow-sm px-2 py-1 rounded">{{ $log->action }}</span>
-                                    @else
-                                        <span class="badge bg-secondary shadow-sm px-2 py-1 rounded">{{ $log->action }}</span>
-                                    @endif
-                                </td>
-                                <td class="text-muted">{{ $log->details }}</td>
-                                <td class="text-end pe-4 text-secondary">{{ $log->created_at->diffForHumans() }}</td>
-                            </tr>
-                            @empty
-                            <tr>
-                                <td colspan="4" class="text-center py-3 text-muted">No activity recorded yet.</td>
-                            </tr>
-                            @endforelse
-                        </tbody>
-                    </table>
+                <div class="card-body p-0">
+                    <div class="table-responsive">
+                        <table class="table mb-0">
+                            <thead class="bg-light">
+                                <tr>
+                                    <th class="ps-4">User</th>
+                                    <th>Activity</th>
+                                    <th>Details</th>
+                                    <th class="text-end pe-4">Timestamp</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                @php
+                                    $logs = \App\Models\ActivityLog::with('user')->latest()->take(5)->get();
+                                @endphp
+                                @forelse($logs as $log)
+                                <tr>
+                                    <td class="ps-4 fw-medium text-primary-coffee">{{ $log->user->name ?? 'System' }}</td>
+                                    <td>
+                                        <span class="badge rounded-1 fw-normal 
+                                            {{ str_contains($log->action, 'Void') ? 'bg-danger-subtle text-danger' : 
+                                               (str_contains($log->action, 'Stock') ? 'bg-warning-subtle text-dark' : 'bg-light text-secondary border') }}">
+                                            {{ $log->action }}
+                                        </span>
+                                    </td>
+                                    <td class="text-secondary small">{{ $log->details }}</td>
+                                    <td class="text-end pe-4 text-muted small">{{ $log->created_at->diffForHumans() }}</td>
+                                </tr>
+                                @empty
+                                <tr>
+                                    <td colspan="4" class="text-center text-muted py-3">No logs found.</td>
+                                </tr>
+                                @endforelse
+                            </tbody>
+                        </table>
+                    </div>
                 </div>
             </div>
         </div>

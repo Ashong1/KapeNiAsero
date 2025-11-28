@@ -1,108 +1,70 @@
-@extends('layouts.app')
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Add Supplier | Kape Ni Asero</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <style>
+        :root { --primary-coffee: #6F4E37; --text-dark: #2C1810; --border-light: #EFEBE9; }
+        body { font-family: 'Inter', sans-serif; background: #F5F5F7; color: var(--text-dark); padding: 3rem 1rem; }
+        .navbar-brand { font-weight: 800; font-size: 1.2rem; display: flex; align-items: center; gap: 0.5rem; text-decoration: none; color: var(--text-dark); margin-bottom: 2rem; justify-content: center;}
+        
+        .card-custom { border: none; border-radius: 24px; box-shadow: 0 10px 40px rgba(0,0,0,0.05); background: white; overflow: hidden; }
+        .form-label { font-size: 0.75rem; font-weight: 700; text-transform: uppercase; color: #8D6E63; margin-bottom: 0.4rem; letter-spacing: 0.05em; }
+        .form-control { border-radius: 10px; padding: 0.7rem 1rem; border: 1px solid var(--border-light); font-size: 0.95rem; }
+        .form-control:focus { border-color: var(--primary-coffee); box-shadow: 0 0 0 4px rgba(111, 78, 55, 0.1); }
+        
+        .btn-primary { background: var(--primary-coffee); border: none; padding: 0.8rem 2rem; border-radius: 12px; font-weight: 600; box-shadow: 0 4px 15px rgba(111, 78, 55, 0.2); }
+        .btn-primary:hover { background: #5D4037; transform: translateY(-1px); }
+    </style>
+</head>
+<body>
 
-@section('content')
-<div class="container">
-    <div class="row justify-content-center">
-        <div class="col-md-12 col-lg-10">
-            
-            <!-- Main Card -->
-            <div class="card shadow-lg">
+<div class="container" style="max-width: 700px;">
+    <a href="{{ route('suppliers.index') }}" class="navbar-brand">
+        <img src="{{ asset('ka.png') }}" style="height: 32px;"> KAPE NI ASERO
+    </a>
+
+    <div class="card card-custom">
+        <div class="card-body p-5">
+            <h4 class="fw-bold mb-4">Register New Supplier</h4>
+            <form action="{{ route('suppliers.store') }}" method="POST">
+                @csrf
                 
-                <!-- Card Header -->
-                <div class="card-header text-center pt-4 pb-3">
-                    <h3 class="fw-bold" style="color: var(--color-sienna);">
-                        <i class="fas fa-truck me-2"></i>Register New Supplier
-                    </h3>
-                    <p class="mb-0 text-muted small text-light opacity-75">Enter the details of your new partner</p>
+                <h6 class="text-uppercase text-muted small fw-bold mb-3 border-bottom pb-2">Company Details</h6>
+                <div class="mb-4">
+                    <label class="form-label">Company Name</label>
+                    <input type="text" name="name" class="form-control fw-bold" placeholder="e.g. Beans & Grains Co." required>
                 </div>
 
-                <!-- Card Body -->
-                <div class="card-body p-4">
-                    <form action="{{ route('suppliers.store') }}" method="POST">
-                        @csrf
-                        
-                        <!-- Section: Company Info -->
-                        <h6 class="text-uppercase fw-bold mb-3 opacity-50" style="color: var(--color-crema); font-size: 0.8rem; letter-spacing: 1px;">
-                            Company Details
-                        </h6>
-
-                        <div class="row mb-3">
-                            <div class="col-md-12">
-                                <label class="form-label fw-bold">Company Name <span class="text-danger">*</span></label>
-                                <div class="input-group">
-                                    <span class="input-group-text bg-transparent border-end-0 text-light"><i class="fas fa-building"></i></span>
-                                    <input type="text" name="name" class="form-control border-start-0 ps-0" placeholder="e.g. Benguet Coffee Farmers Inc." required>
-                                </div>
-                            </div>
-                        </div>
-
-                        <!-- Section: Contact Info -->
-                        <h6 class="text-uppercase fw-bold mb-3 mt-4 opacity-50" style="color: var(--color-crema); font-size: 0.8rem; letter-spacing: 1px;">
-                            Contact Information
-                        </h6>
-
-                        <div class="row mb-3">
-                            <div class="col-md-6">
-                                <label class="form-label fw-bold">Contact Person</label>
-                                <div class="input-group">
-                                    <span class="input-group-text bg-transparent border-end-0 text-light"><i class="fas fa-user"></i></span>
-                                    <input type="text" name="contact_person" class="form-control border-start-0 ps-0" placeholder="e.g. Mr. Juan Dela Cruz">
-                                </div>
-                            </div>
-                            <div class="col-md-6">
-                                <label class="form-label fw-bold">Phone Number</label>
-                                <div class="input-group">
-                                    <span class="input-group-text bg-transparent border-end-0 text-light"><i class="fas fa-phone"></i></span>
-                                    <input type="text" name="phone" class="form-control border-start-0 ps-0" placeholder="e.g. 0917-123-4567">
-                                </div>
-                            </div>
-                        </div>
-
-                        <div class="row mb-4">
-                            <div class="col-md-12">
-                                <label class="form-label fw-bold">Email Address <span class="text-danger">*</span></label>
-                                <div class="input-group">
-                                    <span class="input-group-text bg-transparent border-end-0 text-light"><i class="fas fa-envelope"></i></span>
-                                    <input type="email" name="email" class="form-control border-start-0 ps-0" placeholder="orders@company.com" required>
-                                </div>
-                            </div>
-                        </div>
-
-                        <hr style="border-color: var(--color-sienna); opacity: 0.3;">
-
-                        <!-- Actions -->
-                        <div class="d-flex justify-content-between align-items-center mt-4">
-                            <a href="{{ route('suppliers.index') }}" class="text-decoration-none text-light opacity-75 hover-opacity-100">
-                                <i class="fas fa-arrow-left me-1"></i> Cancel
-                            </a>
-                            <button type="submit" class="btn btn-primary px-5 py-2 fw-bold shadow-sm" style="background-color: var(--color-sienna); border: none; color: var(--color-mocha);">
-                                <i class="fas fa-check-circle me-2"></i> Save Supplier
-                            </button>
-                        </div>
-
-                    </form>
+                <h6 class="text-uppercase text-muted small fw-bold mb-3 border-bottom pb-2 mt-4">Contact Info</h6>
+                <div class="row g-3 mb-4">
+                    <div class="col-md-6">
+                        <label class="form-label">Contact Person</label>
+                        <input type="text" name="contact_person" class="form-control" placeholder="Representative Name">
+                    </div>
+                    <div class="col-md-6">
+                        <label class="form-label">Phone Number</label>
+                        <input type="text" name="phone" class="form-control" placeholder="+63 900 000 0000">
+                    </div>
+                    <div class="col-12">
+                        <label class="form-label">Email Address</label>
+                        <input type="email" name="email" class="form-control" placeholder="contact@supplier.com" required>
+                    </div>
                 </div>
-            </div>
 
+                <div class="d-flex justify-content-between align-items-center mt-5">
+                    <a href="{{ route('suppliers.index') }}" class="text-secondary text-decoration-none fw-bold small">Cancel</a>
+                    <button type="submit" class="btn btn-primary">Save Supplier</button>
+                </div>
+            </form>
         </div>
     </div>
 </div>
 
-{{-- Small inline style tweak for the input group icons to match the form theme --}}
-<style>
-    .input-group-text {
-        border-color: var(--color-cream) !important;
-    }
-    .form-control {
-        border-left: none !important;
-    }
-    .form-control:focus {
-        box-shadow: none !important; 
-        border-color: var(--color-sienna) !important;
-    }
-    .input-group:focus-within .input-group-text {
-        border-color: var(--color-sienna) !important;
-        color: var(--color-sienna) !important;
-    }
-</style>
-@endsection
+</body>
+</html>

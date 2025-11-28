@@ -3,202 +3,113 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Add Product | Kape Ni Asero</title>
-    
-    <!-- Fonts & Icons -->
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <title>New Product | Kape Ni Asero</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     
     <style>
         :root {
-            /* Consistent Palette */
-            --primary-coffee: #6F4E37;
-            --dark-coffee: #3E2723;
-            --accent-gold: #8B7355;
-            --surface-cream: #FFF8E7;
-            --surface-white: #FFFFFF;
-            --text-dark: #2C1810;
-            --text-light: #FFF8E7;
-            --success-green: #689F38;
-            --border-light: #F0E5D0;
-            --input-border: #E8DCC8;
+            --primary-coffee: #6F4E37; --primary-coffee-hover: #5A3D2B; --surface-glass: rgba(255, 255, 255, 0.92);
+            --text-dark: #2C1810; --text-secondary: #6D5E57; --border-light: #EFEBE9; --accent-gold: #C5A065;
         }
-
         body {
             font-family: 'Inter', sans-serif;
-            background: linear-gradient(135deg, var(--primary-coffee) 0%, var(--dark-coffee) 100%);
-            color: var(--text-dark);
-            min-height: 100vh;
-            padding-bottom: 2rem;
+            background: linear-gradient(135deg, #F5F5F5 0%, #E0E0E0 100%);
+            background-image: radial-gradient(at 0% 0%, rgba(111, 78, 55, 0.05) 0px, transparent 50%);
+            color: var(--text-dark); min-height: 100vh; padding-bottom: 3rem;
         }
-
-        /* HEADER styling */
-        .page-header {
-            background-color: rgba(255, 255, 255, 0.95);
-            border-bottom: 1px solid var(--border-light);
-            padding: 1rem 2rem;
-            margin-bottom: 2rem;
-            box-shadow: 0 4px 20px rgba(0,0,0,0.1);
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
+        .navbar-premium {
+            background-color: var(--surface-glass); backdrop-filter: blur(16px);
+            border-bottom: 1px solid rgba(255, 255, 255, 0.5); box-shadow: 0 4px 24px -1px rgba(62, 39, 35, 0.06);
+            padding: 0.8rem 1rem; margin-bottom: 2rem; border-radius: 24px; margin-top: 1rem;
         }
-
-        .navbar-brand {
-            font-weight: 700;
-            color: var(--primary-coffee) !important;
-            font-size: 1.25rem;
-            display: flex;
-            align-items: center;
-            text-decoration: none;
-        }
-
-        /* CARD STYLING */
-        .card {
-            border: none;
-            border-radius: 20px;
-            background: var(--surface-white);
-            box-shadow: 0 10px 30px rgba(0,0,0,0.15);
-            overflow: hidden;
-        }
-
-        .card-header {
-            background-color: var(--surface-cream);
-            border-bottom: 1px solid var(--border-light);
-            color: var(--primary-coffee);
-            font-weight: 700;
-            padding: 1.25rem 1.5rem;
-        }
-
-        /* FORM STYLING */
-        .form-label {
-            font-weight: 600;
-            color: var(--text-dark);
-            font-size: 0.9rem;
-            margin-bottom: 0.5rem;
-        }
-
-        .form-control, .form-select {
-            border: 2px solid var(--input-border);
-            border-radius: 12px;
-            padding: 0.75rem 1rem;
-            font-size: 0.95rem;
-            transition: all 0.2s;
-        }
-
-        .form-control:focus, .form-select:focus {
-            border-color: var(--accent-gold);
-            box-shadow: 0 0 0 4px rgba(139, 115, 85, 0.1);
-        }
-
-        .input-group-text {
-            background-color: var(--surface-cream);
-            border: 2px solid var(--input-border);
-            border-right: none;
-            color: var(--accent-gold);
-        }
+        .logo-container { background: white; padding: 6px; border-radius: 14px; box-shadow: 0 4px 12px rgba(0,0,0,0.05); }
+        .brand-title { font-weight: 800; font-size: 1.1rem; color: var(--text-dark); }
         
-        .input-group .form-control {
-            border-left: none;
-        }
-
-        /* BUTTONS */
-        .btn-primary {
-            background-color: var(--primary-coffee);
-            border-color: var(--primary-coffee);
-            border-radius: 10px;
-            padding: 0.75rem 1.5rem;
-            font-weight: 600;
-            box-shadow: 0 4px 15px rgba(111, 78, 55, 0.2);
-            transition: all 0.2s;
-        }
-
-        .btn-primary:hover {
-            background-color: #5A3D2B;
-            border-color: #5A3D2B;
-            transform: translateY(-2px);
-        }
-
-        .btn-outline-secondary {
-            border-color: var(--input-border);
-            color: var(--text-dark);
-            border-radius: 10px;
-        }
+        .card-custom { border: none; border-radius: 20px; background: white; box-shadow: 0 10px 40px -10px rgba(0,0,0,0.08); overflow: hidden; }
+        .card-header-custom { background: transparent; border-bottom: 1px solid var(--border-light); padding: 1.5rem; }
         
-        .btn-outline-secondary:hover {
-            background-color: var(--surface-cream);
-            border-color: var(--accent-gold);
-            color: var(--primary-coffee);
+        .form-label { font-size: 0.75rem; font-weight: 700; text-transform: uppercase; color: var(--text-secondary); margin-bottom: 0.5rem; letter-spacing: 0.05em; }
+        .form-control, .form-select { border-radius: 12px; border: 1px solid var(--border-light); padding: 0.8rem 1rem; font-size: 0.95rem; transition: all 0.2s; }
+        .form-control:focus, .form-select:focus { border-color: var(--primary-coffee); box-shadow: 0 0 0 4px rgba(111, 78, 55, 0.1); }
+        
+        .upload-box {
+            border: 2px dashed var(--border-light); border-radius: 16px; height: 250px;
+            display: flex; flex-direction: column; justify-content: center; align-items: center;
+            background: #FAFAFA; transition: all 0.2s; cursor: pointer; position: relative;
         }
-
-        /* Image Preview Placeholder */
-        .image-placeholder {
-            width: 100%;
-            height: 200px;
-            background-color: var(--surface-cream);
-            border: 2px dashed var(--input-border);
-            border-radius: 12px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            color: var(--accent-gold);
-            flex-direction: column;
+        .upload-box:hover { border-color: var(--accent-gold); background: #FFF8E1; }
+        .upload-box i { font-size: 3rem; color: #D7CCC8; margin-bottom: 1rem; }
+        
+        .btn-primary-custom {
+            background: linear-gradient(135deg, var(--primary-coffee) 0%, #3E2723 100%);
+            color: white; border: none; padding: 0.8rem 1.5rem; border-radius: 12px; font-weight: 600;
+            box-shadow: 0 4px 15px rgba(111, 78, 55, 0.2); transition: transform 0.2s;
         }
+        .btn-primary-custom:hover { transform: translateY(-2px); color: white; }
+        .btn-outline-custom {
+            border: 1px solid var(--border-light); background: white; color: var(--text-secondary);
+            padding: 0.8rem 1.5rem; border-radius: 12px; font-weight: 600; text-decoration: none;
+        }
+        .btn-outline-custom:hover { background: #F5F5F5; color: var(--text-dark); }
     </style>
 </head>
 <body>
 
-<!-- Header -->
-<div class="page-header">
-    <a href="{{ route('home') }}" class="navbar-brand">
-        <img src="{{ asset('ka.png') }}" alt="Logo" style="height: 40px;" class="me-3"> 
-        <span>Kape Ni Asero <span class="fw-normal text-muted ms-2 fs-6">| Add Product</span></span>
-    </a>
-    <div>
-        <a href="{{ route('products.index') }}" class="btn btn-outline-secondary btn-sm px-3 py-2 d-flex align-items-center fw-bold bg-white">
-            <i class="fas fa-arrow-left me-2"></i> Back to POS
-        </a>
-    </div>
-</div>
-
 <div class="container">
-    <div class="row justify-content-center">
-        <div class="col-lg-8">
-            
-            <div class="card mb-4">
-                <div class="card-header">
-                    <span><i class="fas fa-plus-circle me-2"></i>New Product Details</span>
+    <nav class="navbar navbar-expand-lg navbar-premium">
+        <div class="container-fluid px-1">
+            <a class="navbar-brand p-0" href="{{ route('products.index') }}">
+                <div class="d-flex align-items-center gap-3">
+                    <div class="logo-container"><img src="{{ asset('ka.png') }}" alt="Logo" style="height: 38px;"></div>
+                    <div><div class="brand-title">Create Product</div><div class="small text-secondary">POS Management</div></div>
                 </div>
-                <div class="card-body p-4">
+            </a>
+            <div class="ms-auto">
+                <a href="{{ route('products.index') }}" class="btn btn-sm btn-light border rounded-pill px-3 fw-bold text-secondary">
+                    <i class="fas fa-times me-1"></i> Close
+                </a>
+            </div>
+        </div>
+    </nav>
+
+    <div class="row justify-content-center">
+        <div class="col-lg-10">
+            <div class="card card-custom">
+                <div class="card-header-custom">
+                    <h5 class="m-0 fw-bold text-dark">Product Information</h5>
+                </div>
+                <div class="card-body p-4 p-md-5">
                     <form action="{{ route('products.store') }}" method="POST" enctype="multipart/form-data">
                         @csrf
-
-                        <div class="row g-4">
-                            <!-- Image Upload Section -->
+                        <div class="row g-5">
                             <div class="col-md-4">
                                 <label class="form-label">Product Image</label>
-                                <div class="image-placeholder mb-2">
-                                    <i class="fas fa-cloud-upload-alt fa-3x mb-2 opacity-50"></i>
-                                    <small class="text-muted">Click to upload</small>
-                                </div>
-                                <input type="file" name="image" class="form-control form-control-sm">
+                                <label class="upload-box w-100">
+                                    <input type="file" name="image" class="d-none" onchange="previewImage(this)">
+                                    <div id="upload-placeholder" class="text-center">
+                                        <i class="fas fa-cloud-upload-alt"></i>
+                                        <div class="fw-bold text-secondary">Click to Upload</div>
+                                        <small class="text-muted">JPG, PNG (Max 2MB)</small>
+                                    </div>
+                                    <img id="img-preview" src="#" class="d-none w-100 h-100 object-fit-cover rounded-3" style="position:absolute; inset:0;">
+                                </label>
                             </div>
 
-                            <!-- Product Info Fields -->
                             <div class="col-md-8">
-                                <div class="mb-3">
+                                <div class="mb-4">
                                     <label class="form-label">Product Name</label>
-                                    <input type="text" name="name" class="form-control" placeholder="e.g. Caramel Macchiato" required>
+                                    <input type="text" name="name" class="form-control form-control-lg fw-bold" placeholder="e.g. Iced Caramel Macchiato" required>
                                 </div>
 
-                                <div class="mb-3">
+                                <div class="mb-4">
                                     <label class="form-label">Description</label>
-                                    <textarea name="description" class="form-control" rows="2" placeholder="Brief description of the item..."></textarea>
+                                    <textarea name="description" class="form-control" rows="3" placeholder="Describe the taste profile..."></textarea>
                                 </div>
 
-                                <div class="row">
-                                    <div class="col-md-6 mb-3">
+                                <div class="row g-3">
+                                    <div class="col-md-6">
                                         <label class="form-label">Category</label>
                                         <select name="category_id" class="form-select" required>
                                             <option value="" disabled selected>Select Category</option>
@@ -207,36 +118,44 @@
                                             @endforeach
                                         </select>
                                     </div>
-                                    <div class="col-md-6 mb-3">
-                                        <label class="form-label">Price (₱)</label>
+                                    <div class="col-md-6">
+                                        <label class="form-label">Price</label>
                                         <div class="input-group">
-                                            <span class="input-group-text fw-bold">₱</span>
-                                            <input type="number" name="price" class="form-control" step="0.01" placeholder="0.00" required>
+                                            <span class="input-group-text bg-white border-end-0 fw-bold text-muted">₱</span>
+                                            <input type="number" name="price" class="form-control border-start-0 ps-0 fw-bold text-dark" step="0.01" placeholder="0.00" required>
                                         </div>
                                     </div>
                                 </div>
                             </div>
                         </div>
 
-                        <div class="alert alert-info border-0 bg-light text-secondary mt-3 mb-0 rounded-3 small">
-                            <i class="fas fa-info-circle me-1 text-primary"></i> 
-                            <strong>Next Step:</strong> After saving, you will be redirected to add the <u>recipe ingredients</u> for this product.
-                        </div>
-
-                        <div class="mt-4 pt-3 border-top d-flex justify-content-end gap-2">
-                            <a href="{{ route('products.index') }}" class="btn btn-outline-secondary">Cancel</a>
-                            <button type="submit" class="btn btn-primary px-4">
-                                <i class="fas fa-save me-2"></i> Save & Continue
+                        <div class="d-flex justify-content-end gap-3 mt-5 pt-4 border-top">
+                            <a href="{{ route('products.index') }}" class="btn-outline-custom">Cancel</a>
+                            <button type="submit" class="btn-primary-custom">
+                                <i class="fas fa-save me-2"></i> Save Product
                             </button>
                         </div>
                     </form>
                 </div>
             </div>
-
         </div>
     </div>
 </div>
 
+<script>
+    function previewImage(input) {
+        if (input.files && input.files[0]) {
+            var reader = new FileReader();
+            reader.onload = function (e) {
+                document.getElementById('upload-placeholder').classList.add('d-none');
+                var img = document.getElementById('img-preview');
+                img.src = e.target.result;
+                img.classList.remove('d-none');
+            }
+            reader.readAsDataURL(input.files[0]);
+        }
+    }
+</script>
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 </body>
 </html>

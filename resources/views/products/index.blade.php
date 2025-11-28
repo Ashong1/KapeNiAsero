@@ -3,424 +3,555 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Kape Ni Asero - POS</title>
+    <title>POS Terminal | Kape Ni Asero</title>
     
-    <!-- Fonts & Icons -->
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/4.1.1/animate.min.css"/>
     
     <style>
         :root {
-            /* Palette matching the Edit Page */
             --primary-coffee: #6F4E37;
+            --primary-coffee-hover: #5A3D2B;
             --dark-coffee: #3E2723;
-            --accent-gold: #8B7355;
-            --surface-cream: #FFF8E7;
+            --accent-gold: #C5A065;
+            --surface-bg: #F5F5F7;
             --surface-white: #FFFFFF;
-            --text-dark: #2C1810;
-            --text-light: #FFF8E7;
-            --success-green: #689F38;
-            --border-light: #F0E5D0;
-            --input-border: #E8DCC8;
+            --text-dark: #1D1D1F;
+            --text-secondary: #86868B;
+            --success-green: #34C759;
+            --border-light: #E5E5EA;
+            --glass-header: rgba(255, 255, 255, 0.85);
         }
 
         body {
             font-family: 'Inter', sans-serif;
-            background: linear-gradient(135deg, var(--primary-coffee) 0%, var(--dark-coffee) 100%);
+            background-color: var(--surface-bg);
             color: var(--text-dark);
             height: 100vh;
-            overflow: hidden; 
+            overflow: hidden; /* Desktop default */
         }
 
-        /* HEADER styling */
+        /* --- PREMIUM HEADER --- */
         .pos-header {
-            background-color: rgba(255, 255, 255, 0.95);
-            border-bottom: 1px solid var(--border-light);
+            background-color: var(--glass-header);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            border-bottom: 1px solid rgba(0,0,0,0.05);
             height: 70px;
             display: flex;
             align-items: center;
             padding: 0 2rem;
-            box-shadow: 0 4px 20px rgba(0,0,0,0.1);
+            position: fixed;
+            top: 0;
+            width: 100%;
+            z-index: 1000;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.03);
         }
 
         .navbar-brand {
-            font-weight: 700;
-            color: var(--primary-coffee) !important;
+            font-weight: 800;
+            color: var(--text-dark);
             font-size: 1.25rem;
             display: flex;
             align-items: center;
+            letter-spacing: -0.02em;
         }
 
-        /* LEFT SIDE: PRODUCT GRID */
-        .product-area {
+        /* --- LAYOUT GRID --- */
+        .pos-container {
+            margin-top: 70px;
             height: calc(100vh - 70px);
+            display: flex;
+        }
+
+        /* LEFT SIDE: PRODUCT AREA */
+        .product-section {
+            flex: 1;
             overflow-y: auto;
             padding: 2rem;
-            background-color: transparent; /* Let body gradient show or use light overlay */
-        }
-        
-        /* Grid Container with backdrop for readability */
-        .grid-container {
-            background: rgba(255, 255, 255, 0.95);
-            border-radius: 24px;
-            padding: 1.5rem;
-            box-shadow: 0 10px 30px rgba(0,0,0,0.15);
-            min-height: 100%;
+            background: radial-gradient(circle at top left, #fff8f0 0%, transparent 40%);
         }
 
-        /* Product Card Styling - Matching Edit Page Card Style */
+        .product-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+            gap: 1.5rem;
+            padding-bottom: 3rem;
+        }
+
+        /* PRODUCT CARD */
         .coffee-card {
-            border: none;
-            border-radius: 16px;
             background: var(--surface-white);
-            box-shadow: 0 4px 12px rgba(62, 39, 35, 0.08);
-            transition: all 0.2s ease;
-            cursor: pointer;
+            border: 1px solid rgba(0,0,0,0.04);
+            border-radius: 20px;
             overflow: hidden;
+            transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
+            position: relative;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.03);
             height: 100%;
             display: flex;
             flex-direction: column;
-            border: 1px solid var(--border-light);
-        }
-        
-        .coffee-card:hover {
-            transform: translateY(-4px);
-            box-shadow: 0 10px 25px rgba(111, 78, 55, 0.15);
-            border-color: var(--primary-coffee);
         }
 
-        .card-img-wrapper {
+        /* Hover effect only for interactive cards */
+        .coffee-card.interactive:hover {
+            transform: translateY(-5px) scale(1.02);
+            box-shadow: 0 15px 30px rgba(0,0,0,0.08);
+            border-color: rgba(111, 78, 55, 0.2);
+            cursor: pointer;
+        }
+
+        .card-img-container {
             height: 140px;
-            background: var(--surface-cream);
+            background: #FAFAFA;
             display: flex;
             align-items: center;
             justify-content: center;
-            color: var(--primary-coffee);
             position: relative;
+            overflow: hidden;
         }
-        
-        .card-img-wrapper::after {
+
+        .card-img-container::after {
             content: '';
             position: absolute;
-            bottom: 0;
-            left: 0;
-            right: 0;
-            height: 40px;
-            background: linear-gradient(to top, rgba(0,0,0,0.05), transparent);
+            inset: 0;
+            background: linear-gradient(to bottom, transparent 80%, rgba(0,0,0,0.03));
         }
 
-        .category-badge {
-            font-size: 0.7rem;
-            background-color: var(--surface-cream);
-            color: var(--primary-coffee);
-            padding: 0.35em 0.8em;
+        .category-pill {
+            position: absolute;
+            top: 10px;
+            left: 10px;
+            background: rgba(255, 255, 255, 0.9);
+            backdrop-filter: blur(4px);
+            padding: 4px 10px;
             border-radius: 20px;
-            font-weight: 600;
-            border: 1px solid var(--input-border);
-            display: inline-block;
-            margin-bottom: 0.5rem;
+            font-size: 0.65rem;
+            font-weight: 700;
+            color: var(--text-secondary);
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.05);
         }
+
+        .card-content {
+            padding: 1rem;
+            display: flex;
+            flex-direction: column;
+            flex-grow: 1;
+            justify-content: space-between;
+        }
+
+        .product-title {
+            font-weight: 700;
+            font-size: 0.95rem;
+            margin-bottom: 0.25rem;
+            color: var(--text-dark);
+            line-height: 1.3;
+        }
+
+        .product-price {
+            font-weight: 800;
+            color: var(--primary-coffee);
+            font-size: 1.1rem;
+        }
+
+        /* ADMIN ACTIONS STYLING */
+        .admin-actions {
+            margin-top: 0.75rem;
+            padding-top: 0.75rem;
+            border-top: 1px solid var(--border-light);
+            display: flex;
+            justify-content: center;
+            gap: 0.5rem;
+        }
+        
+        .btn-admin-action {
+            width: 32px; height: 32px;
+            display: flex; align-items: center; justify-content: center;
+            border-radius: 8px; transition: all 0.2s;
+            background: #F5F5F7; color: var(--text-secondary); border: none; cursor: pointer;
+        }
+        .btn-admin-action:hover { background: var(--text-dark); color: white; }
+        .btn-admin-action.delete:hover { background: #FF3B30; color: white; }
 
         /* RIGHT SIDE: CART PANEL */
-        .cart-panel {
-            height: calc(100vh - 70px);
+        .cart-section {
+            width: 400px;
             background-color: var(--surface-white);
             border-left: 1px solid var(--border-light);
             display: flex;
             flex-direction: column;
-            box-shadow: -10px 0 30px rgba(0,0,0,0.1);
-            position: relative;
-            z-index: 10;
+            box-shadow: -5px 0 25px rgba(0,0,0,0.03);
+            z-index: 100;
+            transition: transform 0.3s cubic-bezier(0.2, 0.8, 0.2, 1);
         }
 
         .cart-header {
-            background-color: var(--primary-coffee);
-            color: var(--surface-cream);
-            padding: 1.25rem;
-            font-weight: 700;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            padding: 1.5rem;
+            border-bottom: 1px solid var(--border-light);
+            background: rgba(255,255,255,0.95);
+            backdrop-filter: blur(10px);
+            cursor: default;
         }
 
-        .cart-items-container {
-            flex-grow: 1;
+        .cart-body {
+            flex: 1;
             overflow-y: auto;
             padding: 1.5rem;
             background-color: #FAFAFA;
         }
 
+        /* CART ITEM STYLING (Improved for Mobile) */
         .cart-item {
             background: white;
-            border: 1px solid var(--border-light);
-            border-radius: 12px;
+            border-radius: 16px;
             padding: 1rem;
             margin-bottom: 1rem;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            box-shadow: 0 2px 5px rgba(0,0,0,0.02);
+            box-shadow: 0 2px 8px rgba(0,0,0,0.02);
+            border: 1px solid transparent;
             transition: all 0.2s;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 10px; /* Gap between left and right sides */
+        }
+        
+        .cart-item-left {
+            display: flex;
+            align-items: center;
+            flex-grow: 1;
+            min-width: 0; /* Crucial for text-truncate to work in flex child */
+        }
+
+        .cart-item-right {
+            text-align: right;
+            white-space: nowrap; /* Keep price on one line */
         }
         
         .cart-item:hover {
             border-color: var(--accent-gold);
-            transform: translateX(-2px);
+            transform: translateX(-3px);
+        }
+
+        .qty-badge {
+            background: var(--surface-bg);
+            width: 36px; height: 36px; flex-shrink: 0;
+            border-radius: 10px;
+            display: flex; align-items: center; justify-content: center;
+            font-weight: 700; color: var(--primary-coffee);
+            margin-right: 1rem;
+            border: 1px solid rgba(0,0,0,0.05);
         }
 
         .cart-footer {
-            background-color: white;
-            border-top: 1px solid var(--border-light);
             padding: 1.5rem;
-            box-shadow: 0 -5px 20px rgba(0,0,0,0.05);
+            background: white;
+            border-top: 1px solid var(--border-light);
+            box-shadow: 0 -10px 40px rgba(0,0,0,0.03);
         }
 
-        /* Buttons */
-        .btn-mocha {
-            background-color: var(--primary-coffee);
-            border-color: var(--primary-coffee);
-            color: white;
-            border-radius: 10px;
-            padding: 0.5rem 1rem;
-            font-weight: 600;
-            transition: all 0.2s;
-        }
-        .btn-mocha:hover {
-            background-color: #5A3D2B;
-            border-color: #5A3D2B;
-            color: white;
-            transform: translateY(-1px);
-        }
-        
-        .btn-outline-dark {
-            border-color: var(--text-dark);
-            color: var(--text-dark);
-            border-radius: 10px;
-        }
-        .btn-outline-dark:hover {
-            background-color: var(--text-dark);
-            color: white;
+        .total-row {
+            display: flex; justify-content: space-between; margin-bottom: 0.5rem;
+            font-size: 0.9rem; color: var(--text-secondary);
         }
 
-        .btn-pay {
-            background: var(--primary-coffee);
-            color: white;
-            font-weight: 700;
-            border: none;
-            padding: 1rem;
-            font-size: 1.1rem;
-            border-radius: 12px;
-            width: 100%;
-            transition: all 0.2s;
-            box-shadow: 0 4px 15px rgba(111, 78, 55, 0.3);
-        }
-        .btn-pay:hover {
-            background-color: #5A3D2B;
-            transform: translateY(-2px);
-            box-shadow: 0 6px 20px rgba(111, 78, 55, 0.4);
+        .grand-total {
+            display: flex; justify-content: space-between; align-items: center;
+            margin-top: 1rem; margin-bottom: 1.5rem;
+            font-size: 1.5rem; font-weight: 800; color: var(--text-dark);
         }
 
-        /* Scrollbar */
-        ::-webkit-scrollbar { width: 6px; }
-        ::-webkit-scrollbar-track { background: transparent; }
-        ::-webkit-scrollbar-thumb { background: #D7CCC8; border-radius: 10px; }
-        ::-webkit-scrollbar-thumb:hover { background: var(--accent-gold); }
+        .btn-checkout {
+            width: 100%; padding: 1rem; border-radius: 16px; font-weight: 700; font-size: 1.1rem;
+            border: none; background: linear-gradient(135deg, var(--primary-coffee) 0%, var(--dark-coffee) 100%);
+            color: white; box-shadow: 0 8px 20px rgba(111, 78, 55, 0.25); transition: all 0.3s;
+        }
+        .btn-checkout:hover {
+            transform: translateY(-2px); box-shadow: 0 12px 25px rgba(111, 78, 55, 0.35);
+            background: linear-gradient(135deg, #7D5A42 0%, #4E342E 100%);
+        }
+
+        /* --- MOBILE RESPONSIVENESS --- */
+        @media (max-width: 991px) {
+            body { height: auto; overflow: auto; padding-bottom: 80px; /* Space for fixed bottom bar */ }
+            
+            .pos-header { position: sticky; padding: 0 1rem; }
+            .navbar-brand img { height: 32px; }
+            .navbar-brand span { font-size: 1.1rem; }
+            
+            .pos-container { margin-top: 0; height: auto; flex-direction: column; }
+            
+            .product-section { 
+                height: auto; 
+                padding: 1rem; 
+                padding-bottom: 140px; /* Extra padding so content isn't covered by cart */
+            }
+            
+            .product-grid { 
+                grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); 
+                gap: 1rem;
+            }
+
+            /* Bottom Sheet Cart */
+            .cart-section {
+                width: 100%;
+                position: fixed;
+                bottom: 0;
+                left: 0;
+                border-left: none;
+                border-top: 1px solid var(--border-light);
+                height: auto;
+                max-height: 85vh; /* Limit height when expanded */
+                border-top-left-radius: 20px;
+                border-top-right-radius: 20px;
+                box-shadow: 0 -5px 30px rgba(0,0,0,0.15);
+                transform: translateY(calc(100% - 85px)); /* Show only footer by default */
+            }
+
+            .cart-section.expanded {
+                transform: translateY(0);
+            }
+
+            /* Header acts as toggle handle on mobile */
+            .cart-header {
+                padding: 1rem;
+                display: flex;
+                justify-content: center;
+                cursor: pointer;
+                background: #fff;
+            }
+            
+            .cart-header::before {
+                content: '';
+                width: 40px;
+                height: 5px;
+                background-color: #E0E0E0;
+                border-radius: 10px;
+                position: absolute;
+                top: 8px;
+            }
+
+            .cart-body {
+                display: none; /* Hidden by default to save resources/rendering until expanded */
+            }
+            .cart-section.expanded .cart-body {
+                display: block;
+            }
+
+            .cart-footer {
+                padding: 1rem;
+                background: white;
+                z-index: 102;
+            }
+            
+            /* Hide non-essential totals in collapsed view */
+            .total-row { display: none; }
+            .cart-section.expanded .total-row { display: flex; }
+            
+            .grand-total { margin: 0 0 10px 0; font-size: 1.2rem; }
+            .btn-checkout { padding: 0.8rem; font-size: 1rem; }
+        }
     </style>
 </head>
 <body>
 
-<div class="container-fluid p-0">
-    
-    <!-- HEADER -->
-    <div class="pos-header justify-content-between">
-        <div class="navbar-brand">
-            <img src="{{ asset('ka.png') }}" alt="Logo" style="height: 40px;" class="me-3"> 
-            <span>Kape Ni Asero <span class="fw-normal text-muted ms-2 fs-6">| POS Terminal</span></span>
-        </div>
-        
+<nav class="pos-header">
+    <div class="d-flex align-items-center justify-content-between w-100">
         <div class="d-flex align-items-center gap-3">
-            <div class="d-none d-md-flex align-items-center bg-light px-3 py-2 rounded-pill border">
-                <i class="fas fa-user-circle me-2 text-secondary"></i>
-                <span class="text-muted small me-1">Cashier:</span>
-                <strong class="text-dark">{{ Auth::user()->name }}</strong>
-            </div>
-            
+            <a class="navbar-brand" href="{{ route('home') }}">
+                <img src="{{ asset('ka.png') }}" alt="Logo" style="height: 38px;" class="me-2 rounded-3 shadow-sm">
+                <span class="d-none d-sm-inline">Kape Ni Asero</span>
+                <span class="d-sm-none">POS</span>
+            </a>
+        </div>
+
+        <div class="d-flex align-items-center gap-2">
             @if(Auth::user()->role == 'admin')
-                <a href="{{ route('home') }}" class="btn btn-outline-dark btn-sm px-3 py-2 d-flex align-items-center">
-                    <i class="fas fa-arrow-left me-2"></i> Dashboard
+                <a href="{{ route('home') }}" class="btn btn-light rounded-circle shadow-sm d-flex align-items-center justify-content-center" style="width:40px;height:40px;" title="Dashboard">
+                    <i class="fas fa-th-large text-secondary"></i>
                 </a>
             @endif
-            
-            <a href="{{ route('logout') }}" class="btn btn-danger btn-sm rounded-circle shadow-sm d-flex align-items-center justify-content-center" style="width: 36px; height: 36px;"
-               onclick="event.preventDefault(); document.getElementById('logout-form').submit();">
+            <a href="{{ route('logout') }}" 
+               onclick="event.preventDefault(); document.getElementById('logout-form').submit();"
+               class="btn btn-danger rounded-circle shadow-sm d-flex align-items-center justify-content-center" style="width:40px;height:40px;" title="Logout">
                <i class="fas fa-power-off"></i>
             </a>
             <form id="logout-form" action="{{ route('logout') }}" method="POST" class="d-none">@csrf</form>
         </div>
     </div>
+</nav>
 
-    <div class="row g-0">
-        
-        <!-- LEFT: PRODUCT GRID -->
-        <div class="col-md-8 col-lg-9 product-area">
-            <div class="grid-container">
-                @if(session('success'))
-                    <div class="alert alert-success shadow-sm border-0 mb-4 rounded-3" style="background-color: #D1E7DD; color: #0F5132;">
-                        <i class="fas fa-check-circle me-2"></i> {{ session('success') }}
-                    </div>
-                @endif
+<div class="pos-container">
+    
+    <div class="product-section">
+        @if(session('success'))
+            <div class="alert alert-success border-0 shadow-sm rounded-4 mb-4 d-flex align-items-center animate__animated animate__fadeInDown">
+                <i class="fas fa-check-circle me-2"></i> {{ session('success') }}
+            </div>
+        @endif
 
-                <div class="d-flex justify-content-between align-items-center mb-4">
-                    <h4 class="fw-bold m-0" style="color: var(--primary-coffee);"><i class="fas fa-mug-hot me-2"></i>Menu Items</h4>
-                    <div class="text-muted small">Select items to add to order</div>
+        <div class="d-flex justify-content-between align-items-center mb-4">
+            <div>
+                <h4 class="fw-bold text-dark mb-1">Menu</h4>
+                <p class="text-secondary small mb-0">Tap items to add</p>
+            </div>
+        </div>
+
+        <div class="product-grid">
+            @foreach($products as $product)
+            <div class="coffee-card {{ Auth::user()->role != 'admin' ? 'interactive' : '' }}" 
+                 @if(Auth::user()->role != 'admin')
+                 onclick="addToCart({{ $product->id }}, '{{ $product->name }}', {{ $product->price }})"
+                 @endif
+                 >
+                
+                <div class="card-img-container">
+                    <span class="category-pill">{{ $product->category->name ?? 'Item' }}</span>
+                    @if($product->image_path)
+                        <img src="{{ asset('storage/' . $product->image_path) }}" class="img-fluid" style="height: 100px; object-fit: contain;">
+                    @else
+                        <i class="fas fa-mug-hot fa-3x text-secondary opacity-25"></i>
+                    @endif
                 </div>
 
-                <div class="row g-4">
-                    @foreach($products as $product)
-                    <div class="col-6 col-md-4 col-lg-3 col-xl-2">
+                <div class="card-content">
+                    <div class="product-title text-truncate">{{ $product->name }}</div>
+                    <div class="d-flex justify-content-between align-items-center mt-2">
+                        <div class="product-price">₱{{ number_format($product->price, 0) }}</div>
                         
-                        <!-- Product Card -->
-                        <div class="card h-100 coffee-card"
-                             @if(Auth::user()->role != 'admin')
-                                onclick="addToCart({{ $product->id }}, '{{ $product->name }}', {{ $product->price }})"
-                             @endif
-                             title="{{ $product->name }}">
-                            
-                            <div class="card-img-wrapper">
-                                @if($product->image_path)
-                                    <img src="{{ asset('storage/' . $product->image_path) }}" alt="{{ $product->name }}" class="img-fluid" style="max-height: 100px; object-fit: contain;">
-                                @else
-                                    <i class="fas fa-coffee fa-3x opacity-50"></i>
-                                @endif
-                            </div>
-
-                            <div class="card-body p-3 text-center d-flex flex-column justify-content-between">
-                                <div>
-                                    <span class="category-badge">
-                                        {{ $product->category->name ?? 'General' }}
-                                    </span>
-                                    <h6 class="fw-bold text-dark m-0 text-truncate mb-1">{{ $product->name }}</h6>
-                                </div>
-                                <h5 class="fw-bold m-0 mt-2" style="color: var(--primary-coffee);">₱{{ number_format($product->price, 0) }}</h5>
-
-                                <!-- Admin Controls (Only visible to Admin) -->
-                                @if(Auth::user()->role == 'admin')
-                                    <div class="mt-3 border-top pt-2">
-                                        <div class="d-flex justify-content-center gap-2">
-                                            <a href="{{ route('products.edit', $product->id) }}" class="btn btn-sm btn-outline-secondary border-0 p-1" title="Edit">
-                                                <i class="fas fa-pen"></i>
-                                            </a>
-                                            <form action="{{ route('products.destroy', $product->id) }}" method="POST" class="d-inline">
-                                                @csrf @method('DELETE')
-                                                <button type="submit" class="btn btn-sm btn-outline-danger border-0 p-1" 
-                                                        onclick="event.stopPropagation(); return confirm('Delete item?');" title="Delete">
-                                                    <i class="fas fa-trash"></i>
-                                                </button>
-                                            </form>
-                                        </div>
-                                        @if($product->ingredients->isEmpty())
-                                            <small class="d-block text-danger mt-1 fw-bold" style="font-size: 0.65rem;"><i class="fas fa-exclamation-circle"></i> No Recipe</small>
-                                        @endif
-                                    </div>
-                                @endif
-                            </div>
+                        @if(Auth::user()->role != 'admin')
+                        <div class="btn btn-sm btn-light rounded-circle shadow-sm" style="width:32px;height:32px;display:flex;align-items:center;justify-content:center;">
+                            <i class="fas fa-plus text-primary-coffee"></i>
                         </div>
+                        @endif
                     </div>
-                    @endforeach
+
+                    @if(Auth::user()->role == 'admin')
+                    <div class="admin-actions">
+                        <a href="{{ route('products.edit', $product->id) }}" 
+                           class="btn-admin-action" 
+                           onclick="event.stopPropagation();" 
+                           title="Edit Item">
+                            <i class="fas fa-pen fa-sm"></i>
+                        </a>
+                        <form action="{{ route('products.destroy', $product->id) }}" method="POST" class="d-inline">
+                            @csrf @method('DELETE')
+                            <button type="submit" 
+                                    class="btn-admin-action delete" 
+                                    onclick="event.stopPropagation(); return confirm('Delete {{ $product->name }}?');" 
+                                    title="Delete Item">
+                                <i class="fas fa-trash fa-sm"></i>
+                            </button>
+                        </form>
+                    </div>
+                    @if($product->ingredients->isEmpty())
+                        <div class="text-center mt-2">
+                            <small class="text-danger fw-bold" style="font-size: 0.65rem;">
+                                <i class="fas fa-exclamation-circle"></i> No Recipe
+                            </small>
+                        </div>
+                    @endif
+                    @endif
+                </div>
+            </div>
+            @endforeach
+        </div>
+    </div>
+
+    <div class="cart-section" id="cartSection">
+        <div class="cart-header" onclick="toggleCart()">
+            <div class="d-flex justify-content-between align-items-center w-100">
+                <h5 class="fw-bold m-0 text-dark"><i class="fas fa-shopping-basket me-2 text-primary-coffee"></i> Current Order</h5>
+                <div class="d-flex align-items-center">
+                    <span class="badge bg-primary-coffee rounded-pill me-2" id="cart-count">0</span>
+                    <i class="fas fa-chevron-up d-lg-none text-secondary" id="cartToggleIcon"></i>
                 </div>
             </div>
         </div>
 
-        <!-- RIGHT: CART PANEL -->
-        <div class="col-md-4 col-lg-3 cart-panel">
-            <div class="cart-header">
-                <div class="d-flex align-items-center">
-                    <i class="fas fa-shopping-basket me-2"></i>
-                    <span class="fs-5">Current Order</span>
-                </div>
-                <span class="badge bg-white text-dark rounded-pill shadow-sm px-3 py-2" id="cart-count">0</span>
+        <div class="cart-body" id="cart-items">
+            <div class="h-100 d-flex flex-column align-items-center justify-content-center text-center text-muted opacity-50">
+                <i class="fas fa-receipt fa-4x mb-3"></i>
+                <p class="fw-medium">No items yet</p>
+                <small>Tap items to add</small>
             </div>
-            
-            <!-- Cart Items List -->
-            <div class="cart-items-container" id="cart-items">
-                <div class="text-center text-muted mt-5 pt-5 opacity-50">
-                    <div class="mb-3">
-                        <i class="fas fa-mug-hot fa-4x" style="color: var(--input-border);"></i>
-                    </div>
-                    <p class="fw-medium">Cart is empty</p>
-                    <small>Select items from the menu</small>
-                </div>
+        </div>
+
+        <div class="cart-footer">
+            <div class="total-row">
+                <span>Subtotal</span>
+                <span class="fw-bold text-dark" id="subtotal">₱0.00</span>
+            </div>
+            <div class="total-row">
+                <span>VAT (12%)</span>
+                <span class="fw-bold text-dark" id="tax">₱0.00</span>
+            </div>
+            <div class="grand-total">
+                <span>Total</span>
+                <span class="text-primary-coffee" id="grand-total">₱0.00</span>
             </div>
 
-            <!-- Cart Totals & Checkout -->
             @if(Auth::user()->role != 'admin')
-            <div class="cart-footer">
-                <div class="d-flex justify-content-between mb-2">
-                    <span class="text-secondary fw-medium">Subtotal</span>
-                    <span class="fw-bold text-dark" id="subtotal">₱0.00</span>
-                </div>
-                <div class="d-flex justify-content-between mb-3 pb-3 border-bottom border-light">
-                    <span class="text-secondary small">VAT (12%)</span>
-                    <span class="small text-dark" id="tax">₱0.00</span>
-                </div>
-                <div class="d-flex justify-content-between align-items-center mb-4">
-                    <span class="h5 m-0 fw-bold text-dark">Total</span>
-                    <span class="h3 m-0 fw-bold" style="color: var(--primary-coffee);" id="grand-total">₱0.00</span>
-                </div>
-
-                <button class="btn-pay" onclick="checkout()">
-                    <i class="fas fa-check-circle me-2"></i> Charge Payment
+                <button class="btn-checkout" onclick="checkout()">
+                    <i class="fas fa-credit-card me-2"></i> Charge
                 </button>
-            </div>
             @else
-            <div class="cart-footer text-center">
-                <div class="alert alert-warning border-0 small m-0 rounded-3 shadow-sm">
-                    <i class="fas fa-info-circle me-1"></i> <strong>Admin View</strong><br>
-                    Log in as an employee to process sales.
+                <div class="alert alert-secondary border-0 text-center small rounded-3 mb-0">
+                    <i class="fas fa-lock me-1"></i> Admin View Only
                 </div>
-            </div>
             @endif
         </div>
-
     </div>
+
 </div>
 
-<!-- JAVASCRIPT FOR CART LOGIC -->
 @if(Auth::user()->role != 'admin')
 <script>
     let cart = [];
+    let isCartExpanded = false;
+
+    // Toggle Bottom Sheet on Mobile
+    function toggleCart() {
+        if(window.innerWidth >= 992) return; // Only for mobile/tablet
+        
+        const cartSection = document.getElementById('cartSection');
+        const icon = document.getElementById('cartToggleIcon');
+        
+        isCartExpanded = !isCartExpanded;
+        
+        if(isCartExpanded) {
+            cartSection.classList.add('expanded');
+            icon.classList.replace('fa-chevron-up', 'fa-chevron-down');
+        } else {
+            cartSection.classList.remove('expanded');
+            icon.classList.replace('fa-chevron-down', 'fa-chevron-up');
+        }
+    }
 
     function addToCart(id, name, price) {
-        const existingItem = cart.find(item => item.id === id);
-        if (existingItem) {
-            existingItem.quantity++; 
+        const existing = cart.find(item => item.id === id);
+        if (existing) {
+            existing.quantity++;
         } else {
-            cart.push({ id: id, name: name, price: price, quantity: 1 }); 
+            cart.push({ id, name, price, quantity: 1 });
         }
-        renderCart(); 
-        
-        // Visual feedback
-        const countBadge = document.getElementById('cart-count');
-        countBadge.style.transform = 'scale(1.2)';
-        setTimeout(() => countBadge.style.transform = 'scale(1)', 100);
+        renderCart();
     }
 
     function renderCart() {
-        const cartElement = document.getElementById('cart-items');
-        const countBadge = document.getElementById('cart-count');
+        const container = document.getElementById('cart-items');
+        const badge = document.getElementById('cart-count');
         
-        // Update Count
-        const totalItems = cart.reduce((sum, item) => sum + item.quantity, 0);
-        countBadge.innerText = totalItems;
+        badge.innerText = cart.reduce((total, item) => total + item.quantity, 0);
 
         if (cart.length === 0) {
-            cartElement.innerHTML = `
-                <div class="text-center text-muted mt-5 pt-5 opacity-50">
-                    <div class="mb-3"><i class="fas fa-mug-hot fa-4x" style="color: var(--input-border);"></i></div>
-                    <p class="fw-medium">Cart is empty</p>
-                    <small>Select items from the menu</small>
+            container.innerHTML = `
+                <div class="h-100 d-flex flex-column align-items-center justify-content-center text-center text-muted opacity-50 py-5">
+                    <i class="fas fa-receipt fa-3x mb-3"></i>
+                    <p class="fw-medium">No items yet</p>
                 </div>`;
             updateTotals(0);
             return;
@@ -428,86 +559,79 @@
 
         let html = '';
         let total = 0;
-        
+
         cart.forEach((item, index) => {
             const itemTotal = item.price * item.quantity;
             total += itemTotal;
-            
             html += `
-                <div class="cart-item animate__animated animate__fadeIn">
-                    <div class="d-flex align-items-center flex-grow-1">
-                        <div class="bg-light rounded-circle p-2 me-3 text-dark border" style="width:40px;height:40px;display:flex;align-items:center;justify-content:center;">
-                            <span class="fw-bold small">x${item.quantity}</span>
-                        </div>
-                        <div style="line-height: 1.2;">
-                            <div class="fw-bold text-dark" style="font-size: 0.95rem;">${item.name}</div>
-                            <small class="text-muted">₱${item.price} each</small>
+                <div class="cart-item animate__animated animate__fadeInRight animate__faster">
+                    <div class="cart-item-left">
+                        <div class="qty-badge">${item.quantity}</div>
+                        <div style="line-height:1.2; min-width: 0;">
+                            <div class="fw-bold text-dark text-truncate" title="${item.name}">${item.name}</div>
+                            <small class="text-muted">₱${item.price}</small>
                         </div>
                     </div>
-                    <div class="d-flex flex-column align-items-end">
-                        <span class="fw-bold mb-1" style="color: var(--primary-coffee);">₱${itemTotal.toFixed(2)}</span>
-                        <button class="btn btn-sm text-danger border-0 p-0" 
-                                onclick="removeFromCart(${index})" title="Remove">
-                            <small><i class="fas fa-trash-alt me-1"></i> Remove</small>
+                    <div class="cart-item-right ms-2">
+                        <div class="fw-bold text-primary-coffee mb-1">₱${itemTotal.toFixed(2)}</div>
+                        <button class="btn btn-link text-danger p-0 text-decoration-none small" onclick="removeItem(${index})">
+                            <i class="fas fa-times"></i>
                         </button>
                     </div>
-                </div>`;
+                </div>
+            `;
         });
-        
-        cartElement.innerHTML = html;
+
+        container.innerHTML = html;
         updateTotals(total);
     }
 
     function updateTotals(subtotal) {
         const tax = subtotal * 0.12;
-        const grandTotal = subtotal + tax;
+        const total = subtotal + tax;
+        
         document.getElementById('subtotal').innerText = '₱' + subtotal.toFixed(2);
         document.getElementById('tax').innerText = '₱' + tax.toFixed(2);
-        document.getElementById('grand-total').innerText = '₱' + grandTotal.toFixed(2);
+        document.getElementById('grand-total').innerText = '₱' + total.toFixed(2);
     }
 
-    function removeFromCart(index) {
+    function removeItem(index) {
         cart.splice(index, 1);
         renderCart();
     }
 
     function checkout() {
-        if(cart.length === 0) { 
-            alert("Cart is empty!"); 
-            return; 
-        }
-        
-        if(!confirm("Proceed to payment?")) return;
+        if(cart.length === 0) return alert('Cart is empty');
+        if(!confirm('Process payment?')) return;
 
         fetch('/checkout', {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
-                'X-CSRF-TOKEN': '{{ csrf_token() }}' 
+                'X-CSRF-TOKEN': '{{ csrf_token() }}'
             },
-            body: JSON.stringify({ cart: cart })
+            body: JSON.stringify({ cart })
         })
-        .then(response => response.json())
+        .then(res => res.json())
         .then(data => {
             if(data.success) {
                 cart = [];
                 renderCart();
+                // Collapse cart on mobile after success
+                if(window.innerWidth < 992 && isCartExpanded) toggleCart();
                 
-                // Show print receipt prompt
-                if(confirm("Payment Successful! ₱" + document.getElementById('grand-total').innerText + "\n\nDo you want to print the receipt?")) {
+                if(confirm('Payment success! Print receipt?')) {
                     window.open('/orders/' + data.order_id + '/receipt', '_blank');
                 }
             } else {
-                alert("Error: " + data.message);
+                alert('Error: ' + data.message);
             }
         })
-        .catch(error => {
-            console.error('Error:', error);
-            alert("System Error. Check console.");
-        });
+        .catch(err => console.error(err));
     }
 </script>
 @endif
 
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 </body>
 </html>

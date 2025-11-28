@@ -11,6 +11,13 @@ use Barryvdh\DomPDF\Facade\Pdf;
 
 class OrderController extends Controller
 {
+    public function index()
+    {
+        // Get all orders, latest first, 10 per page
+        $orders = Order::with('user')->latest()->paginate(10);
+        
+        return view('orders.index', compact('orders'));
+    }
     public function store(Request $request)
     {
         // ... (Keep validation logic exactly the same) ...

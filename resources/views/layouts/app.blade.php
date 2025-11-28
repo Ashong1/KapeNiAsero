@@ -181,11 +181,15 @@
                                 <a id="navbarDropdown" class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false" v-pre>
                                     {{ Auth::user()->name }} ({{ Auth::user()->role }})
                                 </a>
-
+                                
                                 <div class="dropdown-menu dropdown-menu-end" aria-labelledby="navbarDropdown">
                                     @if(Auth::user()->role == 'admin')
                                         <a class="dropdown-item" href="{{ route('products.create') }}">
                                             <i class="fas fa-plus me-2"></i> Add New Product
+                                        </a>
+                                        
+                                        <a class="dropdown-item" href="{{ route('categories.index') }}">
+                                            <i class="fas fa-tags me-2"></i> Manage Categories
                                         </a>
                                         <div class="dropdown-divider"></div>
                                     @endif

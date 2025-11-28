@@ -7,11 +7,13 @@ use App\Models\Order;
 use App\Models\OrderItem;
 use App\Models\Product;
 use Illuminate\Support\Facades\DB;
+use Barryvdh\DomPDF\Facade\Pdf; // <--- IMPORT THIS
 
 class OrderController extends Controller
 {
     public function store(Request $request)
     {
+        // ... (Keep validation logic exactly the same) ...
         $request->validate([
             'cart' => 'required|array',
             'cart.*.id' => 'required|exists:products,id',
@@ -22,15 +24,12 @@ class OrderController extends Controller
             DB::beginTransaction();
             $totalAmount = 0;
 
-            // 1. CHECK STOCK (Based on Ingredients)
+            // ... (Keep Stock Check logic exactly the same) ...
             foreach ($request->cart as $item) {
                 $product = Product::with('ingredients')->lockForUpdate()->find($item['id']);
                 $qtyOrdered = $item['quantity'];
 
-                if ($product->ingredients->isEmpty()) {
-                    // Optional: If product has no recipe, skip stock check or fail?
-                    // We'll skip for now to allow selling non-inventory items
-                } else {
+                if (!$product->ingredients->isEmpty()) {
                     foreach ($product->ingredients as $ing) {
                         $needed = $ing->pivot->quantity_needed * $qtyOrdered;
                         if ($ing->stock < $needed) {
@@ -57,9 +56,11 @@ class OrderController extends Controller
                 $product = Product::find($item['id']);
                 
                 // Deduct Ingredients
-                foreach ($product->ingredients as $ing) {
-                    $needed = $ing->pivot->quantity_needed * $item['quantity'];
-                    $ing->decrement('stock', $needed);
+                if (!$product->ingredients->isEmpty()) {
+                    foreach ($product->ingredients as $ing) {
+                        $needed = $ing->pivot->quantity_needed * $item['quantity'];
+                        $ing->decrement('stock', $needed);
+                    }
                 }
 
                 OrderItem::create([
@@ -71,11 +72,30 @@ class OrderController extends Controller
             }
 
             DB::commit();
-            return response()->json(['success' => true, 'message' => 'Order complete!']);
+
+            // CHANGE: Return the order_id so we can print the receipt
+            return response()->json([
+                'success' => true, 
+                'message' => 'Order complete!', 
+                'order_id' => $order->id 
+            ]);
 
         } catch (\Exception $e) {
             DB::rollBack();
             return response()->json(['success' => false, 'message' => $e->getMessage()], 500);
         }
+    }
+
+    // --- NEW FUNCTION: GENERATE PDF ---
+    public function downloadReceipt(Order $order)
+    {
+        // Load relationships to access product names and user name
+        $order->load(['items.product', 'user']);
+        
+        // Generate PDF from a view
+        $pdf = Pdf::loadView('orders.receipt', compact('order'));
+        
+        // Stream it (Open in browser) instead of force download
+        return $pdf->stream('receipt-'.$order->id.'.pdf');
     }
 }

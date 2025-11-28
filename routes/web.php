@@ -25,6 +25,8 @@ Route::middleware(['auth', 'twofactor'])->group(function () {
     
     Route::get('/products', [ProductController::class, 'index'])->name('products.index');
     Route::post('/checkout', [OrderController::class, 'store'])->name('checkout');
+    Route::get('/orders/{order}/receipt', [OrderController::class, 'downloadReceipt'])->name('orders.receipt');
+
 });
 
 // ADMIN ONLY
@@ -34,7 +36,7 @@ Route::middleware(['auth', 'twofactor', 'admin'])->group(function () {
     Route::get('/products/{product}/edit', [ProductController::class, 'edit'])->name('products.edit');
     Route::put('/products/{product}', [ProductController::class, 'update'])->name('products.update');
     Route::delete('/products/{product}', [ProductController::class, 'destroy'])->name('products.destroy');
-
+    Route::resource('categories', App\Http\Controllers\CategoryController::class);
     Route::resource('ingredients', IngredientController::class);
     Route::post('/products/{product}/ingredient', [ProductController::class, 'addIngredient'])->name('products.addIngredient');
     Route::delete('/products/{product}/ingredient/{ingredient}', [ProductController::class, 'removeIngredient'])->name('products.removeIngredient');

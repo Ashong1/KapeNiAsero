@@ -230,9 +230,19 @@
         .then(response => response.json())
         .then(data => {
             if(data.success) {
-                alert("Payment Successful!");
-                cart = []; // Clear cart
-                renderCart(); // Reset UI
+                // 1. Success Message
+                // alert("Payment Successful!"); // Removed standard alert
+                
+                // 2. Clear Cart
+                cart = [];
+                renderCart();
+                
+                // 3. Ask to Print Receipt
+                if(confirm("Payment Successful! \n\nDo you want to print the receipt?")) {
+                    // Open PDF in a new tab
+                    window.open('/orders/' + data.order_id + '/receipt', '_blank');
+                }
+                
             } else {
                 alert("Error: " + data.message);
             }

@@ -1,65 +1,81 @@
-@extends('layouts.app')
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Update Password | Kape Ni Asero</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        :root {
+            --primary-coffee: #6F4E37; --dark-coffee: #3E2723; --input-bg: #F5F5F7;
+        }
+        body {
+            font-family: 'Inter', sans-serif;
+            background: linear-gradient(135deg, var(--dark-coffee) 0%, var(--primary-coffee) 100%);
+            height: 100vh; display: flex; align-items: center; justify-content: center;
+        }
+        .glass-card {
+            background: rgba(255, 255, 255, 0.95); backdrop-filter: blur(10px); border-radius: 24px;
+            padding: 3rem 2.5rem; width: 100%; max-width: 450px; box-shadow: 0 20px 60px rgba(0,0,0,0.3); text-align: center;
+        }
+        
+        .form-control {
+            background-color: var(--input-bg); border: 1px solid transparent; padding: 0.8rem 1rem 0.8rem 2.5rem;
+            border-radius: 12px; font-size: 0.95rem; transition: all 0.3s;
+        }
+        .form-control:focus { background-color: #fff; border-color: var(--primary-coffee); box-shadow: 0 0 0 4px rgba(111, 78, 55, 0.1); }
+        .input-group-icon { position: absolute; left: 1rem; top: 50%; transform: translateY(-50%); color: #9CA3AF; z-index: 4; }
+        .position-relative { margin-bottom: 1rem; }
+        
+        .btn-coffee {
+            background: var(--primary-coffee); color: white; width: 100%; padding: 0.8rem; border-radius: 12px;
+            font-weight: 600; border: none; transition: all 0.2s; box-shadow: 0 4px 12px rgba(111, 78, 55, 0.25);
+        }
+        .btn-coffee:hover { background: #5A3D2B; transform: translateY(-1px); }
+    </style>
+</head>
+<body>
 
-@section('content')
-<div class="container">
-    <div class="row justify-content-center">
-        <div class="col-md-8">
-            <div class="card">
-                <div class="card-header">{{ __('Reset Password') }}</div>
+<div class="glass-card">
+    <h3 class="fw-bold text-dark mb-2">New Password</h3>
+    <p class="text-secondary small mb-4">Create a strong password for your account.</p>
 
-                <div class="card-body">
-                    <form method="POST" action="{{ route('password.update') }}">
-                        @csrf
+    <form method="POST" action="{{ route('password.update') }}">
+        @csrf
+        <input type="hidden" name="token" value="{{ $token }}">
 
-                        <input type="hidden" name="token" value="{{ $token }}">
-
-                        <div class="row mb-3">
-                            <label for="email" class="col-md-4 col-form-label text-md-end">{{ __('Email Address') }}</label>
-
-                            <div class="col-md-6">
-                                <input id="email" type="email" class="form-control @error('email') is-invalid @enderror" name="email" value="{{ $email ?? old('email') }}" required autocomplete="email" autofocus>
-
-                                @error('email')
-                                    <span class="invalid-feedback" role="alert">
-                                        <strong>{{ $message }}</strong>
-                                    </span>
-                                @enderror
-                            </div>
-                        </div>
-
-                        <div class="row mb-3">
-                            <label for="password" class="col-md-4 col-form-label text-md-end">{{ __('Password') }}</label>
-
-                            <div class="col-md-6">
-                                <input id="password" type="password" class="form-control @error('password') is-invalid @enderror" name="password" required autocomplete="new-password">
-
-                                @error('password')
-                                    <span class="invalid-feedback" role="alert">
-                                        <strong>{{ $message }}</strong>
-                                    </span>
-                                @enderror
-                            </div>
-                        </div>
-
-                        <div class="row mb-3">
-                            <label for="password-confirm" class="col-md-4 col-form-label text-md-end">{{ __('Confirm Password') }}</label>
-
-                            <div class="col-md-6">
-                                <input id="password-confirm" type="password" class="form-control" name="password_confirmation" required autocomplete="new-password">
-                            </div>
-                        </div>
-
-                        <div class="row mb-0">
-                            <div class="col-md-6 offset-md-4">
-                                <button type="submit" class="btn btn-primary">
-                                    {{ __('Reset Password') }}
-                                </button>
-                            </div>
-                        </div>
-                    </form>
-                </div>
-            </div>
+        <div class="position-relative text-start">
+            <i class="fas fa-envelope input-group-icon"></i>
+            <input id="email" type="email" class="form-control @error('email') is-invalid @enderror" 
+                   name="email" value="{{ $email ?? old('email') }}" required autocomplete="email" 
+                   placeholder="Email Address" readonly>
+            @error('email')
+                <span class="text-danger small mt-1 d-block">{{ $message }}</span>
+            @enderror
         </div>
-    </div>
+
+        <div class="position-relative text-start">
+            <i class="fas fa-lock input-group-icon"></i>
+            <input id="password" type="password" class="form-control @error('password') is-invalid @enderror" 
+                   name="password" required autocomplete="new-password" placeholder="New Password">
+            @error('password')
+                <span class="text-danger small mt-1 d-block">{{ $message }}</span>
+            @enderror
+        </div>
+
+        <div class="position-relative text-start mb-4">
+            <i class="fas fa-check-circle input-group-icon"></i>
+            <input id="password-confirm" type="password" class="form-control" 
+                   name="password_confirmation" required autocomplete="new-password" placeholder="Confirm Password">
+        </div>
+
+        <button type="submit" class="btn-coffee">
+            Reset Password
+        </button>
+    </form>
 </div>
-@endsection
+
+</body>
+</html>

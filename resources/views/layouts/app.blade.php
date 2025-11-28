@@ -206,6 +206,9 @@
                     <ul class="navbar-nav me-auto">
                         @auth
                             <li class="nav-item">
+                                <a class="nav-link" href="{{ route('orders.index') }}">Order History</a>
+                            </li>
+                            <li class="nav-item">
                                 <a class="nav-link {{ request()->routeIs('home') ? 'active' : '' }}" href="{{ route('home') }}">
                                     <i class="fas fa-chart-line d-md-none me-2"></i>Dashboard
                                 </a>

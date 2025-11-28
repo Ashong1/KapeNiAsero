@@ -19,15 +19,12 @@ Route::middleware(['auth'])->group(function() {
 });
 
 // GENERAL ACCESS (With 2FA) - Employees and Admins
-Route::middleware(['auth', 'twofactor'])->group(function () {
-    // Point Home to the new Controller
+    Route::middleware(['auth', 'twofactor'])->group(function () {
+    Route::get('/orders', [OrderController::class, 'index'])->name('orders.index');
     Route::get('/home', [HomeController::class, 'index'])->name('home');
-    
     Route::get('/products', [ProductController::class, 'index'])->name('products.index');
     Route::post('/checkout', [OrderController::class, 'store'])->name('checkout');
     Route::get('/orders/{order}/receipt', [OrderController::class, 'downloadReceipt'])->name('orders.receipt');
-
-    // --- NEW ROUTE: VOID REQUEST (For Employees) ---
     Route::post('/orders/{order}/void-request', [OrderController::class, 'requestVoid'])->name('orders.requestVoid');
 });
 

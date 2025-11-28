@@ -369,6 +369,10 @@
         </div>
 
         <div class="d-flex align-items-center gap-2">
+            <a href="{{ route('orders.index') }}" class="btn btn-warning rounded-circle shadow-sm d-flex align-items-center justify-content-center" style="width:40px;height:40px;" title="Order History / Void">
+                <i class="fas fa-history text-white"></i>
+            </a>
+
             @if(Auth::user()->role == 'admin')
                 <a href="{{ route('home') }}" class="btn btn-light rounded-circle shadow-sm d-flex align-items-center justify-content-center" style="width:40px;height:40px;" title="Dashboard">
                     <i class="fas fa-th-large text-secondary"></i>

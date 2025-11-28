@@ -191,6 +191,9 @@
                                         <a class="dropdown-item" href="{{ route('categories.index') }}">
                                             <i class="fas fa-tags me-2"></i> Manage Categories
                                         </a>
+                                        <a class="dropdown-item" href="{{ route('suppliers.index') }}">
+                                            <i class="fas fa-truck me-2"></i> Manage Suppliers
+                                        </a>
                                         <div class="dropdown-divider"></div>
                                     @endif
                                     
@@ -222,5 +225,8 @@
             </div>
         </div>
     </div>
+
+    <!-- IMPORTANT: Bootstrap JS Bundle (Required for Dropdowns to work) -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 </body>
 </html>

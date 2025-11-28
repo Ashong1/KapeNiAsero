@@ -40,4 +40,5 @@ Route::middleware(['auth', 'twofactor', 'admin'])->group(function () {
     Route::resource('ingredients', IngredientController::class);
     Route::post('/products/{product}/ingredient', [ProductController::class, 'addIngredient'])->name('products.addIngredient');
     Route::delete('/products/{product}/ingredient/{ingredient}', [ProductController::class, 'removeIngredient'])->name('products.removeIngredient');
+    Route::resource('suppliers', App\Http\Controllers\SupplierController::class);
 });

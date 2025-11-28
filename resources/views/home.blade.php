@@ -24,21 +24,32 @@
         </div>
         <div>
             <!-- SECURITY: Only Admin sees Management Buttons -->
-            @if(Auth::user()->role == 'admin')
-                <!-- Added Dashboard Link (Active State Visual) -->
+            <!-- SECURITY: Only Admin sees Management Buttons -->
+        @if(Auth::user()->role == 'admin')
+            
+            <!-- EXISTING BUTTONS -->
+            <a href="{{ route('ingredients.index') }}" class="btn btn-outline-dark btn-sm me-2">
+                <i class="fas fa-boxes"></i> Warehouse
+            </a>
 
-                <a href="{{ route('ingredients.index') }}" class="btn btn-outline-dark btn-sm me-2">
-                    <i class="fas fa-boxes"></i> Warehouse
-                </a>
-                <a href="{{ route('products.create') }}" class="btn btn-outline-primary btn-sm me-2">
-                    <i class="fas fa-plus"></i> Add Item
-                </a>
-                
-                <!-- Go to POS Button (Moved here for consistency) -->
-                <a href="{{ route('products.index') }}" class="btn btn-primary btn-sm me-2">
-                    <i class="fas fa-cash-register"></i> POS
-                </a>
-            @endif
+            <!-- NEW BUTTONS (ADD THESE) -->
+            <a href="{{ route('categories.index') }}" class="btn btn-outline-secondary btn-sm me-2">
+                <i class="fas fa-tags"></i> Categories
+            </a>
+            
+            <a href="{{ route('suppliers.index') }}" class="btn btn-outline-secondary btn-sm me-2">
+                <i class="fas fa-truck"></i> Suppliers
+            </a>
+            <!-- END NEW BUTTONS -->
+
+            <a href="{{ route('products.create') }}" class="btn btn-outline-primary btn-sm me-2">
+                <i class="fas fa-plus"></i> Add Item
+            </a>
+            
+            <a href="{{ route('products.index') }}" class="btn btn-primary btn-sm me-2">
+                <i class="fas fa-cash-register"></i> POS
+            </a>
+        @endif
             
             <!-- Logout Button -->
             <a href="{{ route('logout') }}" class="btn btn-danger btn-sm"

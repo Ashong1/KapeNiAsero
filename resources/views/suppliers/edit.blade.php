@@ -1,65 +1,93 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Edit Supplier | Kape Ni Asero</title>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <style>
-        :root { --primary-coffee: #6F4E37; --text-dark: #2C1810; --border-light: #EFEBE9; }
-        body { font-family: 'Inter', sans-serif; background: #F5F5F7; color: var(--text-dark); padding: 3rem 1rem; }
-        .navbar-brand { font-weight: 800; font-size: 1.2rem; display: flex; align-items: center; gap: 0.5rem; text-decoration: none; color: var(--text-dark); margin-bottom: 2rem; justify-content: center;}
-        .card-custom { border: none; border-radius: 24px; box-shadow: 0 10px 40px rgba(0,0,0,0.05); background: white; overflow: hidden; }
-        .form-label { font-size: 0.75rem; font-weight: 700; text-transform: uppercase; color: #8D6E63; margin-bottom: 0.4rem; letter-spacing: 0.05em; }
-        .form-control { border-radius: 10px; padding: 0.7rem 1rem; border: 1px solid var(--border-light); font-size: 0.95rem; }
-        .form-control:focus { border-color: var(--primary-coffee); box-shadow: 0 0 0 4px rgba(111, 78, 55, 0.1); }
-        .btn-warning { background: #FFB74D; border: none; padding: 0.8rem 2rem; border-radius: 12px; font-weight: 600; box-shadow: 0 4px 15px rgba(255, 183, 77, 0.3); color: #4E342E; }
-        .btn-warning:hover { background: #FFA726; transform: translateY(-1px); }
-    </style>
-</head>
-<body>
+@extends('layouts.app')
 
-<div class="container" style="max-width: 700px;">
-    <a href="{{ route('suppliers.index') }}" class="navbar-brand">
-        <img src="{{ asset('ka.png') }}" style="height: 32px;"> KAPE NI ASERO
-    </a>
+@section('content')
+<div class="row justify-content-center">
+    <div class="col-md-8 col-lg-6">
+        <div class="card card-custom p-4">
+            
+            <div class="text-center mb-4">
+                <div class="bg-warning-subtle rounded-circle d-inline-flex p-3 mb-3 shadow-sm">
+                    <i class="fas fa-edit fa-2x text-warning-emphasis"></i>
+                </div>
+                <h4 class="fw-bold text-dark">Edit Supplier</h4>
+                <p class="text-secondary small">Update supplier information</p>
+            </div>
 
-    <div class="card card-custom">
-        <div class="card-body p-5">
-            <h4 class="fw-bold mb-4">Edit Supplier Details</h4>
             <form action="{{ route('suppliers.update', $supplier->id) }}" method="POST">
-                @csrf @method('PUT')
+                @csrf
+                @method('PUT')
                 
-                <div class="mb-4">
-                    <label class="form-label">Company Name</label>
-                    <input type="text" name="name" value="{{ $supplier->name }}" class="form-control fw-bold" required>
-                </div>
-
-                <div class="row g-3 mb-4">
-                    <div class="col-md-6">
-                        <label class="form-label">Contact Person</label>
-                        <input type="text" name="contact_person" value="{{ $supplier->contact_person }}" class="form-control">
-                    </div>
-                    <div class="col-md-6">
-                        <label class="form-label">Phone Number</label>
-                        <input type="text" name="phone" value="{{ $supplier->phone }}" class="form-control">
-                    </div>
+                <div class="row g-3">
                     <div class="col-12">
-                        <label class="form-label">Email Address</label>
-                        <input type="email" name="email" value="{{ $supplier->email }}" class="form-control" required>
+                        <label class="form-label text-uppercase small fw-bold text-secondary">Company Name</label>
+                        <div class="input-group">
+                            <span class="input-group-text bg-light border-end-0" style="border-radius: 12px 0 0 12px;">
+                                <i class="fas fa-building text-muted"></i>
+                            </span>
+                            <input type="text" name="name" 
+                                   class="form-control form-control-lg fs-6 border-start-0 ps-0" 
+                                   value="{{ $supplier->name }}" 
+                                   required 
+                                   style="border-radius: 0 12px 12px 0; padding: 0.8rem;">
+                        </div>
+                    </div>
+
+                    <div class="col-12">
+                        <label class="form-label text-uppercase small fw-bold text-secondary">Contact Person</label>
+                        <div class="input-group">
+                            <span class="input-group-text bg-light border-end-0" style="border-radius: 12px 0 0 12px;">
+                                <i class="fas fa-user text-muted"></i>
+                            </span>
+                            <input type="text" name="contact_person" 
+                                   class="form-control form-control-lg fs-6 border-start-0 ps-0" 
+                                   value="{{ $supplier->contact_person }}" 
+                                   style="border-radius: 0 12px 12px 0; padding: 0.8rem;">
+                        </div>
+                    </div>
+
+                    <div class="col-md-6">
+                        <label class="form-label text-uppercase small fw-bold text-secondary">Email Address</label>
+                        <div class="input-group">
+                            <span class="input-group-text bg-light border-end-0" style="border-radius: 12px 0 0 12px;">
+                                <i class="fas fa-envelope text-muted"></i>
+                            </span>
+                            <input type="email" name="email" 
+                                   class="form-control form-control-lg fs-6 border-start-0 ps-0" 
+                                   value="{{ $supplier->email }}" 
+                                   style="border-radius: 0 12px 12px 0; padding: 0.8rem;">
+                        </div>
+                    </div>
+
+                    <div class="col-md-6">
+                        <label class="form-label text-uppercase small fw-bold text-secondary">Phone Number</label>
+                        <div class="input-group">
+                            <span class="input-group-text bg-light border-end-0" style="border-radius: 12px 0 0 12px;">
+                                <i class="fas fa-phone text-muted"></i>
+                            </span>
+                            <input type="text" name="phone" 
+                                   class="form-control form-control-lg fs-6 border-start-0 ps-0" 
+                                   value="{{ $supplier->phone }}" 
+                                   style="border-radius: 0 12px 12px 0; padding: 0.8rem;">
+                        </div>
                     </div>
                 </div>
 
-                <div class="d-flex justify-content-between align-items-center mt-5">
-                    <a href="{{ route('suppliers.index') }}" class="text-secondary text-decoration-none fw-bold small">Discard Changes</a>
-                    <button type="submit" class="btn btn-warning">Update Record</button>
+                <div class="d-flex gap-2 mt-4">
+                    <a href="{{ route('suppliers.index') }}" 
+                       class="btn btn-light w-50 text-secondary fw-bold d-flex align-items-center justify-content-center" 
+                       style="border-radius: 12px; padding: 0.8rem;">
+                       Cancel
+                    </a>
+                    
+                    <button type="submit" 
+                            class="btn btn-warning w-50 fw-bold d-flex align-items-center justify-content-center text-dark" 
+                            style="border-radius: 12px; padding: 0.8rem; background-color: #ffc107; border: none;">
+                        <i class="fas fa-save me-2"></i> Update Supplier
+                    </button>
                 </div>
+
             </form>
         </div>
     </div>
 </div>
-
-</body>
-</html>
+@endsection

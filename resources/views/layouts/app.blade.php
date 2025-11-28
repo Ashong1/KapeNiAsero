@@ -5,12 +5,16 @@
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <meta name="csrf-token" content="{{ csrf_token() }}">
 
-    <title>Kape Ni Asero</title>
+    <title>{{ config('app.name', 'Kape Ni Asero') }}</title>
 
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/4.1.1/animate.min.css"/>
+
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
 
     <style>
         :root {
@@ -62,7 +66,7 @@
         .brand-title { font-weight: 800; font-size: 1.1rem; color: var(--text-dark); letter-spacing: -0.02em; }
         .brand-subtitle { font-size: 0.75rem; color: var(--text-secondary); font-weight: 500; }
 
-        /* NAV ITEMS */
+        /* --- NAVIGATION PILLS --- */
         .nav-pill-custom {
             border-radius: 12px; padding: 0.5rem 1rem; font-weight: 600; font-size: 0.9rem;
             color: var(--text-secondary); transition: all 0.2s ease; border: 1px solid transparent;
@@ -71,29 +75,101 @@
         .nav-pill-custom:hover { background-color: rgba(111, 78, 55, 0.08); color: var(--primary-coffee); }
         .nav-pill-custom.active { background-color: var(--primary-coffee); color: white; box-shadow: 0 4px 12px rgba(111, 78, 55, 0.25); }
 
-        /* BUTTONS */
+        /* --- BUTTONS --- */
         .btn-action {
             border-radius: 12px; padding: 0.5rem 1.2rem; font-weight: 600; font-size: 0.9rem;
             transition: all 0.2s ease; display: flex; align-items: center; gap: 0.5rem;
         }
-        .btn-primary-coffee {
+        
+        /* POS Button (Gradient) */
+        .btn-primary-coffee, .btn-pos {
             background: linear-gradient(135deg, var(--primary-coffee) 0%, var(--dark-coffee) 100%);
             color: white; border: none; box-shadow: 0 4px 15px rgba(111, 78, 55, 0.3);
         }
-        .btn-primary-coffee:hover { transform: translateY(-2px); color: white; box-shadow: 0 6px 20px rgba(111, 78, 55, 0.4); }
-
-        /* ALERTS */
-        .alert-floating {
-            border-radius: 16px; border: none; box-shadow: 0 10px 30px rgba(0,0,0,0.1); margin-bottom: 1.5rem;
+        .btn-primary-coffee:hover, .btn-pos:hover { 
+            transform: translateY(-2px); color: white; box-shadow: 0 6px 20px rgba(111, 78, 55, 0.4); 
         }
 
-        /* CUSTOM UTILS */
+        /* Create Button (White with Green Hover) */
+        .btn-create {
+            background: white; border: 1px solid var(--border-light); color: var(--text-dark);
+            box-shadow: 0 2px 6px rgba(0,0,0,0.02);
+        }
+        .btn-create:hover {
+            border-color: var(--success-green); color: var(--success-green); background: #F1F8E9;
+        }
+
+        /* Warning/Edit Button */
+        .btn-warning-custom {
+            background: #FFB300; border: none; padding: 0.8rem; border-radius: 12px; font-weight: 600; color: #3E2723;
+        }
+        .btn-warning-custom:hover { background: #FFCA28; color: #3E2723; }
+
+        /* --- CARDS --- */
         .card-custom {
             border: none; border-radius: 20px; background: white;
             box-shadow: 0 10px 40px -10px rgba(0,0,0,0.08); overflow: hidden;
         }
         
-        /* Allow views to push custom styles */
+        /* KPI Cards (Dashboard) */
+        .kpi-card {
+            position: relative; overflow: hidden; border: none; border-radius: 20px;
+            background: white; box-shadow: 0 10px 40px -10px rgba(0,0,0,0.08);
+            transition: transform 0.3s cubic-bezier(0.34, 1.56, 0.64, 1), box-shadow 0.3s;
+        }
+        .kpi-card:hover { transform: translateY(-5px); box-shadow: 0 15px 50px -10px rgba(0,0,0,0.12); }
+        .kpi-bg-icon {
+            position: absolute; right: -10px; bottom: -10px; font-size: 5rem;
+            opacity: 0.05; transform: rotate(-15deg); z-index: 0;
+        }
+        .card-content-wrapper { position: relative; z-index: 1; height: 100%; display: flex; flex-direction: column; }
+
+        /* --- TABLES --- */
+        .table-card-header {
+            background: transparent; border-bottom: 1px solid var(--border-light);
+            padding: 1.5rem; display: flex; justify-content: space-between; align-items: center;
+        }
+        .table > :not(caption) > * > * {
+            padding: 1rem 1rem; background-color: transparent; border-bottom-color: var(--border-light);
+        }
+        .table thead th {
+            font-size: 0.75rem; text-transform: uppercase; letter-spacing: 0.05em;
+            color: var(--text-secondary); font-weight: 600; background-color: #FAFAFA;
+        }
+
+        /* --- FORMS --- */
+        .form-label {
+            font-size: 0.75rem; font-weight: 700; text-transform: uppercase;
+            color: var(--text-secondary); margin-bottom: 0.5rem; letter-spacing: 0.05em;
+        }
+        .form-control, .form-select {
+            border-radius: 12px; border: 1px solid var(--border-light);
+            padding: 0.8rem 1rem; font-size: 0.95rem; transition: all 0.2s;
+        }
+        .form-control:focus, .form-select:focus {
+            border-color: var(--primary-coffee); box-shadow: 0 0 0 4px rgba(111, 78, 55, 0.1);
+        }
+
+        /* Upload Box */
+        .upload-box {
+            border: 2px dashed var(--border-light); border-radius: 16px; height: 250px;
+            display: flex; flex-direction: column; justify-content: center; align-items: center;
+            background: #FAFAFA; transition: all 0.2s; cursor: pointer; position: relative; overflow: hidden;
+        }
+        .upload-box:hover { border-color: var(--accent-gold); background: #FFF8E1; }
+        .upload-box i { font-size: 3rem; color: #D7CCC8; margin-bottom: 1rem; }
+
+        /* --- ALERTS --- */
+        .alert-floating {
+            border-radius: 16px; border: none; box-shadow: 0 10px 30px rgba(0,0,0,0.1); margin-bottom: 1.5rem;
+        }
+        
+        /* Audit Log Badges */
+        .badge-soft-void { background-color: #FEF2F2; color: #DC2626; }
+        .badge-soft-stock { background-color: #FFFBEB; color: #D97706; }
+        .badge-soft-system { background-color: #F3F4F6; color: #4B5563; }
+
+        /* View Specific Styles Injection */
         @yield('styles')
     </style>
 </head>
@@ -137,15 +213,18 @@
                             <a href="{{ route('ingredients.index') }}" class="nav-pill-custom {{ request()->routeIs('ingredients.*') ? 'active' : '' }}">
                                 <i class="fas fa-boxes"></i> Stock
                             </a>
-                            <a href="{{ route('products.create') }}" class="nav-pill-custom {{ request()->routeIs('products.create') ? 'active' : '' }}">
-                                <i class="fas fa-plus-circle"></i> Item
+                            <a href="{{ route('categories.index') }}" class="nav-pill-custom {{ request()->routeIs('categories.*') ? 'active' : '' }}">
+                                <i class="fas fa-tags"></i> Category
+                            </a>
+                            <a href="{{ route('suppliers.index') }}" class="nav-pill-custom {{ request()->routeIs('suppliers.*') ? 'active' : '' }}">
+                                <i class="fas fa-truck"></i> Suppliers
                             </a>
                         @endif
                     </div>
 
                     <div class="vr d-none d-lg-block mx-1 opacity-25"></div>
 
-                    <a href="{{ route('products.index') }}" class="btn btn-action btn-primary-coffee">
+                    <a href="{{ route('products.index') }}" class="btn btn-action btn-pos">
                         <i class="fas fa-cash-register"></i> <span class="d-none d-md-inline">Open POS</span>
                     </a>
 

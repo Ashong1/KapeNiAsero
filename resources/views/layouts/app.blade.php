@@ -219,6 +219,9 @@
                             <a href="{{ route('suppliers.index') }}" class="nav-pill-custom {{ request()->routeIs('suppliers.*') ? 'active' : '' }}">
                                 <i class="fas fa-truck"></i> Suppliers
                             </a>
+                            <a href="{{ route('products.create') }}" class="nav-pill-custom {{ request()->routeIs('products.create') ? 'active' : '' }}">
+                                <i class="fas fa-plus-circle"></i> New Item
+                            </a>
                         @endif
                     </div>
 

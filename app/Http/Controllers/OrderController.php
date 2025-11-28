@@ -7,7 +7,7 @@ use App\Models\Order;
 use App\Models\OrderItem;
 use App\Models\Product;
 use Illuminate\Support\Facades\DB;
-use Barryvdh\DomPDF\Facade\Pdf; // <--- IMPORT THIS
+use Barryvdh\DomPDF\Facade\Pdf; 
 
 class OrderController extends Controller
 {
@@ -87,7 +87,7 @@ class OrderController extends Controller
         }
     }
 
-    // --- NEW FUNCTION: GENERATE PDF ---
+    // --- GENERATE PDF ---
     public function downloadReceipt(Order $order)
     {
         // Load relationships to access product names and user name
@@ -99,9 +99,29 @@ class OrderController extends Controller
         // Stream it (Open in browser) instead of force download
         return $pdf->stream('receipt-'.$order->id.'.pdf');
     }
+
+    // --- NEW FUNCTION: EMPLOYEE VOID REQUEST ---
+    public function requestVoid(Order $order)
+    {
+        // 1. Check if order is eligible (must be 'completed' to request a void)
+        if ($order->status !== 'completed') {
+            return redirect()->back()->with('error', 'Only completed orders can be requested for void.');
+        }
+
+        // 2. Update Status to 'void_pending'
+        $order->update(['status' => 'void_pending']);
+
+        // 3. Log the Request
+        $employeeName = auth()->user()->name;
+        $this->logActivity('Void Requested', "Void requested for Order #{$order->id} by {$employeeName}");
+
+        return redirect()->back()->with('success', 'Void request submitted for Admin approval.');
+    }
+
+    // --- ADMIN VOID CONFIRMATION ---
     public function voidOrder(Order $order)
     {
-        // 1. Security Check: Only allow voiding if currently 'completed'
+        // 1. Security Check: Only allow voiding if currently 'completed' or 'void_pending'
         if ($order->status === 'voided') {
             return redirect()->back()->with('error', 'Order is already voided.');
         }
@@ -128,7 +148,5 @@ class OrderController extends Controller
         $this->logActivity('Void Order', "Voided Order #{$order->id}");
 
         return redirect()->back()->with('success', "Order #{$order->id} has been voided and inventory restored.");
-        
     }
-    
 }

@@ -3,20 +3,23 @@
 namespace App\Http\Controllers;
 
 use App\Models\Product;
-use App\Models\Ingredient; // Import Ingredient
+use App\Models\Ingredient;
+use App\Models\Category; // <--- NEW IMPORT
 use Illuminate\Http\Request;
 
 class ProductController extends Controller
 {
     public function index()
     {
-        $products = Product::all();
+        // Eager load category to prevent N+1 query performance issues
+        $products = Product::with('category')->get(); 
         return view('products.index', compact('products'));
     }
 
     public function create()
     {
-        return view('products.create');
+        $categories = Category::all(); // <--- NEW: Fetch categories
+        return view('products.create', compact('categories'));
     }
 
     public function store(Request $request)
@@ -24,23 +27,20 @@ class ProductController extends Controller
         $request->validate([
             'name' => 'required',
             'price' => 'required|numeric',
-            'category' => 'required',
+            'category_id' => 'required|exists:categories,id', // <--- CHANGED VALIDATION
         ]);
 
         $product = Product::create($request->all());
 
-        // CHANGE: Redirect to Edit page so they can add ingredients immediately
         return redirect()->route('products.edit', $product->id)
                          ->with('success', 'Product created! Now add the recipe ingredients.');
     }
 
-
-
-    // UPDATED EDIT FUNCTION
     public function edit(Product $product)
     {
-        $ingredients = Ingredient::all(); // Load ingredients for dropdown
-        return view('products.edit', compact('product', 'ingredients'));
+        $ingredients = Ingredient::all();
+        $categories = Category::all(); // <--- NEW: Fetch for edit dropdown
+        return view('products.edit', compact('product', 'ingredients', 'categories'));
     }
 
     public function update(Request $request, Product $product)
@@ -48,20 +48,20 @@ class ProductController extends Controller
         $request->validate([
             'name' => 'required',
             'price' => 'required|numeric',
-            'category' => 'required',
+            'category_id' => 'required|exists:categories,id', // <--- CHANGED
         ]);
 
         $product->update($request->all());
         return redirect()->route('products.index')->with('success', 'Product updated.');
     }
 
+    // ... (Keep destroy, addIngredient, removeIngredient exactly as they are) ...
+    
     public function destroy(Product $product)
     {
         $product->delete();
         return redirect()->route('products.index')->with('success', 'Product deleted.');
     }
-
-    // --- NEW FUNCTIONS FOR RECIPES ---
 
     public function addIngredient(Request $request, Product $product)
     {
@@ -70,7 +70,6 @@ class ProductController extends Controller
             'quantity' => 'required|numeric|min:0.1'
         ]);
 
-        // Attach ingredient (if exists, update quantity)
         $product->ingredients()->syncWithoutDetaching([
             $request->ingredient_id => ['quantity_needed' => $request->quantity]
         ]);

@@ -38,12 +38,11 @@
                             </div>
                             <div class="col-md-6">
                                 <label class="form-label fw-bold text-muted">Category</label>
-                                <select name="category" class="form-select" required>
+                                <select name="category_id" class="form-select" required>
                                     <option value="" disabled selected>Select...</option>
-                                    <option value="Hot Coffee">Hot Coffee</option>
-                                    <option value="Iced Coffee">Iced Coffee</option>
-                                    <option value="Pastry">Pastry</option>
-                                    <option value="Non-Coffee">Non-Coffee</option>
+                                    @foreach($categories as $category)
+                                        <option value="{{ $category->id }}">{{ $category->name }}</option>
+                                    @endforeach
                                 </select>
                             </div>
                         </div>

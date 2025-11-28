@@ -3,286 +3,187 @@
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    
     <meta name="csrf-token" content="{{ csrf_token() }}">
 
     <title>Kape Ni Asero</title>
 
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
-    
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-
-    @vite(['resources/sass/app.scss', 'resources/js/app.js'])
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/4.1.1/animate.min.css"/>
 
     <style>
         :root {
             /* BRAND PALETTE */
             --primary-coffee: #6F4E37;
+            --primary-coffee-hover: #5A3D2B;
             --dark-coffee: #3E2723;
-            --text-dark: #2C1810;
-            --text-medium: #5D4E37;
-            --accent-gold: #8B7355;
+            --accent-gold: #C5A065;
             --surface-cream: #FFF8E7;
-            --surface-white: #FFFFFF;
-            --border-light: #F0E5D0;
-            --input-border: #E8DCC8;
+            --surface-glass: rgba(255, 255, 255, 0.92);
+            --surface-bg: #F5F5F7;
+            --text-dark: #1D1D1F;
+            --text-secondary: #86868B;
+            --success-green: #34C759;
+            --danger-red: #D32F2F;
+            --border-light: #EFEBE9;
         }
 
         body {
             font-family: 'Inter', sans-serif;
-            background: linear-gradient(135deg, var(--primary-coffee) 0%, var(--dark-coffee) 100%);
-            min-height: 100vh;
+            background: linear-gradient(135deg, #F5F5F5 0%, #E0E0E0 100%);
+            background-image: radial-gradient(at 0% 0%, rgba(111, 78, 55, 0.05) 0px, transparent 50%),
+                              radial-gradient(at 100% 100%, rgba(197, 160, 101, 0.1) 0px, transparent 50%);
             color: var(--text-dark);
-            /* Prevent horizontal scroll on mobile */
-            overflow-x: hidden; 
-        }
-
-        /* FLEXBOX LAYOUT FOR STICKY FOOTER */
-        #app {
-            display: flex;
-            flex-direction: column;
             min-height: 100vh;
+            padding-bottom: 3rem;
         }
 
-        main {
-            flex: 1;
+        /* --- PREMIUM NAVBAR --- */
+        .navbar-premium {
+            background-color: var(--surface-glass);
+            backdrop-filter: blur(16px);
+            -webkit-backdrop-filter: blur(16px);
+            border-bottom: 1px solid rgba(255, 255, 255, 0.5);
+            box-shadow: 0 4px 24px -1px rgba(62, 39, 35, 0.06);
+            padding: 0.8rem 1rem;
+            margin-bottom: 2rem;
+            border-radius: 24px;
+            margin-top: 1rem;
         }
 
-        /* NAVBAR STYLING */
-        .navbar {
-            background-color: rgba(255, 255, 255, 0.95) !important;
-            backdrop-filter: blur(10px); /* Glass effect */
-            box-shadow: 0 4px 20px rgba(0,0,0,0.08);
-            transition: all 0.3s ease;
+        .navbar-brand-wrapper { display: flex; align-items: center; gap: 1rem; }
+        .logo-container {
+            background: white; padding: 6px; border-radius: 14px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.05);
+            transition: transform 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
         }
+        .navbar-brand:hover .logo-container { transform: scale(1.05) rotate(-3deg); }
+        .brand-title { font-weight: 800; font-size: 1.1rem; color: var(--text-dark); letter-spacing: -0.02em; }
+        .brand-subtitle { font-size: 0.75rem; color: var(--text-secondary); font-weight: 500; }
 
-        .navbar-brand {
-            font-weight: 700;
-            color: var(--primary-coffee) !important;
-            font-size: 1.25rem;
-            display: flex;
-            align-items: center;
+        /* NAV ITEMS */
+        .nav-pill-custom {
+            border-radius: 12px; padding: 0.5rem 1rem; font-weight: 600; font-size: 0.9rem;
+            color: var(--text-secondary); transition: all 0.2s ease; border: 1px solid transparent;
+            display: flex; align-items: center; gap: 0.5rem; text-decoration: none;
         }
-
-        .nav-link {
-            color: var(--text-medium) !important;
-            font-weight: 500;
-            transition: color 0.2s;
-            padding: 0.5rem 1rem; /* Larger touch target */
-        }
-        
-        .nav-link:hover, .nav-link.active {
-            color: var(--primary-coffee) !important;
-        }
-
-        /* CARD STYLING */
-        .card {
-            border: none;
-            border-radius: 20px;
-            box-shadow: 0 10px 30px rgba(0,0,0,0.15);
-            background: var(--surface-white);
-            overflow: hidden;
-            margin-bottom: 1.5rem;
-        }
-
-        .card-header {
-            background-color: var(--surface-cream);
-            border-bottom: 1px solid var(--border-light);
-            color: var(--primary-coffee);
-            font-weight: 700;
-            padding: 1.25rem 1.5rem;
-        }
-
-        /* FORM ELEMENTS */
-        .form-control, .form-select {
-            border: 2px solid var(--input-border);
-            border-radius: 12px;
-            padding: 0.7rem 1rem;
-            font-size: 0.95rem;
-        }
-
-        .form-control:focus, .form-select:focus {
-            border-color: var(--primary-coffee);
-            box-shadow: 0 0 0 4px rgba(111, 78, 55, 0.1);
-        }
+        .nav-pill-custom:hover { background-color: rgba(111, 78, 55, 0.08); color: var(--primary-coffee); }
+        .nav-pill-custom.active { background-color: var(--primary-coffee); color: white; box-shadow: 0 4px 12px rgba(111, 78, 55, 0.25); }
 
         /* BUTTONS */
-        .btn-primary {
-            background-color: var(--primary-coffee);
-            border-color: var(--primary-coffee);
-            border-radius: 10px;
-            padding: 0.6rem 1.2rem;
-            font-weight: 600;
-            box-shadow: 0 4px 12px rgba(111, 78, 55, 0.2);
-            transition: all 0.2s;
+        .btn-action {
+            border-radius: 12px; padding: 0.5rem 1.2rem; font-weight: 600; font-size: 0.9rem;
+            transition: all 0.2s ease; display: flex; align-items: center; gap: 0.5rem;
+        }
+        .btn-primary-coffee {
+            background: linear-gradient(135deg, var(--primary-coffee) 0%, var(--dark-coffee) 100%);
+            color: white; border: none; box-shadow: 0 4px 15px rgba(111, 78, 55, 0.3);
+        }
+        .btn-primary-coffee:hover { transform: translateY(-2px); color: white; box-shadow: 0 6px 20px rgba(111, 78, 55, 0.4); }
+
+        /* ALERTS */
+        .alert-floating {
+            border-radius: 16px; border: none; box-shadow: 0 10px 30px rgba(0,0,0,0.1); margin-bottom: 1.5rem;
         }
 
-        .btn-primary:hover {
-            background-color: #5A3D2B;
-            border-color: #5A3D2B;
-            transform: translateY(-1px);
-        }
-
-        /* DROPDOWN MENU */
-        .dropdown-menu {
-            border: none;
-            border-radius: 12px;
-            box-shadow: 0 10px 30px rgba(0,0,0,0.1);
-            padding: 0.5rem;
+        /* CUSTOM UTILS */
+        .card-custom {
+            border: none; border-radius: 20px; background: white;
+            box-shadow: 0 10px 40px -10px rgba(0,0,0,0.08); overflow: hidden;
         }
         
-        .dropdown-item {
-            border-radius: 8px;
-            padding: 0.7rem 1rem; /* Taller for mobile touch */
-            color: var(--text-dark);
-        }
-        
-        .dropdown-item:hover {
-            background-color: var(--surface-cream);
-            color: var(--primary-coffee);
-        }
-
-        /* FOOTER */
-        .app-footer {
-            background-color: rgba(255, 255, 255, 0.9);
-            color: var(--text-medium);
-            padding: 1rem 0;
-            margin-top: auto;
-            font-size: 0.9rem;
-            text-align: center;
-        }
-
-        /* RESPONSIVE MEDIA QUERIES */
-        @media (max-width: 768px) {
-            .navbar-brand {
-                font-size: 1.1rem;
-            }
-            
-            .navbar-brand img {
-                height: 32px !important; /* Smaller logo on mobile */
-            }
-
-            .card {
-                border-radius: 12px; /* Tighter corners on mobile */
-                box-shadow: 0 5px 15px rgba(0,0,0,0.1);
-            }
-
-            .card-header {
-                padding: 1rem;
-            }
-
-            .card-body {
-                padding: 1rem;
-            }
-
-            .container {
-                padding-left: 1rem;
-                padding-right: 1rem;
-            }
-            
-            /* Better mobile table handling */
-            .table-responsive {
-                border-radius: 12px;
-                overflow: hidden;
-            }
-        }
+        /* Allow views to push custom styles */
+        @yield('styles')
     </style>
 </head>
 <body>
-    <div id="app">
-        <nav class="navbar navbar-expand-md navbar-light sticky-top">
-            <div class="container">
-                <a class="navbar-brand" href="{{ url('/') }}">
-                    <img src="{{ asset('ka.png') }}" alt="Kape Ni Asero" style="height: 40px;" class="me-2">
-                    Kape Ni Asero
-                </a>
-                <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="{{ __('Toggle navigation') }}">
-                    <span class="navbar-toggler-icon"></span>
-                </button>
 
-                <div class="collapse navbar-collapse" id="navbarSupportedContent">
-                    <ul class="navbar-nav me-auto">
-                        @auth
-                            <li class="nav-item">
-                                <a class="nav-link" href="{{ route('orders.index') }}">Order History</a>
-                            </li>
-                            <li class="nav-item">
-                                <a class="nav-link {{ request()->routeIs('home') ? 'active' : '' }}" href="{{ route('home') }}">
-                                    <i class="fas fa-chart-line d-md-none me-2"></i>Dashboard
-                                </a>
-                            </li>
-                            <li class="nav-item">
-                                <a class="nav-link {{ request()->routeIs('products.index') ? 'active' : '' }}" href="{{ route('products.index') }}">
-                                    <i class="fas fa-cash-register d-md-none me-2"></i>POS
-                                </a>
-                            </li>
-                        @endauth
-                    </ul>
-
-                    <ul class="navbar-nav ms-auto">
-                        @guest
-                            @if (Route::has('login'))
-                                <li class="nav-item">
-                                    <a class="nav-link" href="{{ route('login') }}">{{ __('Login') }}</a>
-                                </li>
-                            @endif
-
-                            @if (Route::has('register'))
-                                <li class="nav-item">
-                                    <a class="nav-link" href="{{ route('register') }}">{{ __('Register') }}</a>
-                                </li>
-                            @endif
-                        @else
-                            <li class="nav-item dropdown">
-                                <a id="navbarDropdown" class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false" v-pre>
-                                    <i class="fas fa-user-circle me-1"></i> {{ Auth::user()->name }}
-                                </a>
-
-                                <div class="dropdown-menu dropdown-menu-end shadow-lg" aria-labelledby="navbarDropdown">
-                                    @if(Auth::user()->role == 'admin')
-                                        <div class="dropdown-header text-uppercase small text-muted fw-bold">Administration</div>
-                                        <a class="dropdown-item" href="{{ route('ingredients.index') }}">
-                                            <i class="fas fa-boxes me-2 text-muted" style="width: 20px;"></i> Warehouse
-                                        </a>
-                                        <a class="dropdown-item" href="{{ route('categories.index') }}">
-                                            <i class="fas fa-tags me-2 text-muted" style="width: 20px;"></i> Categories
-                                        </a>
-                                        <a class="dropdown-item" href="{{ route('suppliers.index') }}">
-                                            <i class="fas fa-truck me-2 text-muted" style="width: 20px;"></i> Suppliers
-                                        </a>
-                                        <div class="dropdown-divider"></div>
-                                    @endif
-                                    
-                                    <a class="dropdown-item text-danger" href="{{ route('logout') }}"
-                                       onclick="event.preventDefault();
-                                                     document.getElementById('logout-form').submit();">
-                                        <i class="fas fa-sign-out-alt me-2" style="width: 20px;"></i> {{ __('Logout') }}
-                                    </a>
-
-                                    <form id="logout-form" action="{{ route('logout') }}" method="POST" class="d-none">
-                                        @csrf
-                                    </form>
-                                </div>
-                            </li>
-                        @endguest
-                    </ul>
-                </div>
-            </div>
-        </nav>
-
-        <main class="py-3 py-md-4">
-            @yield('content')
-        </main>
-
-        <footer class="app-footer">
-            <div class="container">
-                <small>&copy; {{ date('Y') }} Kape Ni Asero. All rights reserved.</small>
-            </div>
-        </footer>
-    </div>
+<div class="container">
     
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <nav class="navbar navbar-expand-lg navbar-premium">
+        <div class="container-fluid px-1">
+            <a class="navbar-brand p-0" href="{{ route('home') }}">
+                <div class="navbar-brand-wrapper">
+                    <div class="logo-container">
+                        <img src="{{ asset('ka.png') }}" alt="Logo" style="height: 38px; width: auto;">
+                    </div>
+                    <div class="brand-info">
+                        <div class="brand-title">KAPE NI ASERO</div>
+                        <div class="brand-subtitle">
+                            @auth {{ Auth::user()->role === 'admin' ? 'Admin' : 'Staff' }} @endauth Portal
+                        </div>
+                    </div>
+                </div>
+            </a>
+
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#mainNav">
+                <i class="fas fa-bars fs-5"></i>
+            </button>
+
+            <div class="collapse navbar-collapse mt-3 mt-lg-0" id="mainNav">
+                @auth
+                <div class="ms-auto d-flex flex-column flex-lg-row align-items-stretch align-items-lg-center gap-2 gap-lg-3">
+                    
+                    <div class="d-flex flex-column flex-lg-row gap-1 bg-light p-1 rounded-4 border border-light">
+                        <a href="{{ route('home') }}" class="nav-pill-custom {{ request()->routeIs('home') ? 'active' : '' }}">
+                            <i class="fas fa-chart-pie"></i> Dashboard
+                        </a>
+                        <a href="{{ route('orders.index') }}" class="nav-pill-custom {{ request()->routeIs('orders.index') ? 'active' : '' }}">
+                            <i class="fas fa-history"></i> History
+                        </a>
+                        
+                        @if(Auth::user()->role == 'admin')
+                            <a href="{{ route('ingredients.index') }}" class="nav-pill-custom {{ request()->routeIs('ingredients.*') ? 'active' : '' }}">
+                                <i class="fas fa-boxes"></i> Stock
+                            </a>
+                            <a href="{{ route('products.create') }}" class="nav-pill-custom {{ request()->routeIs('products.create') ? 'active' : '' }}">
+                                <i class="fas fa-plus-circle"></i> Item
+                            </a>
+                        @endif
+                    </div>
+
+                    <div class="vr d-none d-lg-block mx-1 opacity-25"></div>
+
+                    <a href="{{ route('products.index') }}" class="btn btn-action btn-primary-coffee">
+                        <i class="fas fa-cash-register"></i> <span class="d-none d-md-inline">Open POS</span>
+                    </a>
+
+                    <a href="{{ route('logout') }}" 
+                       class="btn btn-action btn-light text-danger border-0 justify-content-center" 
+                       onclick="event.preventDefault(); document.getElementById('logout-form').submit();"
+                       title="Sign Out">
+                        <i class="fas fa-power-off"></i>
+                    </a>
+                    <form id="logout-form" action="{{ route('logout') }}" method="POST" class="d-none">@csrf</form>
+                </div>
+                @endauth
+            </div>
+        </div>
+    </nav>
+
+    @if(session('success'))
+        <div class="alert alert-success alert-dismissible fade show alert-floating d-flex align-items-center animate__animated animate__fadeInDown" role="alert">
+            <i class="fas fa-check-circle fs-4 me-3 text-success"></i>
+            <div>{{ session('success') }}</div>
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+        </div>
+    @endif
+    @if(session('error'))
+        <div class="alert alert-danger alert-dismissible fade show alert-floating d-flex align-items-center animate__animated animate__fadeInDown" role="alert">
+            <i class="fas fa-exclamation-circle fs-4 me-3 text-danger"></i>
+            <div>{{ session('error') }}</div>
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+        </div>
+    @endif
+
+    <main>
+        @yield('content')
+    </main>
+
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+@yield('scripts')
 </body>
 </html>

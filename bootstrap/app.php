@@ -7,14 +7,15 @@ use Illuminate\Foundation\Configuration\Middleware;
 return Application::configure(basePath: dirname(__DIR__))
     ->withRouting(
         web: __DIR__.'/../routes/web.php',
+        api: __DIR__.'/../routes/api.php', // <--- ADD THIS LINE
         commands: __DIR__.'/../routes/console.php',
+        channels: __DIR__.'/../routes/channels.php',
         health: '/up',
     )
     ->withMiddleware(function (Middleware $middleware) {
-        // --- THIS IS THE SECTION YOU NEED TO FIX ---
         $middleware->alias([
             'admin' => \App\Http\Middleware\IsAdmin::class,
-            'twofactor' => \App\Http\Middleware\TwoFactorMiddleware::class, // <--- MAKE SURE THIS LINE IS HERE
+            'twofactor' => \App\Http\Middleware\TwoFactorMiddleware::class,
         ]);
     })
     ->withExceptions(function (Exceptions $exceptions): void {

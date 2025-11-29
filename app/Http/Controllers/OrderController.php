@@ -55,6 +55,7 @@ class OrderController extends Controller
                 'user_id' => auth()->id(),
                 'total_price' => $totalAmount,
                 'payment_mode' => 'cash',
+                'order_type' => $request->order_type ?? 'dine_in',
             ]);
 
             // 3. Save Items & Deduct Inventory

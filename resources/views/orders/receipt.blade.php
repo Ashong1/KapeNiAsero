@@ -25,6 +25,9 @@
     <div class="container">
         <div class="header">
             <h2>Kape Ni Asero</h2>
+                <div style="margin-top: 10px; border: 2px solid #000; padding: 5px; font-weight: bold; font-size: 16px;">
+                    {{ $order->order_type == 'take_out' ? 'TAKE OUT' : 'DINE IN' }}
+                </div>
             <p>123 Coffee Street, Manila</p>
             <p>Tel: (02) 8123-4567</p>
             <p>Date: {{ $order->created_at->format('M d, Y h:i A') }}</p>

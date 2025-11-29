@@ -185,6 +185,18 @@
                 <i class="fas fa-chevron-up d-lg-none text-secondary" id="cartToggleIcon"></i>
             </div>
         </div>
+                <div class="px-3 pb-2 pt-1 bg-white border-bottom">
+            <div class="d-flex p-1 bg-light rounded-3 border" style="gap: 2px;">
+                <button class="btn btn-sm w-50 fw-bold shadow-sm bg-white text-primary-coffee" 
+                        id="btn-dine-in" onclick="setOrderType('dine_in')">
+                    <i class="fas fa-utensils me-1"></i> Dine In
+                </button>
+                <button class="btn btn-sm w-50 fw-bold text-secondary" 
+                        id="btn-take-out" onclick="setOrderType('take_out')">
+                    <i class="fas fa-bag-shopping me-1"></i> Take Out
+                </button>
+            </div>
+        </div>
         <div class="cart-body" id="cart-items">
             <div class="h-100 d-flex flex-column align-items-center justify-content-center text-center text-muted opacity-50">
                 <i class="fa-solid fa-basket-shopping fa-4x mb-3"></i>
@@ -294,6 +306,19 @@
 
 @section('scripts')
 <script>
+        function setOrderType(type) {
+        orderType = type;
+        const btnDine = document.getElementById('btn-dine-in');
+        const btnTake = document.getElementById('btn-take-out');
+
+        if (type === 'dine_in') {
+            btnDine.className = 'btn btn-sm w-50 fw-bold shadow-sm bg-white text-primary-coffee';
+            btnTake.className = 'btn btn-sm w-50 fw-bold text-secondary';
+        } else {
+            btnTake.className = 'btn btn-sm w-50 fw-bold shadow-sm bg-primary-coffee text-white';
+            btnDine.className = 'btn btn-sm w-50 fw-bold text-secondary';
+        }
+    }
     // --- SEARCH & FILTER ---
     let activeCategory = 'all';
     function filterCategory(catId, element) {
@@ -324,6 +349,7 @@
     let isCartExpanded = false;
     let currentTotal = 0;
     let lastOrderId = null; // Store order ID for printing
+    let orderType = 'dine_in';
 
     function addToCart(id, name, price) {
         const existing = cart.find(item => item.id === id);
@@ -462,7 +488,7 @@
         fetch('/checkout', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json', 'X-CSRF-TOKEN': '{{ csrf_token() }}' },
-            body: JSON.stringify({ cart })
+            body: JSON.stringify({ cart, order_type: orderType })
         })
         .then(res => res.json())
         .then(data => {

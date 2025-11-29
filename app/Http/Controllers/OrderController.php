@@ -8,7 +8,6 @@ use App\Models\OrderItem;
 use App\Models\Product;
 use Illuminate\Support\Facades\DB;
 use Barryvdh\DomPDF\Facade\Pdf; 
-use App\Events\OrderPlaced; // ✅ Kept for Kitchen Display
 
 class OrderController extends Controller
 {
@@ -80,12 +79,9 @@ class OrderController extends Controller
             DB::commit();
             $this->logActivity('New Order', "Order #{$order->id} - Total: {$order->total_price}");
 
-            // --- KITCHEN DISPLAY (Broadcasting) ---
-            // This sends the order to the kitchen screen instantly
-            OrderPlaced::dispatch($order);
+            // --- KITCHEN FEATURE REMOVED ---
 
-            // Return success (Printer logic removed)
-            // We return order_id so the frontend can open the PDF
+            // Return success with order_id for the frontend to print receipt
             return response()->json([
                 'success' => true, 
                 'message' => 'Order complete!', 
@@ -98,7 +94,7 @@ class OrderController extends Controller
         }
     }
 
-    // --- PDF RECEIPT (Restored as default) ---
+    // --- PDF RECEIPT ---
     public function downloadReceipt(Order $order)
     {
         $order->load(['items.product', 'user']);

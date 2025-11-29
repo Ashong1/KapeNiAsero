@@ -21,6 +21,7 @@ class HomeController extends Controller
         $user = Auth::user();
 
         // 1. TRAFFIC COP LOGIC
+        // Redirect non-admin users to the POS page
         if ($user->role !== 'admin') {
             return redirect()->route('products.index');
         }
@@ -29,12 +30,12 @@ class HomeController extends Controller
         
         // Calculate Total Sales Today (EXCLUDING VOIDED ORDERS)
         $todaySales = Order::whereDate('created_at', Carbon::today())
-                            ->where('status', '!=', 'voided') // <--- ADDED THIS FILTER
+                            ->where('status', '!=', 'voided')
                             ->sum('total_price');
         
         // Count Orders Today (EXCLUDING VOIDED ORDERS)
         $todayOrders = Order::whereDate('created_at', Carbon::today())
-                            ->where('status', '!=', 'voided') // <--- ADDED THIS FILTER
+                            ->where('status', '!=', 'voided')
                             ->count();
 
         // Find Ingredients that are running low (Stock <= Alert Level)
@@ -43,7 +44,33 @@ class HomeController extends Controller
         // Get the 5 most recent orders to show in a list
         $recentOrders = Order::with('user')->latest()->take(5)->get();
 
+        // --- WEEKLY ANALYTICS LOGIC ---
+        $salesLabels = [];
+        $salesData = [];
+
+        // Loop through the last 7 days (including today)
+        for ($i = 6; $i >= 0; $i--) {
+            $date = Carbon::today()->subDays($i);
+            
+            // Push Day Name (e.g., "Mon") into labels array
+            $salesLabels[] = $date->format('D');
+            
+            // Calculate Sales for that specific day and push to data array
+            $daySales = Order::whereDate('created_at', $date)
+                                ->where('status', '!=', 'voided')
+                                ->sum('total_price');
+            
+            $salesData[] = $daySales;
+        }
+
         // Send all this data to the dashboard view
-        return view('home', compact('todaySales', 'todayOrders', 'lowStockIngredients', 'recentOrders'));
+        return view('home', compact(
+            'todaySales', 
+            'todayOrders', 
+            'lowStockIngredients', 
+            'recentOrders',
+            'salesLabels', 
+            'salesData'
+        ));
     }
 }

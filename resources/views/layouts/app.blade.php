@@ -13,6 +13,8 @@
     
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/4.1.1/animate.min.css"/>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css">
+
 
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
 
@@ -202,9 +204,14 @@
                 <div class="ms-auto d-flex flex-column flex-lg-row align-items-stretch align-items-lg-center gap-2 gap-lg-3">
                     
                     <div class="d-flex flex-column flex-lg-row gap-1 bg-light p-1 rounded-4 border border-light">
-                        <a href="{{ route('home') }}" class="nav-pill-custom {{ request()->routeIs('home') ? 'active' : '' }}">
-                            <i class="fas fa-chart-pie"></i> Dashboard
-                        </a>
+                        
+                        {{-- MODIFIED: HIDE DASHBOARD LINK FOR EMPLOYEES --}}
+                        @if(Auth::user()->role == 'admin')
+                            <a href="{{ route('home') }}" class="nav-pill-custom {{ request()->routeIs('home') ? 'active' : '' }}">
+                                <i class="fas fa-chart-pie"></i> Dashboard
+                            </a>
+                        @endif
+
                         <a href="{{ route('orders.index') }}" class="nav-pill-custom {{ request()->routeIs('orders.index') ? 'active' : '' }}">
                             <i class="fas fa-history"></i> History
                         </a>

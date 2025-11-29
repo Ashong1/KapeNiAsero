@@ -4,21 +4,23 @@ namespace App\Http\Controllers;
 
 use App\Models\Product;
 use App\Models\Ingredient;
-use App\Models\Category; // <--- NEW IMPORT
+use App\Models\Category; // <--- IMPORT THIS
 use Illuminate\Http\Request;
 
 class ProductController extends Controller
 {
     public function index()
     {
-        // Eager load category to prevent N+1 query performance issues
+        // UPDATED: Fetch categories for the POS filter bar
         $products = Product::with('category')->get(); 
-        return view('products.index', compact('products'));
+        $categories = Category::all(); // <--- Fetch all categories
+        
+        return view('products.index', compact('products', 'categories'));
     }
 
     public function create()
     {
-        $categories = Category::all(); // <--- NEW: Fetch categories
+        $categories = Category::all();
         return view('products.create', compact('categories'));
     }
 
@@ -27,7 +29,7 @@ class ProductController extends Controller
         $request->validate([
             'name' => 'required',
             'price' => 'required|numeric',
-            'category_id' => 'required|exists:categories,id', // <--- CHANGED VALIDATION
+            'category_id' => 'required|exists:categories,id',
         ]);
 
         $product = Product::create($request->all());
@@ -39,7 +41,7 @@ class ProductController extends Controller
     public function edit(Product $product)
     {
         $ingredients = Ingredient::all();
-        $categories = Category::all(); // <--- NEW: Fetch for edit dropdown
+        $categories = Category::all();
         return view('products.edit', compact('product', 'ingredients', 'categories'));
     }
 
@@ -48,15 +50,13 @@ class ProductController extends Controller
         $request->validate([
             'name' => 'required',
             'price' => 'required|numeric',
-            'category_id' => 'required|exists:categories,id', // <--- CHANGED
+            'category_id' => 'required|exists:categories,id',
         ]);
 
         $product->update($request->all());
         return redirect()->route('products.index')->with('success', 'Product updated.');
     }
 
-    // ... (Keep destroy, addIngredient, removeIngredient exactly as they are) ...
-    
     public function destroy(Product $product)
     {
         $product->delete();

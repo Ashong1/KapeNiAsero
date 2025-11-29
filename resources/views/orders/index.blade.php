@@ -1,115 +1,176 @@
 @extends('layouts.app')
 
+@section('styles')
+<style>
+    /* --- STATUS BADGES --- */
+    .status-badge {
+        font-size: 0.7rem;
+        font-weight: 700;
+        padding: 0.35em 0.8em;
+        border-radius: 50px;
+        text-transform: uppercase;
+        letter-spacing: 0.05em;
+        display: inline-block;
+    }
+    .status-completed { background-color: #E8F5E9; color: #2E7D32; border: 1px solid #C8E6C9; }
+    .status-void-pending { background-color: #FFF8E1; color: #F57F17; border: 1px solid #FFE082; }
+    .status-voided { background-color: #FFEBEE; color: #C62828; border: 1px solid #FFCDD2; }
+
+    /* --- ACTION BUTTONS --- */
+    .btn-icon {
+        width: 34px;
+        height: 34px;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        border-radius: 10px;
+        transition: all 0.2s cubic-bezier(0.25, 0.8, 0.25, 1);
+        border: none;
+        font-size: 0.9rem;
+        margin-left: 4px;
+        text-decoration: none;
+    }
+    
+    /* Print Button (Gray) */
+    .btn-icon-print { background-color: #F3F4F6; color: #4B5563; }
+    .btn-icon-print:hover { background-color: var(--primary-coffee); color: white; transform: translateY(-2px); }
+    
+    /* Void Button (Red) */
+    .btn-icon-void { background-color: #FEF2F2; color: #DC2626; }
+    .btn-icon-void:hover { background-color: #DC2626; color: white; transform: translateY(-2px); box-shadow: 0 4px 10px rgba(220, 38, 38, 0.2); }
+
+    /* Request Button (Orange) */
+    .btn-icon-request { background-color: #FFFBEB; color: #D97706; }
+    .btn-icon-request:hover { background-color: #D97706; color: white; transform: translateY(-2px); }
+
+    /* Approve Button (Green) */
+    .btn-icon-approve { background-color: #ECFDF5; color: #059669; }
+    .btn-icon-approve:hover { background-color: #059669; color: white; transform: translateY(-2px); }
+
+    /* Disabled/Pending */
+    .btn-icon-disabled { background-color: #F3F4F6; color: #9CA3AF; cursor: not-allowed; }
+</style>
+@endsection
+
 @section('content')
 <div class="container">
-    
-    <div class="d-flex flex-column flex-md-row justify-content-between align-items-center mb-4 gap-3">
-        <div>
-            <h4 class="fw-bold text-dark m-0">Order History</h4>
-            <p class="text-secondary small m-0">Track all transaction records</p>
-        </div>
-        
-        <div class="d-flex gap-2">
-            <div class="input-group">
-                <span class="input-group-text bg-white border-end-0"><i class="fas fa-search text-secondary"></i></span>
-                <input type="text" id="orderSearch" class="form-control border-start-0 ps-0" placeholder="Search Order ID...">
-            </div>
-        </div>
-    </div>
-
     <div class="card card-custom">
-        <div class="card-header bg-white border-bottom px-4 pt-4 pb-0">
-            <ul class="nav nav-tabs card-header-tabs" id="orderTabs">
-                <li class="nav-item">
-                    <a class="nav-link active fw-bold text-dark" href="#" onclick="filterOrders('all', this)">All Orders</a>
-                </li>
-                <li class="nav-item">
-                    <a class="nav-link text-secondary" href="#" onclick="filterOrders('completed', this)">Completed</a>
-                </li>
-                <li class="nav-item">
-                    <a class="nav-link text-secondary" href="#" onclick="filterOrders('void', this)">Voided/Pending</a>
-                </li>
-            </ul>
+        <div class="table-card-header">
+            <h5 class="fw-bold m-0 text-dark">
+                <i class="fas fa-history me-2 text-primary-coffee"></i>Order History
+            </h5>
         </div>
-
         <div class="card-body p-0">
             <div class="table-responsive">
-                <table class="table table-hover align-middle mb-0" id="ordersTable">
-                    <thead class="bg-light">
+                <table class="table table-hover align-middle mb-0">
+                    <thead>
                         <tr>
-                            <th class="ps-4 py-3 text-secondary text-uppercase small fw-bold">Order ID</th>
-                            <th class="text-secondary text-uppercase small fw-bold">Date & Time</th> 
-                            <th class="text-secondary text-uppercase small fw-bold">Total</th>
-                            <th class="text-secondary text-uppercase small fw-bold">Status</th>
-                            <th class="text-end pe-4 text-secondary text-uppercase small fw-bold">Actions</th>
+                            <th class="ps-4 py-3">Order ID</th>
+                            <th>Date & Time</th>
+                            <th>Cashier</th>
+                            <th>Total Amount</th>
+                            <th>Status</th>
+                            <th class="text-end pe-4">Actions</th>
                         </tr>
                     </thead>
                     <tbody>
                         @forelse($orders as $order)
-                        <tr class="order-row" data-status="{{ $order->status }}">
-                            <td class="ps-4 fw-bold font-monospace text-primary-coffee order-id">#{{ $order->id }}</td>
+                        <tr class="{{ $order->status === 'voided' ? 'opacity-50' : '' }}">
+                            {{-- Order ID --}}
+                            <td class="ps-4">
+                                <span class="fw-bold font-monospace text-primary-coffee">
+                                    #{{ str_pad($order->id, 6, '0', STR_PAD_LEFT) }}
+                                </span>
+                            </td>
                             
+                            {{-- Date --}}
                             <td>
-                                <div class="small fw-bold text-dark">{{ $order->created_at->format('M d, Y') }}</div>
-                                <div class="small text-muted">{{ $order->created_at->format('h:i A') }}</div>
+                                <div class="fw-bold text-dark" style="font-size: 0.9rem;">{{ $order->created_at->format('M d, Y') }}</div>
+                                <div class="small text-secondary" style="font-size: 0.75rem;">{{ $order->created_at->format('h:i A') }}</div>
                             </td>
 
-                            <td class="fw-bold">₱{{ number_format($order->total_price, 2) }}</td>
+                            {{-- Cashier --}}
+                            <td>
+                                <div class="d-flex align-items-center gap-2">
+                                    <div class="rounded-circle bg-light d-flex align-items-center justify-content-center text-secondary" style="width:24px;height:24px;font-size:0.7rem;">
+                                        <i class="fas fa-user"></i>
+                                    </div>
+                                    <span class="small fw-bold text-secondary">{{ $order->user->name ?? 'System' }}</span>
+                                </div>
+                            </td>
 
+                            {{-- Total --}}
+                            <td>
+                                <span class="fw-bold text-dark fs-6">₱{{ number_format($order->total_price, 2) }}</span>
+                            </td>
+
+                            {{-- Status --}}
                             <td>
                                 @if($order->status == 'completed')
-                                    <span class="badge bg-success-subtle text-success border border-success-subtle rounded-pill px-3">
-                                        <i class="fas fa-check-circle me-1"></i> Completed
-                                    </span>
+                                    <span class="status-badge status-completed"><i class="fas fa-check-circle me-1"></i> Paid</span>
                                 @elseif($order->status == 'void_pending')
-                                    <span class="badge bg-warning-subtle text-warning border border-warning-subtle rounded-pill px-3">
-                                        <i class="fas fa-clock me-1"></i> Void Req
-                                    </span>
+                                    <span class="status-badge status-void-pending"><i class="fas fa-clock me-1"></i> Void Req.</span>
                                 @elseif($order->status == 'voided')
-                                    <span class="badge bg-danger-subtle text-danger border border-danger-subtle rounded-pill px-3">
-                                        <i class="fas fa-ban me-1"></i> Voided
-                                    </span>
+                                    <span class="status-badge status-voided"><i class="fas fa-ban me-1"></i> Voided</span>
                                 @endif
                             </td>
 
+                            {{-- Actions --}}
                             <td class="text-end pe-4">
-                                {{-- View Receipt --}}
-                                <a href="{{ route('orders.receipt', $order->id) }}" class="btn btn-sm btn-light text-secondary me-1 border shadow-sm" target="_blank" title="Print Receipt">
-                                    <i class="fas fa-print"></i>
-                                </a>
+                                <div class="d-flex justify-content-end align-items-center">
+                                    
+                                    {{-- 1. VIEW RECEIPT (Always visible unless voided, technically you can still view voided receipts but let's keep it clean) --}}
+                                    <a href="{{ route('orders.receipt', $order->id) }}" class="btn-icon btn-icon-print" target="_blank" title="Print Receipt">
+                                        <i class="fas fa-print"></i>
+                                    </a>
 
-                                {{-- VOID ACTIONS --}}
-                                @if($order->status == 'completed')
-                                    @if(auth()->user()->role === 'admin')
-                                        <form action="{{ route('orders.void', $order->id) }}" method="POST" class="d-inline">
-                                            @csrf
-                                            <button type="submit" class="btn btn-sm btn-light text-danger border" onclick="return confirm('VOID Order #{{ $order->id }}?')">
-                                                <i class="fas fa-ban"></i>
+                                    {{-- 2. VOID LOGIC --}}
+                                    @if($order->status == 'completed')
+                                        @if(Auth::user()->role === 'admin')
+                                            {{-- ADMIN: Direct Void --}}
+                                            <form action="{{ route('orders.void', $order->id) }}" method="POST" class="d-inline">
+                                                @csrf
+                                                <button type="submit" class="btn-icon btn-icon-void" onclick="return confirm('Are you sure you want to VOID Order #{{ $order->id }}? This returns items to stock.')" title="Void Order">
+                                                    <i class="fas fa-ban"></i>
+                                                </button>
+                                            </form>
+                                        @else
+                                            {{-- STAFF: Request Void --}}
+                                            <form action="{{ route('orders.requestVoid', $order->id) }}" method="POST" class="d-inline">
+                                                @csrf
+                                                <button type="submit" class="btn-icon btn-icon-request" onclick="return confirm('Request a void for Order #{{ $order->id }}?')" title="Request Void">
+                                                    <i class="fas fa-flag"></i>
+                                                </button>
+                                            </form>
+                                        @endif
+
+                                    @elseif($order->status == 'void_pending')
+                                        @if(Auth::user()->role === 'admin')
+                                            {{-- ADMIN: Approve Void --}}
+                                            <form action="{{ route('orders.void', $order->id) }}" method="POST" class="d-inline">
+                                                @csrf
+                                                <button type="submit" class="btn-icon btn-icon-approve" onclick="return confirm('Approve void request for Order #{{ $order->id }}?')" title="Approve Void">
+                                                    <i class="fas fa-check"></i>
+                                                </button>
+                                            </form>
+                                        @else
+                                            {{-- STAFF: Pending Indicator --}}
+                                            <button class="btn-icon btn-icon-disabled" disabled title="Waiting for Admin Approval">
+                                                <i class="fas fa-hourglass-half"></i>
                                             </button>
-                                        </form>
-                                    @else
-                                        <form action="{{ route('orders.requestVoid', $order->id) }}" method="POST" class="d-inline">
-                                            @csrf
-                                            <button type="submit" class="btn btn-sm btn-light text-warning border" onclick="return confirm('Request Void #{{ $order->id }}?')">
-                                                <i class="fas fa-flag"></i>
-                                            </button>
-                                        </form>
+                                        @endif
                                     @endif
-                                @elseif($order->status == 'void_pending' && auth()->user()->role === 'admin')
-                                    <form action="{{ route('orders.void', $order->id) }}" method="POST" class="d-inline">
-                                        @csrf
-                                        <button type="submit" class="btn btn-sm btn-danger shadow-sm" onclick="return confirm('Approve Void?')">
-                                            Approve
-                                        </button>
-                                    </form>
-                                @endif
+
+                                </div>
                             </td>
                         </tr>
                         @empty
                         <tr>
-                            <td colspan="5" class="text-center py-5 text-muted">
-                                <i class="fas fa-receipt fa-2x mb-3 opacity-25"></i>
-                                <p class="mb-0">No orders found.</p>
+                            <td colspan="6" class="text-center py-5">
+                                <div class="text-muted opacity-50">
+                                    <i class="fas fa-receipt fa-3x mb-3"></i>
+                                    <p class="fw-medium mb-0">No order history found.</p>
+                                </div>
                             </td>
                         </tr>
                         @endforelse
@@ -117,51 +178,11 @@
                 </table>
             </div>
             
-            <div class="p-3 border-top">
+            {{-- Pagination --}}
+            <div class="p-4 border-top">
                 {{ $orders->links() }}
             </div>
         </div>
     </div>
 </div>
-
-<script>
-    // 1. FILTER BY TAB
-    function filterOrders(type, element) {
-        // Update Active Tab UI
-        document.querySelectorAll('.nav-link').forEach(el => {
-            el.classList.remove('active', 'fw-bold', 'text-dark');
-            el.classList.add('text-secondary');
-        });
-        element.classList.add('active', 'fw-bold', 'text-dark');
-        element.classList.remove('text-secondary');
-
-        // Filter Rows
-        const rows = document.querySelectorAll('.order-row');
-        rows.forEach(row => {
-            const status = row.getAttribute('data-status');
-            if (type === 'all') {
-                row.style.display = '';
-            } else if (type === 'completed') {
-                row.style.display = status === 'completed' ? '' : 'none';
-            } else if (type === 'void') {
-                row.style.display = (status === 'voided' || status === 'void_pending') ? '' : 'none';
-            }
-        });
-    }
-
-    // 2. SEARCH BY ID
-    document.getElementById('orderSearch').addEventListener('keyup', function() {
-        const val = this.value.toLowerCase();
-        const rows = document.querySelectorAll('.order-row');
-        
-        rows.forEach(row => {
-            const id = row.querySelector('.order-id').innerText.toLowerCase();
-            if(id.includes(val)) {
-                row.style.display = '';
-            } else {
-                row.style.display = 'none';
-            }
-        });
-    });
-</script>
 @endsection

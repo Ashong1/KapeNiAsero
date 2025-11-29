@@ -25,10 +25,9 @@
             width: 150px; 
             margin-bottom: 1.5rem; 
             filter: drop-shadow(0 6px 12px rgba(0,0,0,0.3)); 
-            transition: transform 0.5s ease; /* Smooth transition */
+            transition: transform 0.5s ease; 
         }
         
-        /* Hover Animation */
         .logo-img:hover { 
             transform: scale(1.05) rotate(-3deg); 
         }
@@ -45,6 +44,21 @@
         }
         .form-control:focus { background-color: #fff; border-color: var(--primary-coffee); box-shadow: 0 0 0 4px rgba(111, 78, 55, 0.1); }
         .input-group-icon { position: absolute; left: 1rem; top: 50%; transform: translateY(-50%); color: #9CA3AF; z-index: 4; }
+        
+        /* PASSWORD TOGGLE STYLE */
+        .password-toggle-icon { 
+            position: absolute; 
+            right: 1rem; 
+            top: 50%; 
+            transform: translateY(-50%); 
+            color: #9CA3AF; 
+            z-index: 4; 
+            cursor: pointer;
+            transition: color 0.2s, transform 0.1s;
+        }
+        .password-toggle-icon:hover { color: var(--primary-coffee); }
+        .password-toggle-icon:active { transform: translateY(-50%) scale(0.9); }
+
         .position-relative { margin-bottom: 1rem; }
         .btn-coffee {
             background: var(--primary-coffee); color: white; width: 100%; padding: 0.8rem; border-radius: 12px; font-weight: 600; border: none;
@@ -85,11 +99,15 @@
                     <input type="email" name="email" class="form-control @error('email') is-invalid @enderror" placeholder="Email Address" value="{{ old('email') }}" required>
                     @error('email')<span class="text-danger small mt-1 d-block">{{ $message }}</span>@enderror
                 </div>
+                
                 <div class="position-relative">
                     <i class="fas fa-lock input-group-icon"></i>
-                    <input type="password" name="password" class="form-control @error('password') is-invalid @enderror" placeholder="Password" required>
+                    <input type="password" name="password" id="password" class="form-control @error('password') is-invalid @enderror" placeholder="Password" style="padding-right: 2.5rem;" required>
+                    <i class="fas fa-eye password-toggle-icon" id="togglePassword"></i>
+                    
                     @error('password')<span class="text-danger small mt-1 d-block">{{ $message }}</span>@enderror
                 </div>
+
                 <div class="position-relative">
                     <i class="fas fa-check-circle input-group-icon"></i>
                     <input type="password" name="password_confirmation" class="form-control" placeholder="Confirm Password" required>
@@ -100,6 +118,23 @@
         </div>
     </div>
 </div>
+
+<script>
+    const togglePassword = document.querySelector('#togglePassword');
+    const password = document.querySelector('#password');
+
+    togglePassword.addEventListener('click', function (e) {
+        // 1. Toggle the type attribute (Show/Hide password)
+        const type = password.getAttribute('type') === 'password' ? 'text' : 'password';
+        password.setAttribute('type', type);
+        
+        // 2. Toggle the ICON classes
+        // This toggles BOTH classes. If one exists, it removes it; if it doesn't, it adds it.
+        // This ensures they swap correctly.
+        this.classList.toggle('fa-eye');
+        this.classList.toggle('fa-eye-slash');
+    });
+</script>
 
 </body>
 </html>

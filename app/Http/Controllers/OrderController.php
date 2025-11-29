@@ -8,7 +8,6 @@ use App\Models\OrderItem;
 use App\Models\Product;
 use Illuminate\Support\Facades\DB;
 use Barryvdh\DomPDF\Facade\Pdf; 
-use App\Events\OrderPlaced;
 
 class OrderController extends Controller
 {
@@ -21,15 +20,6 @@ class OrderController extends Controller
     }
     public function store(Request $request)
     {
-        DB::commit();
-            $this->logActivity('New Order', "Order #{$order->id} - Total: {$order->total_price}");
-
-            // --- NEW: Broadcast to Kitchen ---
-            OrderPlaced::dispatch($order);
-
-            // CHANGE: Return the order_id so we can print the receipt
-            return response()->json([
-                'success' => true,
         // ... (Keep validation logic exactly the same) ...
         $request->validate([
             'cart' => 'required|array',
@@ -102,7 +92,6 @@ class OrderController extends Controller
             DB::rollBack();
             return response()->json(['success' => false, 'message' => $e->getMessage()], 500);
         }
-        
     }
 
     // --- GENERATE PDF ---

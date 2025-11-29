@@ -8,10 +8,7 @@ use App\Models\OrderItem;
 use App\Models\Product;
 use Illuminate\Support\Facades\DB;
 use Barryvdh\DomPDF\Facade\Pdf; 
-
-// --- HARDWARE IMPORTS ---
-use Mike42\Escpos\PrintConnectors\WindowsPrintConnector;
-use Mike42\Escpos\Printer;
+use App\Events\OrderPlaced; // ✅ Kept for Kitchen Display
 
 class OrderController extends Controller
 {
@@ -24,10 +21,6 @@ class OrderController extends Controller
 
     public function store(Request $request)
     {
-<<<<<<< HEAD
-=======
-        // ... (Keep validation logic exactly the same) ...
->>>>>>> ea1c2b32013177ecf215940a6fcb2eb84db164fc
         $request->validate([
             'cart' => 'required|array',
             'cart.*.id' => 'required|exists:products,id',
@@ -87,17 +80,15 @@ class OrderController extends Controller
             DB::commit();
             $this->logActivity('New Order', "Order #{$order->id} - Total: {$order->total_price}");
 
-            // --- 4. KITCHEN DISPLAY (WebSocket) ---
-            // Send the order to the kitchen screen instantly
+            // --- KITCHEN DISPLAY (Broadcasting) ---
+            // This sends the order to the kitchen screen instantly
             OrderPlaced::dispatch($order);
 
-            // --- 5. THERMAL PRINTER (Hardware) ---
-            // Print receipt and kick cash drawer open
-            $this->printDirectReceipt($order);
-
+            // Return success (Printer logic removed)
+            // We return order_id so the frontend can open the PDF
             return response()->json([
                 'success' => true, 
-                'message' => 'Order complete! Printing receipt...', 
+                'message' => 'Order complete!', 
                 'order_id' => $order->id 
             ]);
 
@@ -107,7 +98,7 @@ class OrderController extends Controller
         }
     }
 
-    // --- PDF FALLBACK (Optional) ---
+    // --- PDF RECEIPT (Restored as default) ---
     public function downloadReceipt(Order $order)
     {
         $order->load(['items.product', 'user']);
@@ -150,73 +141,5 @@ class OrderController extends Controller
         $this->logActivity('Void Order', "Voided Order #{$order->id}");
 
         return redirect()->back()->with('success', "Order #{$order->id} has been voided and inventory restored.");
-    }
-
-    // ==========================================
-    // PRIVATE: HARDWARE PRINTING LOGIC
-    // ==========================================
-    private function printDirectReceipt($order)
-    {
-        try {
-            // 1. Connect to Windows Shared Printer
-            // Ensure you shared your printer in Control Panel as "POS-80"
-            $connector = new WindowsPrintConnector(env('PRINTER_NAME', 'POS-80'));
-            $printer = new Printer($connector);
-
-            // 2. Initialize Printer
-            $printer->initialize();
-            
-            // Header
-            $printer->setJustification(Printer::JUSTIFY_CENTER);
-            $printer->setEmphasis(true);
-            $printer->text("KAPE NI ASERO\n");
-            $printer->setEmphasis(false);
-            $printer->text("Bay, Laguna\n");
-            $printer->text("--------------------------------\n");
-
-            // Order Details
-            $printer->setJustification(Printer::JUSTIFY_LEFT);
-            $printer->text("Order #: " . $order->id . "\n");
-            $printer->text("Date: " . $order->created_at->format('Y-m-d h:i A') . "\n");
-            $printer->text("Cashier: " . auth()->user()->name . "\n");
-            $printer->text("--------------------------------\n");
-
-            // Items Loop
-            foreach ($order->items as $item) {
-                // Layout: Qty x Name ...... Price
-                // %-2s : Left align quantity (2 chars)
-                // %-16.16s : Left align name (max 16 chars)
-                // %8s : Right align price
-                $line = sprintf("%-2s x %-16.16s %8s\n", 
-                    $item->quantity, 
-                    $item->product->name, 
-                    number_format($item->price * $item->quantity, 2)
-                );
-                $printer->text($line);
-            }
-
-            // Footer / Totals
-            $printer->text("--------------------------------\n");
-            $printer->setEmphasis(true);
-            $printer->text(sprintf("TOTAL: %24s\n", "P " . number_format($order->total_price, 2)));
-            $printer->setEmphasis(false);
-            $printer->text("\n");
-            
-            $printer->setJustification(Printer::JUSTIFY_CENTER);
-            $printer->text("Thank you for brewing with us!\n");
-            $printer->text("\n\n");
-
-            // 3. HARDWARE ACTIONS
-            $printer->pulse(); // Open Cash Drawer
-            $printer->cut();   // Cut Paper
-            
-            // 4. Close Connection
-            $printer->close();
-
-        } catch (\Exception $e) {
-            // If printer is off or paper is out, log the error but DO NOT crash the system.
-            // This ensures the order is still saved in the database.
-            \Log::error("POS Hardware Error: " . $e->getMessage());
-        }
     }
 }

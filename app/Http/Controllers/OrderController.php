@@ -8,7 +8,6 @@ use App\Models\OrderItem;
 use App\Models\Product;
 use Illuminate\Support\Facades\DB;
 use Barryvdh\DomPDF\Facade\Pdf; 
-use App\Events\OrderPlaced;
 
 // --- HARDWARE IMPORTS ---
 use Mike42\Escpos\PrintConnectors\WindowsPrintConnector;
@@ -25,6 +24,10 @@ class OrderController extends Controller
 
     public function store(Request $request)
     {
+<<<<<<< HEAD
+=======
+        // ... (Keep validation logic exactly the same) ...
+>>>>>>> ea1c2b32013177ecf215940a6fcb2eb84db164fc
         $request->validate([
             'cart' => 'required|array',
             'cart.*.id' => 'required|exists:products,id',

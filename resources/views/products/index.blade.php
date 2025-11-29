@@ -45,6 +45,37 @@
     .btn-checkout { width: 100%; padding: 1rem; border-radius: 14px; font-weight: 700; font-size: 1.1rem; border: none; background: linear-gradient(135deg, var(--primary-coffee) 0%, var(--dark-coffee) 100%); color: white; box-shadow: 0 8px 20px rgba(111, 78, 55, 0.25); transition: all 0.3s; display: flex; justify-content: space-between; align-items: center; }
     .btn-checkout:hover { transform: translateY(-2px); box-shadow: 0 12px 25px rgba(111, 78, 55, 0.35); }
 
+    /* --- NEW TOGGLE STYLES (MATCHING PREMIUM DESIGN) --- */
+    .toggle-track {
+        background-color: #F5F5F7; /* Matches App Input BG */
+        border-radius: 16px;
+        padding: 4px;
+        display: flex;
+        border: 1px solid var(--border-light);
+    }
+    .toggle-option {
+        flex: 1;
+        border: none;
+        background: transparent;
+        padding: 0.7rem;
+        border-radius: 12px;
+        font-weight: 700;
+        font-size: 0.9rem;
+        color: var(--text-secondary);
+        transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 0.5rem;
+    }
+    .toggle-option:hover { color: var(--primary-coffee); }
+    .toggle-option.active {
+        background-color: white;
+        color: var(--primary-coffee);
+        box-shadow: 0 4px 12px rgba(0,0,0,0.08);
+        transform: scale(1.02);
+    }
+
     /* --- ADMIN BUTTONS --- */
     .btn-admin-icon { width: 32px; height: 32px; border-radius: 8px; display: flex; align-items: center; justify-content: center; border: 1px solid transparent; transition: all 0.2s; cursor: pointer; text-decoration: none; }
     .btn-edit { background: var(--surface-cream); color: var(--primary-coffee); border-color: rgba(111, 78, 55, 0.1); }
@@ -185,18 +216,19 @@
                 <i class="fas fa-chevron-up d-lg-none text-secondary" id="cartToggleIcon"></i>
             </div>
         </div>
-                <div class="px-3 pb-2 pt-1 bg-white border-bottom">
-            <div class="d-flex p-1 bg-light rounded-3 border" style="gap: 2px;">
-                <button class="btn btn-sm w-50 fw-bold shadow-sm bg-white text-primary-coffee" 
-                        id="btn-dine-in" onclick="setOrderType('dine_in')">
-                    <i class="fas fa-utensils me-1"></i> Dine In
+
+        {{-- NEW TOGGLE DESIGN --}}
+        <div class="px-4 pb-3 pt-3 bg-white">
+            <div class="toggle-track">
+                <button class="toggle-option active" id="btn-dine-in" onclick="setOrderType('dine_in')">
+                    <i class="fas fa-utensils"></i> Dine In
                 </button>
-                <button class="btn btn-sm w-50 fw-bold text-secondary" 
-                        id="btn-take-out" onclick="setOrderType('take_out')">
-                    <i class="fas fa-bag-shopping me-1"></i> Take Out
+                <button class="toggle-option" id="btn-take-out" onclick="setOrderType('take_out')">
+                    <i class="fas fa-bag-shopping"></i> Take Out
                 </button>
             </div>
         </div>
+
         <div class="cart-body" id="cart-items">
             <div class="h-100 d-flex flex-column align-items-center justify-content-center text-center text-muted opacity-50">
                 <i class="fa-solid fa-basket-shopping fa-4x mb-3"></i>
@@ -222,6 +254,7 @@
 
 </div>
 
+{{-- MODALS (Checkout & Success) --}}
 <div class="modal fade" id="checkoutModal" tabindex="-1" aria-hidden="true">
     <div class="modal-dialog modal-dialog-centered">
         <div class="modal-content modal-content-premium">
@@ -306,19 +339,23 @@
 
 @section('scripts')
 <script>
-        function setOrderType(type) {
+    // --- ORDER TYPE TOGGLE LOGIC ---
+    function setOrderType(type) {
         orderType = type;
+        
+        // Toggle Classes Cleaner
         const btnDine = document.getElementById('btn-dine-in');
         const btnTake = document.getElementById('btn-take-out');
-
+        
         if (type === 'dine_in') {
-            btnDine.className = 'btn btn-sm w-50 fw-bold shadow-sm bg-white text-primary-coffee';
-            btnTake.className = 'btn btn-sm w-50 fw-bold text-secondary';
+            btnDine.classList.add('active');
+            btnTake.classList.remove('active');
         } else {
-            btnTake.className = 'btn btn-sm w-50 fw-bold shadow-sm bg-primary-coffee text-white';
-            btnDine.className = 'btn btn-sm w-50 fw-bold text-secondary';
+            btnTake.classList.add('active');
+            btnDine.classList.remove('active');
         }
     }
+
     // --- SEARCH & FILTER ---
     let activeCategory = 'all';
     function filterCategory(catId, element) {
@@ -349,7 +386,7 @@
     let isCartExpanded = false;
     let currentTotal = 0;
     let lastOrderId = null; // Store order ID for printing
-    let orderType = 'dine_in';
+    let orderType = 'dine_in'; // Default
 
     function addToCart(id, name, price) {
         const existing = cart.find(item => item.id === id);
@@ -488,7 +525,10 @@
         fetch('/checkout', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json', 'X-CSRF-TOKEN': '{{ csrf_token() }}' },
-            body: JSON.stringify({ cart, order_type: orderType })
+            body: JSON.stringify({ 
+                cart: cart,
+                order_type: orderType // <--- SEND TOGGLE VALUE
+            })
         })
         .then(res => res.json())
         .then(data => {
@@ -506,8 +546,9 @@
                 cart = []; renderCart();
                 if(window.innerWidth < 992 && isCartExpanded) toggleCart();
 
-                // 4. Show Success Modal
+                // 4. Show Success Modal & AUTO-PRINT
                 successModal.show();
+                printReceipt(); 
             } else {
                 alert('Error: ' + data.message);
             }
@@ -518,9 +559,12 @@
     // --- SUCCESS MODAL ACTIONS ---
     function printReceipt() {
         if(lastOrderId) {
-            window.open('/orders/' + lastOrderId + '/receipt', '_blank');
+            const url = '/orders/' + lastOrderId + '/receipt';
+            const win = window.open(url, '_blank');
+            if(!win || win.closed || typeof win.closed == 'undefined') {
+                console.log('Popup blocked. User must click button manually.');
+            }
         }
-        finishTransaction();
     }
 
     function finishTransaction() {

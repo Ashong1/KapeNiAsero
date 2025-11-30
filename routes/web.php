@@ -6,6 +6,7 @@ use App\Http\Controllers\OrderController;
 use App\Http\Controllers\IngredientController;
 use App\Http\Controllers\TwoFactorController;
 use App\Http\Controllers\HomeController;
+use App\Http\Controllers\ParkedOrderController; // <--- Import This
 use Illuminate\Support\Facades\Auth;
 
 Route::get('/', function () { return redirect('/login'); });
@@ -19,13 +20,19 @@ Route::middleware(['auth'])->group(function() {
 });
 
 // GENERAL ACCESS (With 2FA) - Employees and Admins
-    Route::middleware(['auth', 'twofactor'])->group(function () {
+Route::middleware(['auth', 'twofactor'])->group(function () {
     Route::get('/orders', [OrderController::class, 'index'])->name('orders.index');
     Route::get('/home', [HomeController::class, 'index'])->name('home');
     Route::get('/products', [ProductController::class, 'index'])->name('products.index');
     Route::post('/checkout', [OrderController::class, 'store'])->name('checkout');
     Route::get('/orders/{order}/receipt', [OrderController::class, 'downloadReceipt'])->name('orders.receipt');
     Route::post('/orders/{order}/void-request', [OrderController::class, 'requestVoid'])->name('orders.requestVoid');
+
+    // --- PARKED ORDERS ROUTES ---
+    Route::post('/park-order', [ParkedOrderController::class, 'store']);
+    Route::get('/parked-orders', [ParkedOrderController::class, 'index']);
+    Route::get('/parked-orders/{order}/retrieve', [ParkedOrderController::class, 'retrieve']);
+    Route::delete('/parked-orders/{order}', [ParkedOrderController::class, 'destroy']);
 });
 
 // ADMIN ONLY

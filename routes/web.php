@@ -8,7 +8,8 @@ use App\Http\Controllers\TwoFactorController;
 use App\Http\Controllers\HomeController;
 use App\Http\Controllers\ShiftController; 
 use App\Http\Controllers\ParkedOrderController;
-use App\Http\Controllers\ReportController; // Ensure this is imported
+use App\Http\Controllers\ReportController; 
+use App\Http\Controllers\ActivityLogController; // <--- Added this import
 use Illuminate\Support\Facades\Auth;
 
 Route::get('/', function () { return redirect('/login'); });
@@ -87,4 +88,7 @@ Route::middleware(['auth', 'twofactor', 'admin'])->group(function () {
     // --- REPORTING ROUTES ---
     Route::get('/reports', [ReportController::class, 'index'])->name('reports.index');
     Route::get('/reports/export', [ReportController::class, 'export'])->name('reports.export');
+
+    // --- AUDIT LOGS ---
+    Route::get('/activity-logs', [ActivityLogController::class, 'index'])->name('activity-logs.index');
 });

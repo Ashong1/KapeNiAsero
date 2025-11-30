@@ -210,9 +210,26 @@
                         </a>
 
                         @if(Auth::user()->role == 'admin')
+<<<<<<< HEAD
+=======
+<<<<<<< HEAD
+                            {{-- REPORTS LINK --}}
+=======
+<<<<<<< HEAD
+                            {{-- ADDED SHIFT HISTORY LINK HERE --}}
+                            <a href="{{ route('shifts.index') }}" class="nav-pill-custom {{ request()->routeIs('shifts.*') ? 'active' : '' }}">
+                                <i class="fas fa-calendar-check"></i> Shifts
+=======
+>>>>>>> f8d8195b07bb3d90f61f6bbef12942d7de2194b2
                             {{-- NEW REPORTS LINK --}}
+>>>>>>> 710a17082e867de9b7639152b0fe8fdff058abe3
                             <a href="{{ route('reports.index') }}" class="nav-pill-custom {{ request()->routeIs('reports.*') ? 'active' : '' }}">
                                 <i class="fas fa-chart-line"></i> Reports
+                            </a>
+
+                            {{-- AUDIT LOGS LINK --}}
+                            <a href="{{ route('activity-logs.index') }}" class="nav-pill-custom {{ request()->routeIs('activity-logs.index') ? 'active' : '' }}">
+                                <i class="fas fa-shield-alt"></i> Audit
                             </a>
 
                             <a href="{{ route('ingredients.index') }}" class="nav-pill-custom {{ request()->routeIs('ingredients.*') ? 'active' : '' }}">

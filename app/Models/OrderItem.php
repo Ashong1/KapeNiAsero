@@ -11,10 +11,15 @@ class OrderItem extends Model
 
     protected $fillable = ['order_id', 'product_id', 'quantity', 'price', 'modifiers'];
 
-    // Automatically convert the JSON column to a PHP array
     protected $casts = [
         'modifiers' => 'array',
     ];
+
+    // --- ADDED THIS RELATIONSHIP ---
+    public function order()
+    {
+        return $this->belongsTo(Order::class);
+    }
 
     public function product()
     {

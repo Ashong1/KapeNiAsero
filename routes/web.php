@@ -6,8 +6,13 @@ use App\Http\Controllers\OrderController;
 use App\Http\Controllers\IngredientController;
 use App\Http\Controllers\TwoFactorController;
 use App\Http\Controllers\HomeController;
+<<<<<<< HEAD
 use App\Http\Controllers\ShiftController;
+=======
+use App\Http\Controllers\ShiftController; 
+>>>>>>> e8d5b34f19fff7aaa55a3ed774909b027e086cfc
 use App\Http\Controllers\ParkedOrderController;
+use App\Http\Controllers\ReportController; // Ensure this is imported
 use Illuminate\Support\Facades\Auth;
 
 Route::get('/', function () { return redirect('/login'); });
@@ -25,6 +30,16 @@ Route::middleware(['auth'])->group(function() {
 Route::middleware(['auth', 'twofactor', 'shift'])->group(function () {
     
     Route::get('/home', [HomeController::class, 'index'])->name('home');
+<<<<<<< HEAD
+=======
+    Route::get('/products', [ProductController::class, 'index'])->name('products.index');
+    
+    // CHECKOUT LOGIC
+    Route::post('/checkout', [OrderController::class, 'store'])->name('checkout');
+    
+    // PAYMENT SUCCESS ROUTE
+    Route::get('/orders/{order}/success', [OrderController::class, 'paymentSuccess'])->name('orders.success');
+>>>>>>> e8d5b34f19fff7aaa55a3ed774909b027e086cfc
 
     // --- SHIFT MANAGEMENT ---
     // These must be accessible, which is why we added them to $excludedRoutes in the Middleware
@@ -41,6 +56,16 @@ Route::middleware(['auth', 'twofactor', 'shift'])->group(function () {
     Route::get('/orders/{order}/receipt', [OrderController::class, 'downloadReceipt'])->name('orders.receipt');
     Route::post('/orders/{order}/void-request', [OrderController::class, 'requestVoid'])->name('orders.requestVoid');
 
+<<<<<<< HEAD
+=======
+    // --- SHIFT MANAGEMENT ROUTES ---
+    // 1. Resource route (creates shifts.create, shifts.store, shifts.edit, shifts.update)
+    Route::resource('shifts', ShiftController::class)->only(['create', 'store', 'edit', 'update']);
+    
+    // 2. Smart Logout Route
+    Route::get('/logout-action', [ShiftController::class, 'handleLogout'])->name('logout.action');
+
+>>>>>>> e8d5b34f19fff7aaa55a3ed774909b027e086cfc
     // --- PARKED ORDERS ROUTES ---
     Route::post('/park-order', [ParkedOrderController::class, 'store']);
     Route::get('/parked-orders', [ParkedOrderController::class, 'index']);
@@ -68,4 +93,8 @@ Route::middleware(['auth', 'twofactor', 'admin'])->group(function () {
 
     // Admin Actions
     Route::post('/orders/{order}/void', [App\Http\Controllers\OrderController::class, 'voidOrder'])->name('orders.void');
+
+    // --- REPORTING ROUTES ---
+    Route::get('/reports', [ReportController::class, 'index'])->name('reports.index');
+    Route::get('/reports/export', [ReportController::class, 'export'])->name('reports.export');
 });

@@ -51,8 +51,8 @@
             box-shadow: 0 4px 24px -1px rgba(62, 39, 35, 0.06);
             padding: 0.8rem 1rem;
             margin-bottom: 2rem;
-            margin-top: 1rem;
             border-radius: 24px;
+            margin-top: 1rem;
         }
 
         .navbar-brand-wrapper { display: flex; align-items: center; gap: 1rem; }
@@ -73,41 +73,6 @@
         }
         .nav-pill-custom:hover { background-color: rgba(111, 78, 55, 0.08); color: var(--primary-coffee); }
         .nav-pill-custom.active { background-color: var(--primary-coffee); color: white; box-shadow: 0 4px 12px rgba(111, 78, 55, 0.25); }
-
-        /* --- PAGINATION CUSTOM --- */
-        .pagination {
-            justify-content: center;
-            gap: 0.5rem;
-            margin-top: 1.5rem;
-            margin-bottom: 0;
-        }
-        .page-item .page-link {
-            border: none;
-            border-radius: 8px;
-            color: var(--text-secondary);
-            font-weight: 600;
-            padding: 0.5rem 0.9rem;
-            background: transparent;
-            transition: all 0.2s ease;
-            box-shadow: none;
-        }
-        .page-item .page-link:hover {
-            background-color: var(--surface-cream);
-            color: var(--primary-coffee);
-            transform: translateY(-1px);
-        }
-        .page-item.active .page-link {
-            background-color: var(--primary-coffee);
-            color: white;
-            box-shadow: 0 4px 12px rgba(111, 78, 55, 0.3);
-        }
-        .page-item.disabled .page-link {
-            opacity: 0.4;
-            background: transparent;
-        }
-        .page-item:first-child .page-link, .page-item:last-child .page-link {
-            border-radius: 8px; /* Force consistent radius */
-        }
 
         /* --- BUTTONS --- */
         .btn-action {
@@ -130,11 +95,6 @@
         .btn-create:hover {
             border-color: var(--success-green); color: var(--success-green); background: #F1F8E9;
         }
-
-        .btn-warning-custom {
-            background: #FFB300; border: none; padding: 0.8rem; border-radius: 12px; font-weight: 600; color: #3E2723;
-        }
-        .btn-warning-custom:hover { background: #FFCA28; color: #3E2723; }
 
         /* --- CARDS & TABLES --- */
         .card-custom, .kpi-card {
@@ -165,9 +125,16 @@
         .alert-floating {
             border-radius: 16px; border: none; box-shadow: 0 10px 30px rgba(0,0,0,0.1); margin-bottom: 1.5rem;
         }
-        .badge-soft-void { background-color: #FEF2F2; color: #DC2626; }
-        .badge-soft-stock { background-color: #FFFBEB; color: #D97706; }
-        .badge-soft-system { background-color: #F3F4F6; color: #4B5563; }
+
+        /* --- PAGINATION --- */
+        .pagination { justify-content: center; gap: 0.5rem; margin-top: 1.5rem; margin-bottom: 0; }
+        .page-item .page-link {
+            border: none; border-radius: 8px; color: var(--text-secondary);
+            font-weight: 600; padding: 0.5rem 0.9rem; background: transparent;
+            transition: all 0.2s ease; box-shadow: none;
+        }
+        .page-item .page-link:hover { background-color: var(--surface-cream); color: var(--primary-coffee); transform: translateY(-1px); }
+        .page-item.active .page-link { background-color: var(--primary-coffee); color: white; box-shadow: 0 4px 12px rgba(111, 78, 55, 0.3); }
 
         @yield('styles')
     </style>
@@ -200,32 +167,34 @@
                 <div class="ms-auto d-flex flex-column flex-lg-row align-items-stretch align-items-lg-center gap-2 gap-lg-3">
                     <div class="d-flex flex-column flex-lg-row gap-1 bg-light p-1 rounded-4 border border-light">
                         @if(Auth::user()->role == 'admin')
+                            {{-- DASHBOARD --}}
                             <a href="{{ route('home') }}" class="nav-pill-custom {{ request()->routeIs('home') ? 'active' : '' }}">
                                 <i class="fas fa-chart-pie"></i> Dashboard
                             </a>
                         @endif
-                        
+
+                        {{-- HISTORY (Shared) --}}
                         <a href="{{ route('orders.index') }}" class="nav-pill-custom {{ request()->routeIs('orders.index') ? 'active' : '' }}">
                             <i class="fas fa-history"></i> History
                         </a>
 
                         @if(Auth::user()->role == 'admin')
-
-                            {{-- REPORTS LINK --}}
-
-                            {{-- ADDED SHIFT HISTORY LINK HERE --}}
-                            <a href="{{ route('shifts.index') }}" class="nav-pill-custom {{ request()->routeIs('shifts.*') ? 'active' : '' }}">
-                                <i class="fas fa-calendar-check"></i> Shifts
+                            {{-- REPORTS --}}
                             <a href="{{ route('reports.index') }}" class="nav-pill-custom {{ request()->routeIs('reports.*') ? 'active' : '' }}">
                                 <i class="fas fa-chart-line"></i> Reports
-
                             </a>
 
-                            {{-- AUDIT LOGS LINK --}}
+                            {{-- AUDIT LOGS --}}
                             <a href="{{ route('activity-logs.index') }}" class="nav-pill-custom {{ request()->routeIs('activity-logs.index') ? 'active' : '' }}">
                                 <i class="fas fa-shield-alt"></i> Audit
                             </a>
+                            
+                            {{-- SETTINGS (NEW) --}}
+                            <a href="{{ route('settings.index') }}" class="nav-pill-custom {{ request()->routeIs('settings.*') ? 'active' : '' }}">
+                                <i class="fas fa-cogs"></i> Settings
+                            </a>
 
+                            {{-- INVENTORY & MASTER DATA --}}
                             <a href="{{ route('ingredients.index') }}" class="nav-pill-custom {{ request()->routeIs('ingredients.*') ? 'active' : '' }}">
                                 <i class="fas fa-boxes"></i> Stock
                             </a>
@@ -247,16 +216,16 @@
                         <i class="fas fa-cash-register"></i> <span class="d-none d-md-inline">Open POS</span>
                     </a>
 
-                    {{-- LOGOUT BUTTON --}}
+                    {{-- SMART LOGOUT BUTTON LOGIC --}}
                     @if(Auth::user()->role === 'admin')
-                        {{-- Admin Logout --}}
+                        {{-- Admin Logout: Normal --}}
                         <a href="{{ route('logout') }}" class="btn btn-action btn-light text-danger border-0 justify-content-center" 
                            onclick="event.preventDefault(); document.getElementById('logout-form').submit();" title="Sign Out">
                             <i class="fas fa-power-off"></i>
                         </a>
                         <form id="logout-form" action="{{ route('logout') }}" method="POST" class="d-none">@csrf</form>
                     @else
-                        {{-- Employee Logout (Triggers Shift Close Check) --}}
+                        {{-- Employee Logout: Triggers Shift Close --}}
                         <a href="{{ route('logout.action') }}" class="btn btn-action btn-light text-danger border-0 justify-content-center" title="End Shift & Sign Out">
                             <i class="fas fa-power-off"></i>
                         </a>

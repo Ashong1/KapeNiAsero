@@ -6,11 +6,9 @@ use App\Http\Controllers\OrderController;
 use App\Http\Controllers\IngredientController;
 use App\Http\Controllers\TwoFactorController;
 use App\Http\Controllers\HomeController;
-<<<<<<< HEAD
-=======
 use App\Http\Controllers\ShiftController; 
->>>>>>> 9ece58adb96c7a52e8bf6ffce566791c3bea5d83
 use App\Http\Controllers\ParkedOrderController;
+use App\Http\Controllers\ReportController; // Ensure this is imported
 use Illuminate\Support\Facades\Auth;
 
 Route::get('/', function () { return redirect('/login'); });
@@ -32,17 +30,17 @@ Route::middleware(['auth', 'twofactor'])->group(function () {
     // CHECKOUT LOGIC
     Route::post('/checkout', [OrderController::class, 'store'])->name('checkout');
     
-    // --- NEW: PAYMENT SUCCESS ROUTE ---
+    // PAYMENT SUCCESS ROUTE
     Route::get('/orders/{order}/success', [OrderController::class, 'paymentSuccess'])->name('orders.success');
 
     Route::get('/orders/{order}/receipt', [OrderController::class, 'downloadReceipt'])->name('orders.receipt');
     Route::post('/orders/{order}/void-request', [OrderController::class, 'requestVoid'])->name('orders.requestVoid');
 
     // --- SHIFT MANAGEMENT ROUTES ---
-    // 1. The resource route for Create, Store, Edit, Update
+    // 1. Resource route (creates shifts.create, shifts.store, shifts.edit, shifts.update)
     Route::resource('shifts', ShiftController::class)->only(['create', 'store', 'edit', 'update']);
     
-    // 2. The MISSING route that caused your error (Smart Logout)
+    // 2. Smart Logout Route
     Route::get('/logout-action', [ShiftController::class, 'handleLogout'])->name('logout.action');
 
     // --- PARKED ORDERS ROUTES ---
@@ -69,4 +67,8 @@ Route::middleware(['auth', 'twofactor', 'admin'])->group(function () {
 
     // Admin Actions
     Route::post('/orders/{order}/void', [App\Http\Controllers\OrderController::class, 'voidOrder'])->name('orders.void');
+
+    // --- REPORTING ROUTES ---
+    Route::get('/reports', [ReportController::class, 'index'])->name('reports.index');
+    Route::get('/reports/export', [ReportController::class, 'export'])->name('reports.export');
 });

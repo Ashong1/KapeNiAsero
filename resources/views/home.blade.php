@@ -58,7 +58,7 @@
         </div>
     </div>
     
-    {{-- SHIFT STATUS ALERT (ADDED) --}}
+    {{-- SHIFT STATUS ALERT --}}
     <div class="mb-4">
         @if(isset($activeShift))
             <div class="alert alert-success d-flex justify-content-between align-items-center shadow-sm border-0" role="alert">
@@ -67,7 +67,8 @@
                     <strong>Register OPEN</strong> 
                     <span class="text-muted ms-2 small">Started: {{ $activeShift->started_at->format('M d, h:i A') }}</span>
                 </div>
-                <a href="{{ route('shifts.close', $activeShift->id) }}" class="btn btn-sm btn-danger fw-bold shadow-sm">
+                {{-- FIXED: Changed 'shifts.close' to 'shifts.edit' --}}
+                <a href="{{ route('shifts.edit', $activeShift->id) }}" class="btn btn-sm btn-danger fw-bold shadow-sm">
                     End Shift
                 </a>
             </div>

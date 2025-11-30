@@ -208,6 +208,11 @@
                             <i class="fas fa-history"></i> History
                         </a>
                         @if(Auth::user()->role == 'admin')
+                            {{-- NEW REPORTS LINK --}}
+                            <a href="{{ route('reports.index') }}" class="nav-pill-custom {{ request()->routeIs('reports.*') ? 'active' : '' }}">
+                                <i class="fas fa-chart-line"></i> Reports
+                            </a>
+
                             <a href="{{ route('ingredients.index') }}" class="nav-pill-custom {{ request()->routeIs('ingredients.*') ? 'active' : '' }}">
                                 <i class="fas fa-boxes"></i> Stock
                             </a>

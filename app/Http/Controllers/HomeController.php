@@ -4,8 +4,8 @@ namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 use App\Models\Order;
-use App\Models\Product;
 use App\Models\Ingredient;
+use App\Models\Shift; 
 use Illuminate\Support\Facades\Auth;
 use Carbon\Carbon;
 
@@ -20,57 +20,48 @@ class HomeController extends Controller
     {
         $user = Auth::user();
 
-        // 1. TRAFFIC COP LOGIC
-        // Redirect non-admin users to the POS page
+        // 1. CHECK FOR ACTIVE SHIFT
+        $activeShift = Shift::where('user_id', $user->id)
+                            ->whereNull('ended_at')
+                            ->first();
+
+        // 2. EMPLOYEE LOGIC
         if ($user->role !== 'admin') {
+            // If NO shift is open, Force them to Open Register (Start Shift)
+            if (!$activeShift) {
+                return redirect()->route('shifts.create');
+            }
+            
+            // If Shift IS open, Force them to POS (Selling)
             return redirect()->route('products.index');
         }
 
-        // 2. ADMIN DASHBOARD DATA
-        
-        // Calculate Total Sales Today (EXCLUDING VOIDED ORDERS)
+        // 3. ADMIN DASHBOARD (Same as before)
         $todaySales = Order::whereDate('created_at', Carbon::today())
                             ->where('status', '!=', 'voided')
                             ->sum('total_price');
         
-        // Count Orders Today (EXCLUDING VOIDED ORDERS)
         $todayOrders = Order::whereDate('created_at', Carbon::today())
                             ->where('status', '!=', 'voided')
                             ->count();
 
-        // Find Ingredients that are running low (Stock <= Alert Level)
         $lowStockIngredients = Ingredient::whereColumn('stock', '<=', 'reorder_level')->get();
-
-        // Get the 5 most recent orders to show in a list
         $recentOrders = Order::with('user')->latest()->take(5)->get();
 
-        // --- WEEKLY ANALYTICS LOGIC ---
         $salesLabels = [];
         $salesData = [];
 
-        // Loop through the last 7 days (including today)
         for ($i = 6; $i >= 0; $i--) {
             $date = Carbon::today()->subDays($i);
-            
-            // Push Day Name (e.g., "Mon") into labels array
             $salesLabels[] = $date->format('D');
-            
-            // Calculate Sales for that specific day and push to data array
-            $daySales = Order::whereDate('created_at', $date)
+            $salesData[] = Order::whereDate('created_at', $date)
                                 ->where('status', '!=', 'voided')
                                 ->sum('total_price');
-            
-            $salesData[] = $daySales;
         }
 
-        // Send all this data to the dashboard view
         return view('home', compact(
-            'todaySales', 
-            'todayOrders', 
-            'lowStockIngredients', 
-            'recentOrders',
-            'salesLabels', 
-            'salesData'
+            'todaySales', 'todayOrders', 'lowStockIngredients', 
+            'recentOrders', 'salesLabels', 'salesData', 'activeShift'
         ));
     }
 }

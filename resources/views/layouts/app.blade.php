@@ -53,6 +53,9 @@
             margin-bottom: 2rem;
             margin-top: 1rem;
             border-radius: 24px;
+            /* Fix z-index for dropdowns */
+            position: relative; 
+            z-index: 1050; 
         }
 
         .navbar-brand-wrapper { display: flex; align-items: center; gap: 1rem; }
@@ -70,6 +73,7 @@
             border-radius: 12px; padding: 0.5rem 1rem; font-weight: 600; font-size: 0.9rem;
             color: var(--text-secondary); transition: all 0.2s ease; border: 1px solid transparent;
             display: flex; align-items: center; gap: 0.5rem; text-decoration: none;
+            white-space: nowrap; 
         }
         .nav-pill-custom:hover, .nav-pill-custom:focus { background-color: rgba(111, 78, 55, 0.08); color: var(--primary-coffee); }
         .nav-pill-custom.active { background-color: var(--primary-coffee); color: white; box-shadow: 0 4px 12px rgba(111, 78, 55, 0.25); }
@@ -81,6 +85,7 @@
             background-color: rgba(255, 255, 255, 0.95);
             backdrop-filter: blur(10px);
             padding: 0.5rem;
+            z-index: 1051;
         }
         .dropdown-item {
             font-weight: 500;
@@ -103,6 +108,7 @@
         .btn-action {
             border-radius: 12px; padding: 0.5rem 1.2rem; font-weight: 600; font-size: 0.9rem;
             transition: all 0.2s ease; display: flex; align-items: center; gap: 0.5rem;
+            white-space: nowrap; 
         }
         
         .btn-primary-coffee, .btn-pos {
@@ -147,32 +153,23 @@
         .form-control:focus, .form-select:focus {
             border-color: var(--primary-coffee); box-shadow: 0 0 0 4px rgba(111, 78, 55, 0.1);
         }
-        .alert-floating {
-            border-radius: 16px; border: none; box-shadow: 0 10px 30px rgba(0,0,0,0.1); margin-bottom: 1.5rem;
+        /* Custom SweetAlert Style Override (Optional) */
+        div:where(.swal2-container) div:where(.swal2-popup) {
+            border-radius: 24px !important;
+            font-family: 'Inter', sans-serif !important;
         }
-
-        /* --- PAGINATION --- */
-        .pagination { justify-content: center; gap: 0.5rem; margin-top: 1.5rem; margin-bottom: 0; }
-        .page-item .page-link {
-            border: none; border-radius: 8px; color: var(--text-secondary);
-            font-weight: 600; padding: 0.5rem 0.9rem; background: transparent;
-            transition: all 0.2s ease; box-shadow: none;
-        }
-        .page-item .page-link:hover { background-color: var(--surface-cream); color: var(--primary-coffee); transform: translateY(-1px); }
-        .page-item.active .page-link { background-color: var(--primary-coffee); color: white; box-shadow: 0 4px 12px rgba(111, 78, 55, 0.3); }
-
+        
         @yield('styles')
     </style>
 </head>
 <body>
 
 <div class="container">
-    <nav class="navbar navbar-expand-lg navbar-premium">
+    <nav class="navbar navbar-expand-xl navbar-premium">
         <div class="container-fluid px-1">
             <a class="navbar-brand p-0" href="{{ route('home') }}">
                 <div class="navbar-brand-wrapper">
                     <div class="logo-container">
-                        {{-- Ensure you have this image in public/ka.png --}}
                         <img src="{{ asset('ka.png') }}" alt="Logo" style="height: 38px; width: auto;">
                     </div>
                     <div class="brand-info">
@@ -188,134 +185,82 @@
                 <i class="fas fa-bars fs-5"></i>
             </button>
 
-            <div class="collapse navbar-collapse mt-3 mt-lg-0" id="mainNav">
+            <div class="collapse navbar-collapse mt-3 mt-xl-0" id="mainNav">
                 @auth
-                <div class="ms-auto d-flex flex-column flex-lg-row align-items-stretch align-items-lg-center gap-2 gap-lg-3">
-                    <div class="d-flex flex-column flex-lg-row gap-1 bg-light p-1 rounded-4 border border-light">
-                        
+                <div class="ms-auto d-flex flex-column flex-xl-row align-items-stretch align-items-xl-center gap-2 gap-xl-3">
+                    
+                    <div class="d-flex flex-column flex-xl-row gap-1 bg-light p-1 rounded-4 border border-light">
                         @if(Auth::user()->role == 'admin')
-                            {{-- 1. DASHBOARD --}}
                             <a href="{{ route('home') }}" class="nav-pill-custom {{ request()->routeIs('home') ? 'active' : '' }}">
                                 <i class="fas fa-chart-pie"></i> Dashboard
                             </a>
-                            
-                            {{-- 2. STAFF --}}
                             <a href="{{ route('users.index') }}" class="nav-pill-custom {{ request()->routeIs('users.*') ? 'active' : '' }}">
                                 <i class="fas fa-users"></i> Staff
                             </a>
                         @endif
 
-                        {{-- 3. HISTORY (Shared) --}}
                         <a href="{{ route('orders.index') }}" class="nav-pill-custom {{ request()->routeIs('orders.index') ? 'active' : '' }}">
                             <i class="fas fa-history"></i> History
                         </a>
 
                         @if(Auth::user()->role == 'admin')
-                            {{-- 4. INVENTORY DROPDOWN --}}
                             <div class="dropdown">
                                 <a href="#" class="nav-pill-custom dropdown-toggle {{ request()->routeIs('ingredients.*') || request()->routeIs('categories.*') || request()->routeIs('suppliers.*') || request()->routeIs('products.create') ? 'active' : '' }}" 
                                    data-bs-toggle="dropdown" aria-expanded="false">
                                     <i class="fas fa-boxes"></i> Inventory
                                 </a>
                                 <ul class="dropdown-menu border-0 shadow-lg rounded-4 p-2 mt-2">
-                                    <li>
-                                        <a class="dropdown-item mb-1 px-3 py-2" href="{{ route('ingredients.index') }}">
-                                            <i class="fas fa-cubes me-2 text-secondary"></i> Stock List
-                                        </a>
-                                    </li>
-                                    <li>
-                                        <a class="dropdown-item mb-1 px-3 py-2" href="{{ route('categories.index') }}">
-                                            <i class="fas fa-tags me-2 text-secondary"></i> Categories
-                                        </a>
-                                    </li>
-                                    <li>
-                                        <a class="dropdown-item mb-1 px-3 py-2" href="{{ route('suppliers.index') }}">
-                                            <i class="fas fa-truck me-2 text-secondary"></i> Suppliers
-                                        </a>
-                                    </li>
+                                    <li><a class="dropdown-item mb-1 px-3 py-2" href="{{ route('ingredients.index') }}"><i class="fas fa-cubes me-2 text-secondary"></i> Stock List</a></li>
+                                    <li><a class="dropdown-item mb-1 px-3 py-2" href="{{ route('categories.index') }}"><i class="fas fa-tags me-2 text-secondary"></i> Categories</a></li>
+                                    <li><a class="dropdown-item mb-1 px-3 py-2" href="{{ route('suppliers.index') }}"><i class="fas fa-truck me-2 text-secondary"></i> Suppliers</a></li>
                                     <li><hr class="dropdown-divider"></li>
-                                    <li>
-                                        <a class="dropdown-item px-3 py-2" href="{{ route('products.create') }}">
-                                            <i class="fas fa-plus-circle me-2 text-success"></i> New Product
-                                        </a>
-                                    </li>
+                                    <li><a class="dropdown-item px-3 py-2" href="{{ route('products.create') }}"><i class="fas fa-plus-circle me-2 text-success"></i> New Product</a></li>
                                 </ul>
                             </div>
 
-                            {{-- 5. LOGS & REPORTS DROPDOWN --}}
                             <div class="dropdown">
                                 <a href="#" class="nav-pill-custom dropdown-toggle {{ request()->routeIs('reports.*') || request()->routeIs('shifts.*') || request()->routeIs('activity-logs.*') ? 'active' : '' }}" 
                                    data-bs-toggle="dropdown" aria-expanded="false">
                                     <i class="fas fa-clipboard-list"></i> Logs
                                 </a>
                                 <ul class="dropdown-menu border-0 shadow-lg rounded-4 p-2 mt-2 dropdown-menu-end">
-                                    <li>
-                                        <a class="dropdown-item mb-1 px-3 py-2" href="{{ route('reports.index') }}">
-                                            <i class="fas fa-chart-line me-2 text-primary"></i> Sales Reports
-                                        </a>
-                                    </li>
-                                    <li>
-                                        <a class="dropdown-item mb-1 px-3 py-2" href="{{ route('shifts.index') }}">
-                                            <i class="fas fa-clock me-2 text-secondary"></i> Shift History
-                                        </a>
-                                    </li>
-                                    <li>
-                                        <a class="dropdown-item px-3 py-2" href="{{ route('activity-logs.index') }}">
-                                            <i class="fas fa-shield-alt me-2 text-secondary"></i> Audit Logs
-                                        </a>
-                                    </li>
+                                    <li><a class="dropdown-item mb-1 px-3 py-2" href="{{ route('reports.index') }}"><i class="fas fa-chart-line me-2 text-primary"></i> Sales Reports</a></li>
+                                    <li><a class="dropdown-item mb-1 px-3 py-2" href="{{ route('shifts.index') }}"><i class="fas fa-clock me-2 text-secondary"></i> Shift History</a></li>
+                                    <li><a class="dropdown-item px-3 py-2" href="{{ route('activity-logs.index') }}"><i class="fas fa-shield-alt me-2 text-secondary"></i> Audit Logs</a></li>
                                 </ul>
                             </div>
 
-                            {{-- 6. SETTINGS (Standalone) --}}
                             <a href="{{ route('settings.index') }}" class="nav-pill-custom {{ request()->routeIs('settings.*') ? 'active' : '' }}">
                                 <i class="fas fa-cogs"></i> Settings
                             </a>
                         @endif
-
                     </div>
-                    <div class="vr d-none d-lg-block mx-1 opacity-25"></div>
                     
-                    {{-- POS BUTTON --}}
+                    <div class="vr d-none d-xl-block mx-1 opacity-25"></div>
+                    
                     <a href="{{ route('products.index') }}" class="btn btn-action btn-pos">
                         <i class="fas fa-cash-register"></i> <span class="d-none d-md-inline">Open POS</span>
                     </a>
 
-                    {{-- SMART LOGOUT BUTTON --}}
                     @if(Auth::user()->role === 'admin')
-                        {{-- Admin Logout: Normal --}}
                         <a href="{{ route('logout') }}" class="btn btn-action btn-light text-danger border-0 justify-content-center" 
                            onclick="event.preventDefault(); document.getElementById('logout-form').submit();" title="Sign Out">
                             <i class="fas fa-power-off"></i>
                         </a>
                         <form id="logout-form" action="{{ route('logout') }}" method="POST" class="d-none">@csrf</form>
                     @else
-                        {{-- Employee Logout: Triggers Shift Close --}}
                         <a href="{{ route('logout.action') }}" class="btn btn-action btn-light text-danger border-0 justify-content-center" title="End Shift & Sign Out">
                             <i class="fas fa-power-off"></i>
                         </a>
                     @endif
-
                 </div>
                 @endauth
             </div>
         </div>
     </nav>
 
-    @if(session('success'))
-        <div class="alert alert-success alert-dismissible fade show alert-floating d-flex align-items-center animate__animated animate__fadeInDown" role="alert">
-            <i class="fas fa-check-circle fs-4 me-3 text-success"></i>
-            <div>{{ session('success') }}</div>
-            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
-        </div>
-    @endif
-    @if(session('error'))
-        <div class="alert alert-danger alert-dismissible fade show alert-floating d-flex align-items-center animate__animated animate__fadeInDown" role="alert">
-            <i class="fas fa-exclamation-circle fs-4 me-3 text-danger"></i>
-            <div>{{ session('error') }}</div>
-            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
-        </div>
-    @endif
+    {{-- ALERT SECTION REMOVED --}}
+    {{-- Alerts are now handled by SweetAlert script below --}}
 
     <main>
         @yield('content')
@@ -324,6 +269,38 @@
 
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+
+{{-- SCRIPT: Handle Flash Messages as SweetAlert Modals --}}
+<script>
+    document.addEventListener("DOMContentLoaded", function() {
+        
+        // Success Alert
+        @if(session('success'))
+            Swal.fire({
+                icon: 'success',
+                title: 'Success!',
+                text: "{{ session('success') }}",
+                confirmButtonColor: '#6F4E37', // Matches your Brand Coffee Color
+                confirmButtonText: 'OK',
+                timer: 4000,
+                timerProgressBar: true
+            });
+        @endif
+
+        // Error Alert
+        @if(session('error'))
+            Swal.fire({
+                icon: 'error',
+                title: 'Error',
+                text: "{{ session('error') }}",
+                confirmButtonColor: '#D32F2F',
+                confirmButtonText: 'OK'
+            });
+        @endif
+        
+    });
+</script>
+
 @yield('scripts')
 </body>
 </html>

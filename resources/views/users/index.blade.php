@@ -83,7 +83,9 @@
                                     <a href="{{ route('users.edit', $user->id) }}" class="btn btn-sm btn-light text-primary-coffee border-0" title="Edit User">
                                         <i class="fas fa-pen-to-square"></i>
                                     </a>
-                                    <form action="{{ route('users.destroy', $user->id) }}" method="POST" class="d-inline" onsubmit="return confirm('Are you sure you want to delete this user? This action cannot be undone.');">
+                                    
+                                    {{-- UPDATED DELETE FORM: No onsubmit, added 'delete-form' class --}}
+                                    <form action="{{ route('users.destroy', $user->id) }}" method="POST" class="d-inline delete-form">
                                         @csrf @method('DELETE')
                                         <button type="submit" class="btn btn-sm btn-light text-danger border-0" title="Delete User">
                                             <i class="fas fa-trash-can"></i>
@@ -102,4 +104,40 @@
         </div>
     </div>
 </div>
+
+@section('scripts')
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        // Select all forms with the 'delete-form' class
+        const deleteForms = document.querySelectorAll('.delete-form');
+
+        deleteForms.forEach(form => {
+            form.addEventListener('submit', function(e) {
+                // Prevent the default form submission (browser alert)
+                e.preventDefault();
+
+                // Show SweetAlert confirmation
+                Swal.fire({
+                    title: 'Delete User?',
+                    text: "This action cannot be undone. The staff member will lose access immediately.",
+                    icon: 'warning',
+                    showCancelButton: true,
+                    confirmButtonColor: '#D32F2F', // Danger Red
+                    cancelButtonColor: '#EFEBE9',  // Light Gray
+                    cancelButtonText: '<span style="color: #6F4E37; font-weight: 600;">Cancel</span>',
+                    confirmButtonText: 'Yes, delete it!',
+                    reverseButtons: true, // Moves confirm to the right side
+                    focusCancel: true // Focus on cancel by default to prevent accidents
+                }).then((result) => {
+                    // If user clicked 'Yes'
+                    if (result.isConfirmed) {
+                        form.submit();
+                    }
+                });
+            });
+        });
+    });
+</script>
+@endsection
+
 @endsection

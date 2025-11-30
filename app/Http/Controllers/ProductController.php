@@ -4,16 +4,17 @@ namespace App\Http\Controllers;
 
 use App\Models\Product;
 use App\Models\Ingredient;
-use App\Models\Category; // <--- IMPORT THIS
+use App\Models\Category;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Storage; // Imported for deleting old images
 
 class ProductController extends Controller
 {
     public function index()
     {
-        // UPDATED: Fetch categories for the POS filter bar
+        // Fetch products with category relationship for optimization
         $products = Product::with('category')->get(); 
-        $categories = Category::all(); // <--- Fetch all categories
+        $categories = Category::all();
         
         return view('products.index', compact('products', 'categories'));
     }
@@ -30,9 +31,19 @@ class ProductController extends Controller
             'name' => 'required',
             'price' => 'required|numeric',
             'category_id' => 'required|exists:categories,id',
+            'image' => 'nullable|image|max:2048', // Validation for image (max 2MB)
         ]);
 
-        $product = Product::create($request->all());
+        $data = $request->all();
+
+        // Handle Image Upload
+        if ($request->hasFile('image')) {
+            // Stores the file in 'storage/app/public/products' and returns the path (e.g., 'products/filename.jpg')
+            $path = $request->file('image')->store('products', 'public');
+            $data['image_path'] = $path; // Add the path to the data array
+        }
+
+        $product = Product::create($data);
 
         return redirect()->route('products.edit', $product->id)
                          ->with('success', 'Product created! Now add the recipe ingredients.');
@@ -51,14 +62,33 @@ class ProductController extends Controller
             'name' => 'required',
             'price' => 'required|numeric',
             'category_id' => 'required|exists:categories,id',
+            'image' => 'nullable|image|max:2048',
         ]);
 
-        $product->update($request->all());
+        $data = $request->all();
+
+        // Handle Image Upload
+        if ($request->hasFile('image')) {
+            // Delete old image if it exists to clean up storage
+            if ($product->image_path && Storage::disk('public')->exists($product->image_path)) {
+                Storage::disk('public')->delete($product->image_path);
+            }
+
+            $path = $request->file('image')->store('products', 'public');
+            $data['image_path'] = $path;
+        }
+
+        $product->update($data);
         return redirect()->route('products.index')->with('success', 'Product updated.');
     }
 
     public function destroy(Product $product)
     {
+        // Delete the image file when the product is deleted
+        if ($product->image_path && Storage::disk('public')->exists($product->image_path)) {
+            Storage::disk('public')->delete($product->image_path);
+        }
+
         $product->delete();
         return redirect()->route('products.index')->with('success', 'Product deleted.');
     }

@@ -7,6 +7,7 @@ use App\Http\Controllers\IngredientController;
 use App\Http\Controllers\TwoFactorController;
 use App\Http\Controllers\HomeController;
 use App\Http\Controllers\ShiftController; // <--- DON'T FORGET THIS IMPORT
+use App\Http\Controllers\ParkedOrderController; // <--- Import This
 use Illuminate\Support\Facades\Auth;
 
 Route::get('/', function () { return redirect('/login'); });
@@ -19,9 +20,9 @@ Route::middleware(['auth'])->group(function() {
     Route::resource('verify', TwoFactorController::class)->only(['index', 'store']);
 });
 
-// Protected Routes (Requires Login + 2FA)
+// GENERAL ACCESS (With 2FA) - Employees and Admins
 Route::middleware(['auth', 'twofactor'])->group(function () {
-    // Dashboard & Orders
+    Route::get('/orders', [OrderController::class, 'index'])->name('orders.index');
     Route::get('/home', [HomeController::class, 'index'])->name('home');
     Route::get('/orders', [OrderController::class, 'index'])->name('orders.index');
     Route::get('/products', [ProductController::class, 'index'])->name('products.index');
@@ -29,13 +30,11 @@ Route::middleware(['auth', 'twofactor'])->group(function () {
     Route::get('/orders/{order}/receipt', [OrderController::class, 'downloadReceipt'])->name('orders.receipt');
     Route::post('/orders/{order}/void-request', [OrderController::class, 'requestVoid'])->name('orders.requestVoid');
 
-    // --- SHIFT MANAGEMENT (The part you added) ---
-    Route::get('/shift/open', [ShiftController::class, 'create'])->name('shifts.create');
-    Route::post('/shift/open', [ShiftController::class, 'store'])->name('shifts.store');
-    Route::get('/shift/{shift}/close', [ShiftController::class, 'edit'])->name('shifts.close');
-    Route::put('/shift/{shift}', [ShiftController::class, 'update'])->name('shifts.update');
-
-    Route::get('/logout-action', [ShiftController::class, 'handleLogout'])->name('logout.action');
+    // --- PARKED ORDERS ROUTES ---
+    Route::post('/park-order', [ParkedOrderController::class, 'store']);
+    Route::get('/parked-orders', [ParkedOrderController::class, 'index']);
+    Route::get('/parked-orders/{order}/retrieve', [ParkedOrderController::class, 'retrieve']);
+    Route::delete('/parked-orders/{order}', [ParkedOrderController::class, 'destroy']);
 });
 
 // Admin Only Routes

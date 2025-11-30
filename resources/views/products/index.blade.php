@@ -45,36 +45,11 @@
     .btn-checkout { width: 100%; padding: 1rem; border-radius: 14px; font-weight: 700; font-size: 1.1rem; border: none; background: linear-gradient(135deg, var(--primary-coffee) 0%, var(--dark-coffee) 100%); color: white; box-shadow: 0 8px 20px rgba(111, 78, 55, 0.25); transition: all 0.3s; display: flex; justify-content: space-between; align-items: center; }
     .btn-checkout:hover { transform: translateY(-2px); box-shadow: 0 12px 25px rgba(111, 78, 55, 0.35); }
 
-    /* --- TOGGLE STYLES (MATCHING PREMIUM DESIGN) --- */
-    .toggle-track {
-        background-color: #F5F5F7;
-        border-radius: 16px;
-        padding: 4px;
-        display: flex;
-        border: 1px solid var(--border-light);
-    }
-    .toggle-option {
-        flex: 1;
-        border: none;
-        background: transparent;
-        padding: 0.7rem;
-        border-radius: 12px;
-        font-weight: 700;
-        font-size: 0.9rem;
-        color: var(--text-secondary);
-        transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        gap: 0.5rem;
-    }
+    /* --- TOGGLE STYLES --- */
+    .toggle-track { background-color: #F5F5F7; border-radius: 16px; padding: 4px; display: flex; border: 1px solid var(--border-light); }
+    .toggle-option { flex: 1; border: none; background: transparent; padding: 0.7rem; border-radius: 12px; font-weight: 700; font-size: 0.9rem; color: var(--text-secondary); transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1); display: flex; align-items: center; justify-content: center; gap: 0.5rem; }
     .toggle-option:hover { color: var(--primary-coffee); }
-    .toggle-option.active {
-        background-color: white;
-        color: var(--primary-coffee);
-        box-shadow: 0 4px 12px rgba(0,0,0,0.08);
-        transform: scale(1.02);
-    }
+    .toggle-option.active { background-color: white; color: var(--primary-coffee); box-shadow: 0 4px 12px rgba(0,0,0,0.08); transform: scale(1.02); }
 
     /* --- ADMIN BUTTONS --- */
     .btn-admin-icon { width: 32px; height: 32px; border-radius: 8px; display: flex; align-items: center; justify-content: center; border: 1px solid transparent; transition: all 0.2s; cursor: pointer; text-decoration: none; }
@@ -190,7 +165,11 @@
                 <div class="bg-primary-coffee text-white rounded-circle d-flex align-items-center justify-content-center fw-bold ms-2" 
                      style="width: 24px; height: 24px; font-size: 0.75rem;" id="cart-badge-count">0</div>
             </div>
-            <div class="d-flex align-items-center gap-3">
+            <div class="d-flex align-items-center gap-2">
+                {{-- SAVED ORDERS BUTTON --}}
+                <button class="btn btn-sm btn-light text-primary-coffee border-0 p-1" onclick="event.stopPropagation(); openSavedOrders()" title="Recall Saved Order">
+                    <i class="fa-solid fa-clock-rotate-left"></i>
+                </button>
                 <button class="btn btn-sm btn-light text-danger border-0 p-1" onclick="event.stopPropagation(); clearCart()" title="Clear Cart">
                     <i class="fa-solid fa-trash-can"></i>
                 </button>
@@ -198,7 +177,6 @@
             </div>
         </div>
 
-        {{-- NEW TOGGLE DESIGN --}}
         <div class="px-4 pb-3 pt-3 bg-white">
             <div class="toggle-track">
                 <button class="toggle-option active" id="btn-dine-in" onclick="setOrderType('dine_in')">
@@ -221,10 +199,26 @@
                 <span>Subtotal</span>
                 <span class="fw-bold text-dark" id="subtotal">₱0.00</span>
             </div>
+            <div class="d-flex justify-content-between mb-2 small text-success d-none" id="discountRow">
+                <span id="discountLabel">Discount</span>
+                <span class="fw-bold" id="discountValue">-₱0.00</span>
+            </div>
             <div class="d-flex justify-content-between mb-3 small text-secondary">
                 <span>VAT (12%)</span>
                 <span class="fw-bold text-dark" id="tax">₱0.00</span>
             </div>
+
+            <div class="d-flex gap-2 mb-3">
+                {{-- DISCOUNT BTN --}}
+                <button class="btn btn-sm btn-outline-secondary w-50 border-dashed" onclick="openDiscountModal()">
+                    <i class="fa-solid fa-tag me-1"></i> Discount
+                </button>
+                {{-- PARK BTN --}}
+                <button class="btn btn-sm btn-outline-warning w-50 border-dashed" onclick="parkOrder()">
+                    <i class="fa-solid fa-circle-pause me-1"></i> Hold Order
+                </button>
+            </div>
+
             <button class="btn-checkout" onclick="openCheckoutModal()">
                 <span><i class="fa-solid fa-file-invoice-dollar me-2"></i> Charge</span>
                 <span id="grand-total">₱0.00</span>
@@ -235,7 +229,8 @@
 
 </div>
 
-{{-- MODALS (Checkout & Success) --}}
+{{-- MODALS --}}
+{{-- 1. Checkout Modal --}}
 <div class="modal fade" id="checkoutModal" tabindex="-1" aria-hidden="true">
     <div class="modal-dialog modal-dialog-centered">
         <div class="modal-content modal-content-premium">
@@ -288,36 +283,21 @@
                 </div>
                 <h4 class="fw-bold text-dark mb-2">Payment Successful!</h4>
                 <p class="text-secondary mb-4">Transaction has been recorded.</p>
-
                 <div class="receipt-summary bg-light p-3 rounded-4 mb-4 text-start">
-                    <div class="d-flex justify-content-between mb-2">
-                        <span class="text-secondary small">Total Amount</span>
-                        <span class="fw-bold text-dark" id="successTotal">₱0.00</span>
-                    </div>
-                    <div class="d-flex justify-content-between mb-2">
-                        <span class="text-secondary small">Cash Tendered</span>
-                        <span class="fw-bold text-dark" id="successCash">₱0.00</span>
-                    </div>
-                    <div class="d-flex justify-content-between border-top pt-2 mt-2">
-                        <span class="text-success fw-bold">Change</span>
-                        <span class="text-success fw-bold fs-5" id="successChange">₱0.00</span>
-                    </div>
+                    <div class="d-flex justify-content-between mb-2"><span class="text-secondary small">Total Amount</span><span class="fw-bold text-dark" id="successTotal">₱0.00</span></div>
+                    <div class="d-flex justify-content-between mb-2"><span class="text-secondary small">Cash Tendered</span><span class="fw-bold text-dark" id="successCash">₱0.00</span></div>
+                    <div class="d-flex justify-content-between border-top pt-2 mt-2"><span class="text-success fw-bold">Change</span><span class="text-success fw-bold fs-5" id="successChange">₱0.00</span></div>
                 </div>
-
                 <div class="d-grid gap-2">
-                    <button class="btn btn-primary-coffee py-3 rounded-4 fw-bold shadow-sm" onclick="printReceipt()">
-                        <i class="fa-solid fa-print me-2"></i> Print Receipt
-                    </button>
-                    <button class="btn btn-light py-3 rounded-4 fw-bold text-secondary" onclick="finishTransaction()">
-                        <i class="fa-solid fa-arrow-rotate-right me-2"></i> New Order (Skip)
-                    </button>
+                    <button class="btn btn-primary-coffee py-3 rounded-4 fw-bold shadow-sm" onclick="printReceipt()"><i class="fa-solid fa-print me-2"></i> Print Receipt</button>
+                    <button class="btn btn-light py-3 rounded-4 fw-bold text-secondary" onclick="finishTransaction()"><i class="fa-solid fa-arrow-rotate-right me-2"></i> New Order (Skip)</button>
                 </div>
             </div>
         </div>
     </div>
 </div>
 
-{{-- 3. Modifier Modal (NEW) --}}
+{{-- 3. Modifier Modal --}}
 <div class="modal fade" id="modifierModal" tabindex="-1" aria-hidden="true">
     <div class="modal-dialog modal-dialog-centered modal-sm">
         <div class="modal-content modal-content-premium">
@@ -326,41 +306,83 @@
                 <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
             </div>
             <div class="modal-body p-3">
-                <input type="hidden" id="modProductId">
-                <input type="hidden" id="modProductName">
-                <input type="hidden" id="modProductPrice">
-
+                <input type="hidden" id="modProductId"><input type="hidden" id="modProductName"><input type="hidden" id="modProductPrice">
                 <div class="mb-3">
                     <label class="form-label small fw-bold text-secondary">Sugar Level</label>
                     <div class="d-grid gap-2 grid-cols-3" style="display: grid; grid-template-columns: repeat(3, 1fr);">
-                        <input type="radio" class="btn-check" name="sugar" id="sugar0" value="0%" autocomplete="off">
-                        <label class="btn btn-outline-secondary btn-sm" for="sugar0">0%</label>
-
-                        <input type="radio" class="btn-check" name="sugar" id="sugar50" value="50%" autocomplete="off">
-                        <label class="btn btn-outline-secondary btn-sm" for="sugar50">50%</label>
-
-                        <input type="radio" class="btn-check" name="sugar" id="sugar100" value="100%" autocomplete="off" checked>
-                        <label class="btn btn-outline-secondary btn-sm" for="sugar100">100%</label>
+                        <input type="radio" class="btn-check" name="sugar" id="sugar0" value="0%" autocomplete="off"><label class="btn btn-outline-secondary btn-sm" for="sugar0">0%</label>
+                        <input type="radio" class="btn-check" name="sugar" id="sugar50" value="50%" autocomplete="off"><label class="btn btn-outline-secondary btn-sm" for="sugar50">50%</label>
+                        <input type="radio" class="btn-check" name="sugar" id="sugar100" value="100%" autocomplete="off" checked><label class="btn btn-outline-secondary btn-sm" for="sugar100">100%</label>
                     </div>
                 </div>
-
                 <div class="mb-3">
                     <label class="form-label small fw-bold text-secondary">Ice Level</label>
                     <div class="d-grid gap-2" style="display: grid; grid-template-columns: repeat(3, 1fr);">
-                        <input type="radio" class="btn-check" name="ice" id="iceNone" value="No Ice" autocomplete="off">
-                        <label class="btn btn-outline-secondary btn-sm" for="iceNone">None</label>
-
-                        <input type="radio" class="btn-check" name="ice" id="iceLess" value="Less Ice" autocomplete="off">
-                        <label class="btn btn-outline-secondary btn-sm" for="iceLess">Less</label>
-
-                        <input type="radio" class="btn-check" name="ice" id="iceNormal" value="Normal" autocomplete="off" checked>
-                        <label class="btn btn-outline-secondary btn-sm" for="iceNormal">Normal</label>
+                        <input type="radio" class="btn-check" name="ice" id="iceNone" value="No Ice" autocomplete="off"><label class="btn btn-outline-secondary btn-sm" for="iceNone">None</label>
+                        <input type="radio" class="btn-check" name="ice" id="iceLess" value="Less Ice" autocomplete="off"><label class="btn btn-outline-secondary btn-sm" for="iceLess">Less</label>
+                        <input type="radio" class="btn-check" name="ice" id="iceNormal" value="Normal" autocomplete="off" checked><label class="btn btn-outline-secondary btn-sm" for="iceNormal">Normal</label>
                     </div>
                 </div>
-                
-                <button class="btn btn-primary-coffee w-100 fw-bold" onclick="confirmAddToCart()">
-                    Add to Order
-                </button>
+                <button class="btn btn-primary-coffee w-100 fw-bold" onclick="confirmAddToCart()">Add to Order</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+{{-- 4. Discount Modal --}}
+<div class="modal fade" id="discountModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered modal-sm">
+        <div class="modal-content modal-content-premium">
+            <div class="modal-header-premium p-3">
+                <h6 class="fw-bold m-0">Apply Discount</h6>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body p-3">
+                <div class="d-grid gap-2">
+                    <button class="btn btn-outline-secondary text-start" onclick="applyDiscount('percentage', 20, 'Senior Citizen')"><div class="d-flex justify-content-between"><span>👴 Senior Citizen</span><span class="fw-bold">20%</span></div></button>
+                    <button class="btn btn-outline-secondary text-start" onclick="applyDiscount('percentage', 20, 'PWD')"><div class="d-flex justify-content-between"><span>♿ PWD</span><span class="fw-bold">20%</span></div></button>
+                    <button class="btn btn-outline-secondary text-start" onclick="applyDiscount('percentage', 10, 'Employee')"><div class="d-flex justify-content-between"><span>👷 Employee</span><span class="fw-bold">10%</span></div></button>
+                    <button class="btn btn-outline-secondary text-start" onclick="applyDiscount('fixed', 50, 'Promo 50')"><div class="d-flex justify-content-between"><span>🏷️ Fixed Promo</span><span class="fw-bold">₱50.00</span></div></button>
+                    <hr class="my-2">
+                    <button class="btn btn-light text-danger fw-bold" onclick="removeDiscount()"><i class="fa-solid fa-xmark me-2"></i> Remove Discount</button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+{{-- 5. PARK ORDER MODAL (Input Name) --}}
+<div class="modal fade" id="parkModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered modal-sm">
+        <div class="modal-content modal-content-premium">
+            <div class="modal-header-premium p-3">
+                <h6 class="fw-bold m-0">Hold Order</h6>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body p-3">
+                <p class="small text-secondary mb-2">Identify this order:</p>
+                <input type="text" id="parkNote" class="form-control mb-3" placeholder="e.g. Table 5, Blue Shirt">
+                <button class="btn btn-warning w-100 fw-bold text-dark" onclick="confirmPark()">Save for Later</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+{{-- 6. SAVED ORDERS MODAL (List) --}}
+<div class="modal fade" id="savedOrdersModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content modal-content-premium">
+            <div class="modal-header-premium p-3">
+                <h6 class="fw-bold m-0">Recall Saved Orders</h6>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body p-0">
+                <div class="list-group list-group-flush" id="savedOrdersList">
+                    {{-- JS populates this --}}
+                    <div class="p-4 text-center text-muted">
+                        <i class="fa-solid fa-spinner fa-spin"></i> Loading...
+                    </div>
+                </div>
             </div>
         </div>
     </div>
@@ -370,24 +392,16 @@
 
 @section('scripts')
 <script>
-    // --- ORDER TYPE TOGGLE LOGIC ---
+    // --- ORDER TYPE TOGGLE ---
     function setOrderType(type) {
         orderType = type;
-        
-        // Toggle Classes Cleaner
         const btnDine = document.getElementById('btn-dine-in');
         const btnTake = document.getElementById('btn-take-out');
-        
-        if (type === 'dine_in') {
-            btnDine.classList.add('active');
-            btnTake.classList.remove('active');
-        } else {
-            btnTake.classList.add('active');
-            btnDine.classList.remove('active');
-        }
+        if (type === 'dine_in') { btnDine.classList.add('active'); btnTake.classList.remove('active'); } 
+        else { btnTake.classList.add('active'); btnDine.classList.remove('active'); }
     }
 
-    // --- SEARCH & FILTER ---
+    // --- SEARCH ---
     let activeCategory = 'all';
     function filterCategory(catId, element) {
         document.querySelectorAll('.cat-pill').forEach(el => el.classList.remove('active'));
@@ -411,66 +425,141 @@
         document.getElementById('noResults').classList.toggle('d-none', visibleCount > 0);
     }
 
-    // --- CART LOGIC ---
+    // --- CART VARS ---
     @if(Auth::user()->role != 'admin')
     let cart = [];
     let isCartExpanded = false;
     let currentTotal = 0;
-    let lastOrderId = null; // Store order ID for printing
-    let orderType = 'dine_in'; // Default
-    
-    // *** FIX ADDED HERE: INITIALIZE BOOTSTRAP MODAL ***
-    const modifierModal = new bootstrap.Modal(document.getElementById('modifierModal'));
+    let lastOrderId = null; 
+    let orderType = 'dine_in';
+    let currentDiscount = { type: 'none', value: 0, name: '' };
 
-    // 1. OPEN MODIFIER MODAL
+    const modifierModal = new bootstrap.Modal(document.getElementById('modifierModal'));
+    const discountModal = new bootstrap.Modal(document.getElementById('discountModal'));
+    const checkoutModal = new bootstrap.Modal(document.getElementById('checkoutModal'));
+    const successModal = new bootstrap.Modal(document.getElementById('successModal'));
+    const parkModal = new bootstrap.Modal(document.getElementById('parkModal'));
+    const savedOrdersModal = new bootstrap.Modal(document.getElementById('savedOrdersModal'));
+
+    // --- PARK / HOLD ORDER ---
+    function parkOrder() {
+        if(cart.length === 0) return alert('Cart is empty');
+        document.getElementById('parkNote').value = '';
+        parkModal.show();
+        setTimeout(() => document.getElementById('parkNote').focus(), 500);
+    }
+
+    function confirmPark() {
+        const note = document.getElementById('parkNote').value;
+        fetch('/park-order', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json', 'X-CSRF-TOKEN': '{{ csrf_token() }}' },
+            body: JSON.stringify({ cart: cart, note: note })
+        })
+        .then(res => res.json())
+        .then(data => {
+            if(data.success) {
+                cart = []; renderCart();
+                parkModal.hide();
+                alert('Order saved!');
+            }
+        });
+    }
+
+    function openSavedOrders() {
+        savedOrdersModal.show();
+        const list = document.getElementById('savedOrdersList');
+        list.innerHTML = '<div class="p-4 text-center text-muted"><i class="fa-solid fa-spinner fa-spin"></i> Loading...</div>';
+
+        fetch('/parked-orders')
+        .then(res => res.json())
+        .then(data => {
+            if(data.length === 0) {
+                list.innerHTML = '<div class="p-4 text-center text-muted">No saved orders found.</div>';
+                return;
+            }
+            let html = '';
+            data.forEach(order => {
+                const date = new Date(order.created_at).toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'});
+                const itemCount = order.cart_data.reduce((acc, i) => acc + i.quantity, 0);
+                
+                html += `
+                <div class="list-group-item p-3 d-flex justify-content-between align-items-center">
+                    <div>
+                        <div class="fw-bold text-dark">${order.customer_note || 'No Name'}</div>
+                        <div class="small text-muted"><i class="fa-regular fa-clock me-1"></i> ${date} &bull; ${itemCount} items</div>
+                        <div class="small text-secondary mt-1">By: ${order.user.name}</div>
+                    </div>
+                    <div class="d-flex gap-2">
+                        <button class="btn btn-sm btn-outline-danger" onclick="deleteParked(${order.id})"><i class="fa-solid fa-trash"></i></button>
+                        <button class="btn btn-sm btn-primary-coffee" onclick="restoreParked(${order.id})">Recall</button>
+                    </div>
+                </div>`;
+            });
+            list.innerHTML = html;
+        });
+    }
+
+    function restoreParked(id) {
+        if(cart.length > 0 && !confirm('Current cart will be replaced. Continue?')) return;
+        
+        fetch(`/parked-orders/${id}/retrieve`)
+        .then(res => res.json())
+        .then(data => {
+            if(data.success) {
+                cart = data.cart;
+                renderCart();
+                savedOrdersModal.hide();
+            }
+        });
+    }
+
+    function deleteParked(id) {
+        if(!confirm('Delete this saved order?')) return;
+        fetch(`/parked-orders/${id}`, {
+            method: 'DELETE',
+            headers: { 'Content-Type': 'application/json', 'X-CSRF-TOKEN': '{{ csrf_token() }}' }
+        }).then(() => openSavedOrders()); // Reload list
+    }
+
+    // --- DISCOUNT ---
+    function openDiscountModal() { discountModal.show(); }
+    function applyDiscount(type, value, name) { currentDiscount = { type, value, name }; discountModal.hide(); renderCart(); }
+    function removeDiscount() { currentDiscount = { type: 'none', value: 0, name: '' }; discountModal.hide(); renderCart(); }
+
+    // --- MODIFIER ---
     function addToCart(id, name, price) {
         document.getElementById('modProductId').value = id;
         document.getElementById('modProductName').value = name;
         document.getElementById('modProductPrice').value = price;
         document.getElementById('modifierModalTitle').innerText = name;
-        
-        // Reset Defaults
         document.getElementById('sugar100').checked = true;
         document.getElementById('iceNormal').checked = true;
-
         modifierModal.show();
     }
 
-    // 2. CONFIRM ADD TO CART
     function confirmAddToCart() {
         const id = parseInt(document.getElementById('modProductId').value);
         const name = document.getElementById('modProductName').value;
         const price = parseFloat(document.getElementById('modProductPrice').value);
-        
         const sugar = document.querySelector('input[name="sugar"]:checked').value;
         const ice = document.querySelector('input[name="ice"]:checked').value;
         const modifiers = { sugar, ice };
-        
-        // Key to differentiate items with different options
         const cartKey = `${id}-${sugar}-${ice}`;
-
         const existing = cart.find(item => item.cartKey === cartKey);
-        
-        if (existing) {
-            existing.quantity++;
-        } else {
-            cart.push({ cartKey, id, name, price, quantity: 1, modifiers });
-        }
-
+        if (existing) { existing.quantity++; } 
+        else { cart.push({ cartKey, id, name, price, quantity: 1, modifiers }); }
         modifierModal.hide();
         renderCart();
     }
 
+    // --- CART ---
     function updateQty(index, change) {
-        if (cart[index].quantity + change <= 0) {
-            if(confirm('Remove item?')) cart.splice(index, 1);
-        } else { cart[index].quantity += change; }
+        if (cart[index].quantity + change <= 0) { if(confirm('Remove item?')) cart.splice(index, 1); } 
+        else { cart[index].quantity += change; }
         renderCart();
     }
-
-    function clearCart() {
-        if(cart.length > 0 && confirm('Clear order?')) { cart = []; renderCart(); }
-    }
+    function clearCart() { if(cart.length > 0 && confirm('Clear order?')) { cart = []; renderCart(); } }
 
     function renderCart() {
         const container = document.getElementById('cart-items');
@@ -485,18 +574,15 @@
         }
 
         let html = '';
-        let total = 0;
+        let subtotal = 0;
         cart.forEach((item, index) => {
             const itemTotal = item.price * item.quantity;
-            total += itemTotal;
-
-            // Generate Modifier Text
+            subtotal += itemTotal;
             let modText = '';
             if(item.modifiers) {
                 if(item.modifiers.sugar !== '100%') modText += `<span class="badge bg-light text-secondary border me-1">Sugar: ${item.modifiers.sugar}</span>`;
                 if(item.modifiers.ice !== 'Normal') modText += `<span class="badge bg-light text-secondary border">Ice: ${item.modifiers.ice}</span>`;
             }
-
             html += `
                 <div class="cart-item animate__animated animate__fadeInRight animate__faster">
                     <div style="min-width: 0; flex: 1;">
@@ -515,14 +601,28 @@
                 </div>`;
         });
         container.innerHTML = html;
-        updateTotals(total);
+        updateTotals(subtotal);
     }
 
     function updateTotals(subtotal) {
-        const tax = subtotal * 0.12;
-        const total = subtotal + tax;
+        let discountAmount = 0;
+        if (currentDiscount.type === 'percentage') { discountAmount = subtotal * (currentDiscount.value / 100); } 
+        else if (currentDiscount.type === 'fixed') { discountAmount = currentDiscount.value; }
+        if(discountAmount > subtotal) discountAmount = subtotal;
+
+        const taxableAmount = subtotal - discountAmount;
+        const tax = taxableAmount * 0.12; 
+        const total = taxableAmount + tax;
         currentTotal = total;
+
         document.getElementById('subtotal').innerText = '₱' + subtotal.toFixed(2);
+        if (discountAmount > 0) {
+            document.getElementById('discountRow').classList.remove('d-none');
+            document.getElementById('discountLabel').innerText = 'Discount (' + currentDiscount.name + ')';
+            document.getElementById('discountValue').innerText = '-₱' + discountAmount.toFixed(2);
+        } else {
+            document.getElementById('discountRow').classList.add('d-none');
+        }
         document.getElementById('tax').innerText = '₱' + tax.toFixed(2);
         document.getElementById('grand-total').innerText = '₱' + total.toFixed(2);
     }
@@ -532,20 +632,12 @@
         const cartSection = document.getElementById('cartSection');
         const icon = document.getElementById('cartToggleIcon');
         isCartExpanded = !isCartExpanded;
-        if(isCartExpanded) {
-            cartSection.classList.add('expanded');
-            icon.classList.replace('fa-chevron-up', 'fa-chevron-down');
-        } else {
-            cartSection.classList.remove('expanded');
-            icon.classList.replace('fa-chevron-down', 'fa-chevron-up');
-        }
+        if(isCartExpanded) { cartSection.classList.add('expanded'); icon.classList.replace('fa-chevron-up', 'fa-chevron-down'); } 
+        else { cartSection.classList.remove('expanded'); icon.classList.replace('fa-chevron-down', 'fa-chevron-up'); }
     }
 
-    // --- CHECKOUT LOGIC ---
-    const checkoutModal = new bootstrap.Modal(document.getElementById('checkoutModal'));
-    const successModal = new bootstrap.Modal(document.getElementById('successModal'));
+    // --- CHECKOUT ---
     const cashInput = document.getElementById('cashInput');
-
     function openCheckoutModal() {
         if(cart.length === 0) return alert('Cart is empty');
         document.getElementById('modalTotalAmount').innerText = '₱' + currentTotal.toFixed(2);
@@ -554,39 +646,25 @@
         checkoutModal.show();
         setTimeout(() => cashInput.focus(), 500); 
     }
-
     cashInput.addEventListener('keyup', calculateChange);
     cashInput.addEventListener('change', calculateChange);
-
     function calculateChange() {
         const cash = parseFloat(cashInput.value) || 0;
         const change = cash - currentTotal;
         const changeDisplay = document.getElementById('changeAmount');
-        if (change >= 0) {
-            changeDisplay.innerText = '₱' + change.toFixed(2);
-            changeDisplay.classList.remove('text-danger');
-            changeDisplay.classList.add('text-success');
-        } else {
-            changeDisplay.innerText = 'Insufficient';
-            changeDisplay.classList.add('text-danger');
-            changeDisplay.classList.remove('text-success');
-        }
+        if (change >= 0) { changeDisplay.innerText = '₱' + change.toFixed(2); changeDisplay.classList.remove('text-danger'); changeDisplay.classList.add('text-success'); } 
+        else { changeDisplay.innerText = 'Insufficient'; changeDisplay.classList.add('text-danger'); changeDisplay.classList.remove('text-success'); }
     }
-
     function setCash(amount) { cashInput.value = amount; calculateChange(); }
     function setExactCash() { cashInput.value = currentTotal.toFixed(2); calculateChange(); }
 
     function confirmPayment() {
         const cash = parseFloat(cashInput.value) || 0;
         if (cash < currentTotal) { alert('Insufficient cash tendered!'); return; }
-
         fetch('/checkout', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json', 'X-CSRF-TOKEN': '{{ csrf_token() }}' },
-            body: JSON.stringify({ 
-                cart: cart,
-                order_type: orderType // <--- SEND TOGGLE VALUE
-            })
+            body: JSON.stringify({ cart: cart, order_type: orderType, discount: currentDiscount, cash_tendered: cash })
         })
         .then(res => res.json())
         .then(data => {
@@ -598,31 +676,13 @@
                 document.getElementById('successChange').innerText = document.getElementById('changeAmount').innerText;
                 cart = []; renderCart();
                 if(window.innerWidth < 992 && isCartExpanded) toggleCart();
-
-                // 4. Show Success Modal & AUTO-PRINT
                 successModal.show();
                 printReceipt(); 
-            } else {
-                alert('Error: ' + data.message);
-            }
-        })
-        .catch(err => console.error(err));
+            } else { alert('Error: ' + data.message); }
+        });
     }
-
-    function printReceipt() {
-        if(lastOrderId) {
-            const url = '/orders/' + lastOrderId + '/receipt';
-            const win = window.open(url, '_blank');
-            if(!win || win.closed || typeof win.closed == 'undefined') {
-                console.log('Popup blocked. User must click button manually.');
-            }
-        }
-    }
-
-    function finishTransaction() {
-        successModal.hide();
-        lastOrderId = null;
-    }
+    function printReceipt() { if(lastOrderId) { window.open('/orders/' + lastOrderId + '/receipt', '_blank'); } }
+    function finishTransaction() { successModal.hide(); lastOrderId = null; }
     @endif
 </script>
 @endsection

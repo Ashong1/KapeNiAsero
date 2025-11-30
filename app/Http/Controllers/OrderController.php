@@ -24,14 +24,18 @@ class OrderController extends Controller
             'cart' => 'required|array',
             'cart.*.id' => 'required|exists:products,id',
             'cart.*.quantity' => 'required|integer|min:1',
-            // modifiers are optional, so no strict validation needed here
+            // Discount Validation
+            'discount' => 'nullable|array',
+            'discount.type' => 'nullable|in:fixed,percentage,none',
+            // Cash Validation
+            'cash_tendered' => 'required|numeric|min:0', 
         ]);
 
         try {
             DB::beginTransaction();
-            $totalAmount = 0;
+            $subtotal = 0;
 
-            // 1. Stock Check & Total Calculation
+            // 1. Stock Check & Subtotal Calculation
             foreach ($request->cart as $item) {
                 $product = Product::with('ingredients')->lockForUpdate()->find($item['id']);
                 $qtyOrdered = $item['quantity'];
@@ -48,18 +52,58 @@ class OrderController extends Controller
                         }
                     }
                 }
-                $totalAmount += $product->price * $qtyOrdered;
+                $subtotal += $product->price * $qtyOrdered;
             }
 
-            // 2. Create Order
+            // 2. Calculate Discount
+            $discountAmount = 0;
+            $discountName = null;
+            
+            if ($request->has('discount') && $request->discount['type'] !== 'none') {
+                $type = $request->discount['type'];
+                $val = floatval($request->discount['value']);
+                $discountName = $request->discount['name'] ?? 'Discount';
+
+                if ($type === 'percentage') {
+                    $discountAmount = $subtotal * ($val / 100);
+                } elseif ($type === 'fixed') {
+                    $discountAmount = $val;
+                }
+                
+                // Prevent negative total
+                if ($discountAmount > $subtotal) {
+                    $discountAmount = $subtotal;
+                }
+            }
+
+            $finalTotal = $subtotal - $discountAmount;
+            
+            // 3. Calculate Change
+            $cashTendered = floatval($request->cash_tendered);
+            
+            // Ensure enough cash provided
+            // Note: Using round() to avoid floating point precision issues
+            if (round($cashTendered, 2) < round($finalTotal, 2)) {
+                DB::rollBack();
+                return response()->json(['success' => false, 'message' => 'Insufficient cash tendered.']);
+            }
+            
+            $changeAmount = $cashTendered - $finalTotal;
+
+            // 4. Create Order
             $order = Order::create([
                 'user_id' => auth()->id(),
-                'total_price' => $totalAmount,
+                'subtotal' => $subtotal,
+                'discount_name' => $discountName,
+                'discount_amount' => $discountAmount,
+                'total_price' => $finalTotal,
+                'cash_tendered' => $cashTendered,   // <--- Save Cash
+                'change_amount' => $changeAmount,   // <--- Save Change
                 'payment_mode' => 'cash',
                 'order_type' => $request->order_type ?? 'dine_in',
             ]);
 
-            // 3. Save Items & Deduct Inventory
+            // 5. Save Items & Deduct Inventory
             foreach ($request->cart as $item) {
                 $product = Product::find($item['id']);
                 
@@ -75,14 +119,13 @@ class OrderController extends Controller
                     'product_id' => $product->id,
                     'quantity' => $item['quantity'],
                     'price' => $product->price,
-                    'modifiers' => $item['modifiers'] ?? null, // <--- SAVING MODIFIERS HERE
+                    'modifiers' => $item['modifiers'] ?? null,
                 ]);
             }
 
             DB::commit();
             $this->logActivity('New Order', "Order #{$order->id} - Total: {$order->total_price}");
 
-            // Return success with order_id for the frontend to print receipt
             return response()->json([
                 'success' => true, 
                 'message' => 'Order complete!', 

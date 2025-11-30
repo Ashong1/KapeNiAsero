@@ -51,8 +51,8 @@
             box-shadow: 0 4px 24px -1px rgba(62, 39, 35, 0.06);
             padding: 0.8rem 1rem;
             margin-bottom: 2rem;
-            border-radius: 24px;
             margin-top: 1rem;
+            border-radius: 24px;
         }
 
         .navbar-brand-wrapper { display: flex; align-items: center; gap: 1rem; }
@@ -71,8 +71,33 @@
             color: var(--text-secondary); transition: all 0.2s ease; border: 1px solid transparent;
             display: flex; align-items: center; gap: 0.5rem; text-decoration: none;
         }
-        .nav-pill-custom:hover { background-color: rgba(111, 78, 55, 0.08); color: var(--primary-coffee); }
+        .nav-pill-custom:hover, .nav-pill-custom:focus { background-color: rgba(111, 78, 55, 0.08); color: var(--primary-coffee); }
         .nav-pill-custom.active { background-color: var(--primary-coffee); color: white; box-shadow: 0 4px 12px rgba(111, 78, 55, 0.25); }
+
+        /* --- DROPDOWN CUSTOM STYLES --- */
+        .dropdown-menu {
+            border: none;
+            box-shadow: 0 10px 40px -10px rgba(0,0,0,0.15);
+            background-color: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            padding: 0.5rem;
+        }
+        .dropdown-item {
+            font-weight: 500;
+            font-size: 0.9rem;
+            color: var(--text-dark);
+            transition: all 0.2s;
+            border-radius: 8px;
+        }
+        .dropdown-item:hover {
+            background-color: var(--surface-cream);
+            color: var(--primary-coffee);
+            transform: translateX(3px);
+        }
+        .dropdown-toggle::after {
+            vertical-align: 0.15em;
+            opacity: 0.5;
+        }
 
         /* --- BUTTONS --- */
         .btn-action {
@@ -147,6 +172,7 @@
             <a class="navbar-brand p-0" href="{{ route('home') }}">
                 <div class="navbar-brand-wrapper">
                     <div class="logo-container">
+                        {{-- Ensure you have this image in public/ka.png --}}
                         <img src="{{ asset('ka.png') }}" alt="Logo" style="height: 38px; width: auto;">
                     </div>
                     <div class="brand-info">
@@ -166,58 +192,87 @@
                 @auth
                 <div class="ms-auto d-flex flex-column flex-lg-row align-items-stretch align-items-lg-center gap-2 gap-lg-3">
                     <div class="d-flex flex-column flex-lg-row gap-1 bg-light p-1 rounded-4 border border-light">
+                        
                         @if(Auth::user()->role == 'admin')
-                            {{-- DASHBOARD --}}
+                            {{-- 1. DASHBOARD --}}
                             <a href="{{ route('home') }}" class="nav-pill-custom {{ request()->routeIs('home') ? 'active' : '' }}">
                                 <i class="fas fa-chart-pie"></i> Dashboard
                             </a>
                             
-                            {{-- USERS / STAFF (NEW) --}}
+                            {{-- 2. STAFF --}}
                             <a href="{{ route('users.index') }}" class="nav-pill-custom {{ request()->routeIs('users.*') ? 'active' : '' }}">
                                 <i class="fas fa-users"></i> Staff
                             </a>
                         @endif
 
-                        {{-- HISTORY (Shared) --}}
+                        {{-- 3. HISTORY (Shared) --}}
                         <a href="{{ route('orders.index') }}" class="nav-pill-custom {{ request()->routeIs('orders.index') ? 'active' : '' }}">
                             <i class="fas fa-history"></i> History
                         </a>
 
                         @if(Auth::user()->role == 'admin')
-                            {{-- REPORTS --}}
-                            <a href="{{ route('reports.index') }}" class="nav-pill-custom {{ request()->routeIs('reports.*') ? 'active' : '' }}">
-                                <i class="fas fa-chart-line"></i> Reports
-                            </a>
+                            {{-- 4. INVENTORY DROPDOWN --}}
+                            <div class="dropdown">
+                                <a href="#" class="nav-pill-custom dropdown-toggle {{ request()->routeIs('ingredients.*') || request()->routeIs('categories.*') || request()->routeIs('suppliers.*') || request()->routeIs('products.create') ? 'active' : '' }}" 
+                                   data-bs-toggle="dropdown" aria-expanded="false">
+                                    <i class="fas fa-boxes"></i> Inventory
+                                </a>
+                                <ul class="dropdown-menu border-0 shadow-lg rounded-4 p-2 mt-2">
+                                    <li>
+                                        <a class="dropdown-item mb-1 px-3 py-2" href="{{ route('ingredients.index') }}">
+                                            <i class="fas fa-cubes me-2 text-secondary"></i> Stock List
+                                        </a>
+                                    </li>
+                                    <li>
+                                        <a class="dropdown-item mb-1 px-3 py-2" href="{{ route('categories.index') }}">
+                                            <i class="fas fa-tags me-2 text-secondary"></i> Categories
+                                        </a>
+                                    </li>
+                                    <li>
+                                        <a class="dropdown-item mb-1 px-3 py-2" href="{{ route('suppliers.index') }}">
+                                            <i class="fas fa-truck me-2 text-secondary"></i> Suppliers
+                                        </a>
+                                    </li>
+                                    <li><hr class="dropdown-divider"></li>
+                                    <li>
+                                        <a class="dropdown-item px-3 py-2" href="{{ route('products.create') }}">
+                                            <i class="fas fa-plus-circle me-2 text-success"></i> New Product
+                                        </a>
+                                    </li>
+                                </ul>
+                            </div>
 
-                            {{-- SHIFT HISTORY (ADMIN ONLY) --}}
-                            <a href="{{ route('shifts.index') }}" class="nav-pill-custom {{ request()->routeIs('shifts.index') ? 'active' : '' }}">
-                                <i class="fas fa-clock"></i> Shifts
-                            </a>
+                            {{-- 5. LOGS & REPORTS DROPDOWN --}}
+                            <div class="dropdown">
+                                <a href="#" class="nav-pill-custom dropdown-toggle {{ request()->routeIs('reports.*') || request()->routeIs('shifts.*') || request()->routeIs('activity-logs.*') ? 'active' : '' }}" 
+                                   data-bs-toggle="dropdown" aria-expanded="false">
+                                    <i class="fas fa-clipboard-list"></i> Logs
+                                </a>
+                                <ul class="dropdown-menu border-0 shadow-lg rounded-4 p-2 mt-2 dropdown-menu-end">
+                                    <li>
+                                        <a class="dropdown-item mb-1 px-3 py-2" href="{{ route('reports.index') }}">
+                                            <i class="fas fa-chart-line me-2 text-primary"></i> Sales Reports
+                                        </a>
+                                    </li>
+                                    <li>
+                                        <a class="dropdown-item mb-1 px-3 py-2" href="{{ route('shifts.index') }}">
+                                            <i class="fas fa-clock me-2 text-secondary"></i> Shift History
+                                        </a>
+                                    </li>
+                                    <li>
+                                        <a class="dropdown-item px-3 py-2" href="{{ route('activity-logs.index') }}">
+                                            <i class="fas fa-shield-alt me-2 text-secondary"></i> Audit Logs
+                                        </a>
+                                    </li>
+                                </ul>
+                            </div>
 
-                            {{-- AUDIT LOGS --}}
-                            <a href="{{ route('activity-logs.index') }}" class="nav-pill-custom {{ request()->routeIs('activity-logs.index') ? 'active' : '' }}">
-                                <i class="fas fa-shield-alt"></i> Audit
-                            </a>
-                            
-                            {{-- SETTINGS --}}
+                            {{-- 6. SETTINGS (Standalone) --}}
                             <a href="{{ route('settings.index') }}" class="nav-pill-custom {{ request()->routeIs('settings.*') ? 'active' : '' }}">
                                 <i class="fas fa-cogs"></i> Settings
                             </a>
-
-                            {{-- INVENTORY & MASTER DATA --}}
-                            <a href="{{ route('ingredients.index') }}" class="nav-pill-custom {{ request()->routeIs('ingredients.*') ? 'active' : '' }}">
-                                <i class="fas fa-boxes"></i> Stock
-                            </a>
-                            <a href="{{ route('categories.index') }}" class="nav-pill-custom {{ request()->routeIs('categories.*') ? 'active' : '' }}">
-                                <i class="fas fa-tags"></i> Category
-                            </a>
-                            <a href="{{ route('suppliers.index') }}" class="nav-pill-custom {{ request()->routeIs('suppliers.*') ? 'active' : '' }}">
-                                <i class="fas fa-truck"></i> Suppliers
-                            </a>
-                            <a href="{{ route('products.create') }}" class="nav-pill-custom {{ request()->routeIs('products.create') ? 'active' : '' }}">
-                                <i class="fas fa-plus-circle"></i> New Item
-                            </a>
                         @endif
+
                     </div>
                     <div class="vr d-none d-lg-block mx-1 opacity-25"></div>
                     
@@ -226,7 +281,7 @@
                         <i class="fas fa-cash-register"></i> <span class="d-none d-md-inline">Open POS</span>
                     </a>
 
-                    {{-- SMART LOGOUT BUTTON LOGIC --}}
+                    {{-- SMART LOGOUT BUTTON --}}
                     @if(Auth::user()->role === 'admin')
                         {{-- Admin Logout: Normal --}}
                         <a href="{{ route('logout') }}" class="btn btn-action btn-light text-danger border-0 justify-content-center" 

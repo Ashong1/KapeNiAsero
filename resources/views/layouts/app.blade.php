@@ -216,16 +216,9 @@
                             {{-- ADDED SHIFT HISTORY LINK HERE --}}
                             <a href="{{ route('shifts.index') }}" class="nav-pill-custom {{ request()->routeIs('shifts.*') ? 'active' : '' }}">
                                 <i class="fas fa-calendar-check"></i> Shifts
-<<<<<<< HEAD
                             <a href="{{ route('reports.index') }}" class="nav-pill-custom {{ request()->routeIs('reports.*') ? 'active' : '' }}">
                                 <i class="fas fa-chart-line"></i> Reports
 
-=======
-                            {{-- NEW REPORTS LINK --}}
-
-                            <a href="{{ route('reports.index') }}" class="nav-pill-custom {{ request()->routeIs('reports.*') ? 'active' : '' }}">
-                                <i class="fas fa-chart-line"></i> Reports
->>>>>>> 119cd01e3e9c48d6468dd1336303d94e51490483
                             </a>
 
                             {{-- AUDIT LOGS LINK --}}

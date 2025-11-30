@@ -62,40 +62,6 @@
         </div>
     </div>
     
-<<<<<<< HEAD
-    {{-- SHIFT STATUS ALERT --}}
-    <div class="mb-4">
-        @if(isset($activeShift))
-            <div class="alert alert-success d-flex justify-content-between align-items-center shadow-sm border-0 mb-0" role="alert">
-                <div class="d-flex align-items-center">
-                    <div class="rounded-circle bg-white text-success p-2 me-3 shadow-sm">
-                        <i class="fas fa-cash-register fa-lg"></i>
-                    </div>
-                    <div>
-                        <h6 class="fw-bold m-0">Your Register is OPEN</h6> 
-                        <span class="text-success-emphasis small">Started at {{ $activeShift->started_at->format('h:i A') }}</span>
-                    </div>
-                </div>
-                <div class="d-flex gap-2">
-                    <a href="{{ route('shifts.edit', $activeShift->id) }}" class="btn btn-danger fw-bold shadow-sm">End Shift</a>
-                </div>
-            </div>
-        @else
-            <div class="alert alert-warning d-flex justify-content-between align-items-center shadow-sm border-0 mb-0" role="alert">
-                <div class="d-flex align-items-center">
-                    <div class="rounded-circle bg-white text-warning p-2 me-3 shadow-sm">
-                        <i class="fas fa-exclamation-circle fa-lg"></i>
-                    </div>
-                    <div>
-                        <h6 class="fw-bold m-0 text-dark">Register is CLOSED</h6> 
-                        <span class="text-secondary small">You must open the register to record your own sales.</span>
-                    </div>
-                </div>
-                <a href="{{ route('shifts.create') }}" class="btn btn-warning text-white fw-bold shadow-sm">Open Register</a>
-            </div>
-        @endif
-    </div>
-=======
     {{-- SHIFT STATUS ALERT (EMPLOYEES ONLY) --}}
     @if(Auth::user()->role !== 'admin')
         <div class="mb-4">
@@ -124,7 +90,6 @@
             @endif
         </div>
     @endif
->>>>>>> b3ca99ddefa3fef3cfea4198400f1ff8bd18a02a
 
     {{-- KPI CARDS ROW (4 Columns) --}}
     <div class="row mb-4 g-3">

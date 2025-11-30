@@ -58,33 +58,34 @@
         </div>
     </div>
     
-    {{-- SHIFT STATUS ALERT --}}
-    <div class="mb-4">
-        @if(isset($activeShift))
-            <div class="alert alert-success d-flex justify-content-between align-items-center shadow-sm border-0" role="alert">
-                <div>
-                    <i class="fas fa-cash-register me-2"></i>
-                    <strong>Register OPEN</strong> 
-                    <span class="text-muted ms-2 small">Started: {{ $activeShift->started_at->format('M d, h:i A') }}</span>
+    {{-- SHIFT STATUS ALERT (EMPLOYEES ONLY) --}}
+    @if(Auth::user()->role !== 'admin')
+        <div class="mb-4">
+            @if(isset($activeShift))
+                <div class="alert alert-success d-flex justify-content-between align-items-center shadow-sm border-0" role="alert">
+                    <div>
+                        <i class="fas fa-cash-register me-2"></i>
+                        <strong>Register OPEN</strong> 
+                        <span class="text-muted ms-2 small">Started: {{ $activeShift->started_at->format('M d, h:i A') }}</span>
+                    </div>
+                    <a href="{{ route('shifts.edit', $activeShift->id) }}" class="btn btn-sm btn-danger fw-bold shadow-sm">
+                        End Shift
+                    </a>
                 </div>
-                {{-- FIXED: Changed 'shifts.close' to 'shifts.edit' --}}
-                <a href="{{ route('shifts.edit', $activeShift->id) }}" class="btn btn-sm btn-danger fw-bold shadow-sm">
-                    End Shift
-                </a>
-            </div>
-        @else
-            <div class="alert alert-warning d-flex justify-content-between align-items-center shadow-sm border-0" role="alert">
-                <div>
-                    <i class="fas fa-exclamation-circle me-2"></i>
-                    <strong>Register CLOSED</strong> 
-                    <span class="text-muted ms-2 small">You must open the register to record sales accurately.</span>
+            @else
+                <div class="alert alert-warning d-flex justify-content-between align-items-center shadow-sm border-0" role="alert">
+                    <div>
+                        <i class="fas fa-exclamation-circle me-2"></i>
+                        <strong>Register CLOSED</strong> 
+                        <span class="text-muted ms-2 small">You must open the register to record sales accurately.</span>
+                    </div>
+                    <a href="{{ route('shifts.create') }}" class="btn btn-sm btn-primary fw-bold shadow-sm">
+                        Open Register
+                    </a>
                 </div>
-                <a href="{{ route('shifts.create') }}" class="btn btn-sm btn-primary fw-bold shadow-sm">
-                    Open Register
-                </a>
-            </div>
-        @endif
-    </div>
+            @endif
+        </div>
+    @endif
 
     {{-- KPI CARDS ROW --}}
     <div class="row mb-4 g-4">

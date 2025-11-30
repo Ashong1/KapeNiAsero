@@ -46,8 +46,9 @@ Route::middleware(['auth', 'twofactor'])->group(function () {
     // Void Request (Employee side)
     Route::post('/orders/{order}/void-request', [OrderController::class, 'requestVoid'])->name('orders.requestVoid');
 
-    // Shift Management
-    Route::resource('shifts', ShiftController::class)->only(['create', 'store', 'edit', 'update']);
+    // Shift Management 
+    // 'index' is for Admins (History), others are for Employees (Actions)
+    Route::resource('shifts', ShiftController::class)->only(['index', 'create', 'store', 'edit', 'update']);
     Route::get('/logout-action', [ShiftController::class, 'handleLogout'])->name('logout.action');
 
     // Parked Orders
@@ -63,13 +64,7 @@ Route::middleware(['auth', 'twofactor', 'admin'])->group(function () {
     // Master Data Management
     Route::resource('categories', CategoryController::class);
     Route::resource('ingredients', IngredientController::class);
-<<<<<<< HEAD
     Route::resource('suppliers', SupplierController::class);
-=======
-    Route::post('/ingredients/{ingredient}/restock', [IngredientController::class, 'restock'])->name('ingredients.restock');
-    Route::get('/ingredients/{ingredient}/history', [IngredientController::class, 'history'])->name('ingredients.history');
-    Route::resource('suppliers', App\Http\Controllers\SupplierController::class);
->>>>>>> 7f84fa67d120c06a811c0d0aef4b9b8e26d1336d
     
     // Product Management (Full Access)
     Route::get('/products/create', [ProductController::class, 'create'])->name('products.create');

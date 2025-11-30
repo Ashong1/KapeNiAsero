@@ -184,12 +184,17 @@
                                 <i class="fas fa-chart-line"></i> Reports
                             </a>
 
+                            {{-- SHIFT HISTORY (ADMIN ONLY) --}}
+                            <a href="{{ route('shifts.index') }}" class="nav-pill-custom {{ request()->routeIs('shifts.index') ? 'active' : '' }}">
+                                <i class="fas fa-clock"></i> Shifts
+                            </a>
+
                             {{-- AUDIT LOGS --}}
                             <a href="{{ route('activity-logs.index') }}" class="nav-pill-custom {{ request()->routeIs('activity-logs.index') ? 'active' : '' }}">
                                 <i class="fas fa-shield-alt"></i> Audit
                             </a>
                             
-                            {{-- SETTINGS (NEW) --}}
+                            {{-- SETTINGS --}}
                             <a href="{{ route('settings.index') }}" class="nav-pill-custom {{ request()->routeIs('settings.*') ? 'active' : '' }}">
                                 <i class="fas fa-cogs"></i> Settings
                             </a>

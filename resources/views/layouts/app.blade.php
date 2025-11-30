@@ -208,9 +208,14 @@
                             <i class="fas fa-history"></i> History
                         </a>
                         @if(Auth::user()->role == 'admin')
-                            {{-- NEW REPORTS LINK --}}
+                            {{-- REPORTS LINK --}}
                             <a href="{{ route('reports.index') }}" class="nav-pill-custom {{ request()->routeIs('reports.*') ? 'active' : '' }}">
                                 <i class="fas fa-chart-line"></i> Reports
+                            </a>
+
+                            {{-- AUDIT LOGS LINK --}}
+                            <a href="{{ route('activity-logs.index') }}" class="nav-pill-custom {{ request()->routeIs('activity-logs.index') ? 'active' : '' }}">
+                                <i class="fas fa-shield-alt"></i> Audit
                             </a>
 
                             <a href="{{ route('ingredients.index') }}" class="nav-pill-custom {{ request()->routeIs('ingredients.*') ? 'active' : '' }}">

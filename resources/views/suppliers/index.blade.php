@@ -1,5 +1,48 @@
 @extends('layouts.app')
 
+@section('styles')
+<style>
+    /* --- ACTION BUTTON SYNC --- */
+    .btn-action-icon {
+        width: 32px; 
+        height: 32px; 
+        display: inline-flex; 
+        align-items: center; 
+        justify-content: center;
+        border-radius: 8px; 
+        transition: all 0.2s ease; 
+        border: 1px solid transparent;
+        text-decoration: none;
+    }
+
+    /* EDIT: Coffee on Cream */
+    .btn-action-edit {
+        background-color: var(--surface-cream); 
+        color: var(--primary-coffee);
+        border-color: rgba(111, 78, 55, 0.1);
+    }
+    .btn-action-edit:hover {
+        background-color: var(--primary-coffee); 
+        color: white;
+        transform: translateY(-2px);
+        box-shadow: 0 4px 10px rgba(111, 78, 55, 0.2);
+    }
+
+    /* DELETE: System Red on Light Red */
+    .btn-action-delete {
+        background-color: #FEF2F2; /* Light Red */
+        color: var(--danger-red);
+        border-color: rgba(211, 47, 47, 0.1);
+    }
+    .btn-action-delete:hover {
+        background-color: var(--danger-red); 
+        color: white;
+        transform: translateY(-2px);
+        box-shadow: 0 4px 10px rgba(211, 47, 47, 0.2);
+    }
+</style>
+@endsection
+
 @section('content')
 <div class="container">
     
@@ -54,12 +97,15 @@
                             </div>
                         </td>
                         <td class="text-end pe-4">
-                            <a href="{{ route('suppliers.edit', $supp->id) }}" class="btn btn-sm btn-light text-primary me-1 border shadow-sm" title="Edit">
+                            {{-- UPDATED: Edit Button --}}
+                            <a href="{{ route('suppliers.edit', $supp->id) }}" class="btn btn-sm btn-action-icon btn-action-edit shadow-sm me-1" title="Edit">
                                 <i class="fas fa-pen"></i>
                             </a>
-                            <form action="{{ route('suppliers.destroy', $supp->id) }}" method="POST" class="d-inline" onsubmit="return confirm('Delete this supplier?')">
+                            
+                            {{-- UPDATED: Delete Button --}}
+                            <form action="{{ route('suppliers.destroy', $supp->id) }}" method="POST" class="d-inline delete-form" data-name="{{ $supp->name }}">
                                 @csrf @method('DELETE')
-                                <button class="btn btn-sm btn-light text-danger border shadow-sm" title="Delete">
+                                <button class="btn btn-sm btn-action-icon btn-action-delete shadow-sm" title="Delete">
                                     <i class="fas fa-trash"></i>
                                 </button>
                             </form>
@@ -78,7 +124,6 @@
                 </tbody>
             </table>
             
-            {{-- No Results Message --}}
             <div id="noSuppliersMsg" class="text-center py-5 text-muted d-none">
                 <i class="fas fa-search fa-2x mb-3 opacity-25"></i>
                 <p>No matching suppliers found.</p>
@@ -87,6 +132,7 @@
     </div>
 </div>
 
+@section('scripts')
 <script>
     document.getElementById('supplierSearch').addEventListener('keyup', function() {
         const val = this.value.toLowerCase();
@@ -108,5 +154,25 @@
         const msg = document.getElementById('noSuppliersMsg');
         msg.classList.toggle('d-none', hasVisible);
     });
+
+    // SweetAlert Logic
+    document.addEventListener('DOMContentLoaded', function() {
+        document.querySelectorAll('.delete-form').forEach(form => {
+            form.addEventListener('submit', function(e) {
+                e.preventDefault();
+                const name = this.getAttribute('data-name');
+                Swal.fire({
+                    title: 'Delete Supplier?',
+                    text: `Are you sure you want to delete "${name}"?`,
+                    icon: 'warning',
+                    showCancelButton: true,
+                    confirmButtonColor: '#D32F2F',
+                    cancelButtonText: 'Cancel',
+                    confirmButtonText: 'Yes, delete'
+                }).then((r) => { if(r.isConfirmed) form.submit(); });
+            });
+        });
+    });
 </script>
+@endsection
 @endsection

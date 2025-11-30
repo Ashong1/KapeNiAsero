@@ -133,7 +133,8 @@
                                     <a href="{{ route('products.edit', $product->id) }}" class="btn-admin-icon btn-edit" title="Edit" onclick="event.stopPropagation()">
                                         <i class="fa-solid fa-pen-to-square"></i>
                                     </a>
-                                    <form action="{{ route('products.destroy', $product->id) }}" method="POST" class="d-inline" onsubmit="event.stopPropagation(); return confirm('Delete {{ $product->name }}?');">
+                                    {{-- UPDATED: ADMIN DELETE WITH SWEETALERT --}}
+                                    <form action="{{ route('products.destroy', $product->id) }}" method="POST" class="d-inline admin-delete-form" data-product-name="{{ $product->name }}">
                                         @csrf @method('DELETE')
                                         <button type="submit" class="btn-admin-icon btn-delete" title="Delete" onclick="event.stopPropagation()">
                                             <i class="fa-solid fa-trash-can"></i>
@@ -230,7 +231,8 @@
 
 </div>
 
-{{-- MODALS --}}
+{{-- MODALS DEFINITIONS (Kept inline to avoid missing file error) --}}
+
 {{-- 1. Checkout Modal --}}
 <div class="modal fade" id="checkoutModal" tabindex="-1" aria-hidden="true">
     <div class="modal-dialog modal-dialog-centered">
@@ -408,7 +410,28 @@
 
 @section('scripts')
 <script>
-    // --- ORDER TYPE TOGGLE ---
+    // --- ADMIN CONFIRM DELETE ---
+    document.addEventListener('DOMContentLoaded', function() {
+        const adminDeleteForms = document.querySelectorAll('.admin-delete-form');
+        adminDeleteForms.forEach(form => {
+            form.addEventListener('submit', function(e) {
+                e.preventDefault();
+                e.stopPropagation();
+                const name = this.getAttribute('data-product-name');
+                Swal.fire({
+                    title: 'Delete Product?',
+                    text: `Permanently delete "${name}"?`,
+                    icon: 'warning',
+                    showCancelButton: true,
+                    confirmButtonColor: '#D32F2F',
+                    confirmButtonText: 'Delete',
+                    cancelButtonText: 'Cancel'
+                }).then((res) => { if(res.isConfirmed) form.submit(); });
+            });
+        });
+    });
+
+    // --- POS LOGIC ---
     function setOrderType(type) {
         orderType = type;
         const btnDine = document.getElementById('btn-dine-in');
@@ -460,7 +483,7 @@
 
     // --- PARK / HOLD ORDER ---
     function parkOrder() {
-        if(cart.length === 0) return alert('Cart is empty');
+        if(cart.length === 0) return Swal.fire({ icon: 'warning', title: 'Cart Empty', text: 'Add items first.' });
         document.getElementById('parkNote').value = '';
         parkModal.show();
         setTimeout(() => document.getElementById('parkNote').focus(), 500);
@@ -478,7 +501,7 @@
             if(data.success) {
                 cart = []; renderCart();
                 parkModal.hide();
-                alert('Order saved!');
+                Swal.fire({ icon: 'success', title: 'Saved', text: 'Order parked successfully', timer: 1500, showConfirmButton: false });
             }
         });
     }
@@ -518,8 +541,22 @@
     }
 
     function restoreParked(id) {
-        if(cart.length > 0 && !confirm('Current cart will be replaced. Continue?')) return;
-        
+        if(cart.length > 0) {
+            Swal.fire({
+                title: 'Replace Cart?',
+                text: 'Current items will be lost. Continue?',
+                icon: 'question',
+                showCancelButton: true,
+                confirmButtonText: 'Yes, load saved order'
+            }).then((result) => {
+                if(result.isConfirmed) doRestore(id);
+            });
+        } else {
+            doRestore(id);
+        }
+    }
+
+    function doRestore(id) {
         fetch(`/parked-orders/${id}/retrieve`)
         .then(res => res.json())
         .then(data => {
@@ -532,11 +569,20 @@
     }
 
     function deleteParked(id) {
-        if(!confirm('Delete this saved order?')) return;
-        fetch(`/parked-orders/${id}`, {
-            method: 'DELETE',
-            headers: { 'Content-Type': 'application/json', 'X-CSRF-TOKEN': '{{ csrf_token() }}' }
-        }).then(() => openSavedOrders()); // Reload list
+        Swal.fire({
+            title: 'Delete Saved Order?',
+            icon: 'warning',
+            showCancelButton: true,
+            confirmButtonColor: '#d33',
+            confirmButtonText: 'Yes, delete'
+        }).then((result) => {
+            if(result.isConfirmed) {
+                fetch(`/parked-orders/${id}`, {
+                    method: 'DELETE',
+                    headers: { 'Content-Type': 'application/json', 'X-CSRF-TOKEN': '{{ csrf_token() }}' }
+                }).then(() => openSavedOrders()); // Reload list
+            }
+        });
     }
 
     // --- DISCOUNT ---
@@ -599,11 +645,37 @@
 
     // --- CART ---
     function updateQty(index, change) {
-        if (cart[index].quantity + change <= 0) { if(confirm('Remove item?')) cart.splice(index, 1); } 
-        else { cart[index].quantity += change; }
-        renderCart();
+        if (cart[index].quantity + change <= 0) { 
+            Swal.fire({
+                title: 'Remove Item?',
+                text: 'Remove this item from the order?',
+                icon: 'warning',
+                showCancelButton: true,
+                confirmButtonText: 'Yes, remove',
+                cancelButtonText: 'Cancel'
+            }).then((res) => {
+                if(res.isConfirmed) { cart.splice(index, 1); renderCart(); }
+            });
+        } else { 
+            cart[index].quantity += change; 
+            renderCart();
+        }
     }
-    function clearCart() { if(cart.length > 0 && confirm('Clear order?')) { cart = []; renderCart(); } }
+    
+    function clearCart() { 
+        if(cart.length > 0) {
+            Swal.fire({
+                title: 'Clear Cart?',
+                text: 'All items will be removed.',
+                icon: 'warning',
+                showCancelButton: true,
+                confirmButtonColor: '#d33',
+                confirmButtonText: 'Yes, clear all'
+            }).then((res) => {
+                if(res.isConfirmed) { cart = []; renderCart(); }
+            });
+        }
+    }
 
     function renderCart() {
         const container = document.getElementById('cart-items');
@@ -707,7 +779,7 @@
     }
 
     function openCheckoutModal() {
-        if(cart.length === 0) return alert('Cart is empty');
+        if(cart.length === 0) return Swal.fire({ icon: 'warning', title: 'Empty Cart', text: 'Cannot checkout empty cart.' });
         document.getElementById('modalTotalAmount').innerText = '₱' + currentTotal.toFixed(2);
         
         // Reset to default cash state
@@ -731,7 +803,9 @@
 
     function confirmPayment() {
         const cash = parseFloat(cashInput.value) || 0;
-        if (cash < currentTotal) { alert('Insufficient payment amount!'); return; }
+        if (cash < currentTotal) { 
+            return Swal.fire({ icon: 'error', title: 'Insufficient Payment', text: 'Please enter a valid amount.' });
+        }
         
         fetch('/checkout', {
             method: 'POST',
@@ -762,7 +836,7 @@
                     successModal.show();
                     printReceipt(); 
                 }
-            } else { alert('Error: ' + data.message); }
+            } else { Swal.fire({ icon: 'error', title: 'Error', text: data.message }); }
         });
     }
     function printReceipt() { if(lastOrderId) { window.open('/orders/' + lastOrderId + '/receipt', '_blank'); } }

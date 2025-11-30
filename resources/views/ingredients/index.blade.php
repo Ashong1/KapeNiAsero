@@ -1,15 +1,76 @@
 @extends('layouts.app')
 
+@section('styles')
+<style>
+    /* --- ACTION BUTTON SYNC --- */
+    .btn-action-icon {
+        width: 32px; 
+        height: 32px; 
+        display: inline-flex; 
+        align-items: center; 
+        justify-content: center;
+        border-radius: 8px; 
+        transition: all 0.2s ease; 
+        border: 1px solid transparent;
+        text-decoration: none;
+    }
+
+    /* 1. EDIT & CORRECTION: Coffee on Cream */
+    .btn-action-edit {
+        background-color: var(--surface-cream); 
+        color: var(--primary-coffee);
+        border-color: rgba(111, 78, 55, 0.1);
+    }
+    .btn-action-edit:hover {
+        background-color: var(--primary-coffee); 
+        color: white;
+        transform: translateY(-2px);
+        box-shadow: 0 4px 10px rgba(111, 78, 55, 0.2);
+    }
+
+    /* 2. HISTORY: Gold on Light Yellow */
+    .btn-action-history {
+        background-color: #FFF8E1; /* Light Amber */
+        color: var(--accent-gold);
+        border-color: rgba(197, 160, 101, 0.2);
+    }
+    .btn-action-history:hover {
+        background-color: var(--accent-gold); 
+        color: white;
+        transform: translateY(-2px);
+        box-shadow: 0 4px 10px rgba(197, 160, 101, 0.3);
+    }
+
+    /* 3. RESTOCK: System Green on Light Green */
+    .btn-action-restock {
+        background-color: #F0FDF4; /* Light Emerald */
+        color: var(--success-green);
+        border-color: rgba(52, 199, 89, 0.2);
+    }
+    .btn-action-restock:hover {
+        background-color: var(--success-green); 
+        color: white;
+        transform: translateY(-2px);
+        box-shadow: 0 4px 10px rgba(52, 199, 89, 0.3);
+    }
+
+    /* 4. DELETE: System Red on Light Red */
+    .btn-action-delete {
+        background-color: #FEF2F2; /* Light Red */
+        color: var(--danger-red);
+        border-color: rgba(211, 47, 47, 0.1);
+    }
+    .btn-action-delete:hover {
+        background-color: var(--danger-red); 
+        color: white;
+        transform: translateY(-2px);
+        box-shadow: 0 4px 10px rgba(211, 47, 47, 0.2);
+    }
+</style>
+@endsection
+
 @section('content')
 <div class="container">
-    
-    {{-- Alerts --}}
-    @if(session('success'))
-        <div class="alert alert-success alert-dismissible fade show border-0 shadow-sm rounded-4 mb-4 d-flex align-items-center animate__animated animate__fadeInDown" role="alert">
-            <i class="fas fa-check-circle fs-4 me-3 text-success"></i> {{ session('success') }}
-            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
-        </div>
-    @endif
     
     @if($errors->any())
         <div class="alert alert-danger alert-dismissible fade show border-0 shadow-sm rounded-4 mb-4" role="alert">
@@ -144,14 +205,14 @@
                                     <form action="{{ route('ingredients.update', $ing->id) }}" method="POST" class="d-flex align-items-center gap-2">
                                         @csrf 
                                         @method('PUT')
-                                        {{-- Hidden fields to satisfy strict validation if needed, or remove if Controller validates only stock --}}
                                         <input type="hidden" name="name" value="{{ $ing->name }}">
                                         
                                         <div class="input-group input-group-sm" style="width: 140px;">
                                             <input type="number" name="stock" value="{{ $ing->stock }}" class="form-control text-center fw-bold text-dark" step="0.01" style="border-right:none;">
                                             <span class="input-group-text bg-white border-start-0 text-muted small">{{ $ing->unit }}</span>
                                         </div>
-                                        <button class="btn btn-sm btn-light text-warning border shadow-sm" title="Manual Correction (Audit)">
+                                        {{-- Updated Button Color --}}
+                                        <button class="btn btn-sm btn-action-edit shadow-sm" title="Manual Correction">
                                             <i class="fas fa-pen"></i>
                                         </button>
                                     </form>
@@ -166,34 +227,34 @@
                                 <td class="text-end pe-4">
                                     <div class="d-flex justify-content-end gap-1">
                                         
-                                        {{-- NEW: EDIT DETAILS BUTTON --}}
-                                        <button type="button" class="btn btn-sm btn-warning text-white border shadow-sm" data-bs-toggle="modal" data-bs-target="#editModal{{ $ing->id }}" title="Edit Details (Supplier, Name)">
+                                        {{-- 1. EDIT: Coffee Color --}}
+                                        <button type="button" class="btn btn-sm btn-action-icon btn-action-edit shadow-sm" data-bs-toggle="modal" data-bs-target="#editModal{{ $ing->id }}" title="Edit Details">
                                             <i class="fas fa-edit"></i>
                                         </button>
 
-                                        {{-- HISTORY BUTTON --}}
-                                        <a href="{{ route('ingredients.history', $ing->id) }}" class="btn btn-sm btn-info text-white border shadow-sm" title="View Stock Card/History">
+                                        {{-- 2. HISTORY: Gold Color --}}
+                                        <a href="{{ route('ingredients.history', $ing->id) }}" class="btn btn-sm btn-action-icon btn-action-history shadow-sm" title="View Stock Card">
                                             <i class="fas fa-list-alt"></i>
                                         </a>
 
-                                        {{-- RESTOCK BUTTON (Triggers Modal) --}}
-                                        <button type="button" class="btn btn-sm btn-success border shadow-sm" data-bs-toggle="modal" data-bs-target="#restockModal{{ $ing->id }}" title="Add Stock (Restock)">
+                                        {{-- 3. RESTOCK: Green Color --}}
+                                        <button type="button" class="btn btn-sm btn-action-icon btn-action-restock shadow-sm" data-bs-toggle="modal" data-bs-target="#restockModal{{ $ing->id }}" title="Restock">
                                             <i class="fas fa-plus"></i>
                                         </button>
 
-                                        {{-- DELETE BUTTON --}}
-                                        <form action="{{ route('ingredients.destroy', $ing->id) }}" method="POST" class="d-inline">
+                                        {{-- 4. DELETE: Red Color (with SweetAlert) --}}
+                                        <form action="{{ route('ingredients.destroy', $ing->id) }}" method="POST" class="d-inline delete-form" data-item-name="{{ $ing->name }}">
                                             @csrf 
                                             @method('DELETE')
-                                            <button class="btn btn-sm btn-light text-danger border shadow-sm" onclick="return confirm('Remove {{ $ing->name }} from inventory? This might affect product recipes.')" title="Delete Item">
+                                            <button class="btn btn-sm btn-action-icon btn-action-delete shadow-sm" title="Delete Item">
                                                 <i class="fas fa-trash"></i>
                                             </button>
                                         </form>
                                     </div>
                                 </td>
                             </tr>
-
-                            {{-- NEW: EDIT MODAL --}}
+                            
+                            {{-- Edit Modal --}}
                             <div class="modal fade" id="editModal{{ $ing->id }}" tabindex="-1" aria-hidden="true">
                                 <div class="modal-dialog">
                                     <div class="modal-content rounded-4 border-0 shadow">
@@ -205,14 +266,10 @@
                                             @csrf
                                             @method('PUT')
                                             <div class="modal-body">
-                                                
-                                                {{-- Name Edit --}}
                                                 <div class="mb-3">
                                                     <label class="form-label fw-bold">Material Name</label>
                                                     <input type="text" name="name" class="form-control" value="{{ $ing->name }}" required>
                                                 </div>
-
-                                                {{-- Supplier Edit --}}
                                                 <div class="mb-3">
                                                     <label class="form-label fw-bold">Supplier</label>
                                                     <select name="supplier_id" class="form-select">
@@ -223,11 +280,8 @@
                                                             </option>
                                                         @endforeach
                                                     </select>
-                                                    <div class="form-text">Select the supplier for this ingredient.</div>
                                                 </div>
-
                                                 <div class="row">
-                                                    {{-- Unit Edit --}}
                                                     <div class="col-6 mb-3">
                                                         <label class="form-label">Unit</label>
                                                         <select name="unit" class="form-select">
@@ -236,13 +290,11 @@
                                                             @endforeach
                                                         </select>
                                                     </div>
-                                                    {{-- Reorder Level Edit --}}
                                                     <div class="col-6 mb-3">
                                                         <label class="form-label">Alert Level</label>
                                                         <input type="number" name="reorder_level" class="form-control" value="{{ $ing->reorder_level }}">
                                                     </div>
                                                 </div>
-
                                             </div>
                                             <div class="modal-footer border-top-0">
                                                 <button type="button" class="btn btn-light" data-bs-dismiss="modal">Cancel</button>
@@ -252,9 +304,8 @@
                                     </div>
                                 </div>
                             </div>
-                            {{-- END EDIT MODAL --}}
 
-                            {{-- RESTOCK MODAL (Placed inside loop for unique IDs) --}}
+                            {{-- Restock Modal --}}
                             <div class="modal fade" id="restockModal{{ $ing->id }}" tabindex="-1" aria-hidden="true">
                                 <div class="modal-dialog">
                                     <div class="modal-content rounded-4 border-0 shadow">
@@ -269,21 +320,17 @@
                                                     <small class="text-muted d-block">Current Stock</small>
                                                     <span class="fw-bold fs-5">{{ $ing->stock }} {{ $ing->unit }}</span>
                                                 </div>
-
                                                 <div class="mb-3">
                                                     <label class="form-label fw-bold">Quantity to Add ({{ $ing->unit }})</label>
                                                     <input type="number" step="0.01" name="quantity" class="form-control form-control-lg" placeholder="0.00" required>
                                                 </div>
-
                                                 <div class="mb-3">
                                                     <label class="form-label">Cost per Unit (₱) <span class="text-muted fw-normal small">(Optional)</span></label>
                                                     <input type="number" step="0.01" name="unit_cost" class="form-control" placeholder="0.00">
-                                                    <small class="text-muted">Used to calculate Cost of Goods Sold later.</small>
                                                 </div>
-
                                                 <div class="mb-3">
                                                     <label class="form-label">Reference / Remarks</label>
-                                                    <input type="text" name="remarks" class="form-control" placeholder="e.g. Invoice #1234, Delivery from Supplier X">
+                                                    <input type="text" name="remarks" class="form-control" placeholder="e.g. Invoice #1234">
                                                 </div>
                                             </div>
                                             <div class="modal-footer border-top-0">
@@ -294,26 +341,12 @@
                                     </div>
                                 </div>
                             </div>
-                            {{-- END MODAL --}}
-
                             @empty
-                            <tr>
-                                <td colspan="5" class="text-center py-5 text-muted">
-                                    <div class="opacity-50 mb-2">
-                                        <i class="fas fa-box-open fa-3x"></i>
-                                    </div>
-                                    <p class="mb-0 fw-medium">Inventory is empty.</p>
-                                </td>
-                            </tr>
+                            <tr><td colspan="5" class="text-center py-5 text-muted"><p class="mb-0 fw-medium">Inventory is empty.</p></td></tr>
                             @endforelse
                         </tbody>
                     </table>
-                    
-                    {{-- No Results Message for Search --}}
-                    <div id="noResults" class="text-center py-5 text-muted d-none">
-                        <i class="fas fa-search fa-2x mb-3 opacity-25"></i>
-                        <p class="mb-0">No ingredients found matching your search.</p>
-                    </div>
+                    <div id="noResults" class="text-center py-5 text-muted d-none"><p class="mb-0">No ingredients found.</p></div>
                 </div>
             </div>
         </div>
@@ -321,32 +354,39 @@
 </div>
 
 <script>
-    // Simple Client-side Search for Inventory
+    // Search Script
     document.getElementById('inventorySearch').addEventListener('keyup', function() {
         const searchText = this.value.toLowerCase();
         const rows = document.querySelectorAll('.inventory-row');
         let hasVisible = false;
-
         rows.forEach(row => {
             const name = row.querySelector('.item-name').textContent.toLowerCase();
-            if (name.includes(searchText)) {
-                row.style.display = '';
-                hasVisible = true;
-            } else {
-                row.style.display = 'none';
-            }
+            if (name.includes(searchText)) { row.style.display = ''; hasVisible = true; } 
+            else { row.style.display = 'none'; }
         });
+        document.getElementById('noResults').classList.toggle('d-none', hasVisible);
+        document.getElementById('inventoryTable').classList.toggle('d-none', !hasVisible && rows.length > 0);
+    });
 
-        const noResults = document.getElementById('noResults');
-        const table = document.getElementById('inventoryTable');
-        
-        if (!hasVisible && rows.length > 0) {
-            noResults.classList.remove('d-none');
-            table.classList.add('d-none');
-        } else {
-            noResults.classList.add('d-none');
-            table.classList.remove('d-none');
-        }
+    // SweetAlert for Delete
+    document.addEventListener('DOMContentLoaded', function() {
+        document.querySelectorAll('.delete-form').forEach(form => {
+            form.addEventListener('submit', function(e) {
+                e.preventDefault();
+                const name = this.getAttribute('data-item-name');
+                Swal.fire({
+                    title: 'Delete Item?',
+                    text: `Remove "${name}" from inventory? This might affect recipes.`,
+                    icon: 'warning',
+                    showCancelButton: true,
+                    confirmButtonColor: '#D32F2F',
+                    cancelButtonColor: '#EFEBE9',
+                    cancelButtonText: '<span style="color: #6F4E37; font-weight: 600;">Cancel</span>',
+                    confirmButtonText: 'Yes, remove it',
+                    reverseButtons: true
+                }).then((result) => { if (result.isConfirmed) form.submit(); });
+            });
+        });
     });
 </script>
 @endsection

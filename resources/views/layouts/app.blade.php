@@ -171,6 +171,11 @@
                             <a href="{{ route('home') }}" class="nav-pill-custom {{ request()->routeIs('home') ? 'active' : '' }}">
                                 <i class="fas fa-chart-pie"></i> Dashboard
                             </a>
+                            
+                            {{-- USERS / STAFF (NEW) --}}
+                            <a href="{{ route('users.index') }}" class="nav-pill-custom {{ request()->routeIs('users.*') ? 'active' : '' }}">
+                                <i class="fas fa-users"></i> Staff
+                            </a>
                         @endif
 
                         {{-- HISTORY (Shared) --}}
@@ -189,7 +194,7 @@
                                 <i class="fas fa-shield-alt"></i> Audit
                             </a>
                             
-                            {{-- SETTINGS (NEW) --}}
+                            {{-- SETTINGS --}}
                             <a href="{{ route('settings.index') }}" class="nav-pill-custom {{ request()->routeIs('settings.*') ? 'active' : '' }}">
                                 <i class="fas fa-cogs"></i> Settings
                             </a>

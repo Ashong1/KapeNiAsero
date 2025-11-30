@@ -59,35 +59,47 @@
                             {{ $user->created_at->format('M d, Y') }}
                         </td>
                         <td class="text-end pe-4">
-                            <div class="d-flex justify-content-end gap-2">
+                            {{-- FLEX CONTAINER: Centers items vertically --}}
+                            <div class="d-flex justify-content-end align-items-center">
                                 
                                 {{-- LOGIC START --}}
 
                                 @if(Auth::id() === $user->id)
-                                    {{-- 1. IT IS ME: Show Edit, Disable Delete --}}
-                                    <a href="{{ route('users.edit', $user->id) }}" class="btn btn-sm btn-light text-primary-coffee border-0" title="Edit Profile">
+                                    {{-- 1. IT IS ME --}}
+                                    <a href="{{ route('users.edit', $user->id) }}" title="Edit Profile" 
+                                       style="width: 34px; height: 34px; display: inline-flex; align-items: center; justify-content: center; border-radius: 10px; border: none; background-color: #F3F4F6; color: #4B5563; margin-left: 4px; text-decoration: none;">
                                         <i class="fas fa-pen-to-square"></i>
                                     </a>
-                                    <button disabled class="btn btn-sm btn-light text-muted border-0 opacity-25" style="cursor: not-allowed;">
+                                    <button type="button" disabled title="Cannot delete yourself"
+                                            style="width: 34px; height: 34px; display: inline-flex; align-items: center; justify-content: center; border-radius: 10px; border: none; background-color: #F3F4F6; color: #9CA3AF; margin-left: 4px; opacity: 0.5; cursor: not-allowed;">
                                         <i class="fas fa-trash-can"></i>
                                     </button>
 
                                 @elseif($user->role === 'admin')
-                                    {{-- 2. OTHER ADMIN: Lock Everything --}}
-                                    <button disabled class="btn btn-sm btn-light text-secondary border-0 opacity-50" title="Restricted: Cannot edit other Admins" style="cursor: not-allowed;">
+                                    {{-- 2. OTHER ADMIN --}}
+                                    <button type="button" disabled title="Restricted: Cannot edit other Admins"
+                                            style="width: 34px; height: 34px; display: inline-flex; align-items: center; justify-content: center; border-radius: 10px; border: none; background-color: #F3F4F6; color: #9CA3AF; margin-left: 4px; cursor: not-allowed;">
                                         <i class="fas fa-lock"></i>
                                     </button>
 
                                 @else
-                                    {{-- 3. STAFF: Full Control --}}
-                                    <a href="{{ route('users.edit', $user->id) }}" class="btn btn-sm btn-light text-primary-coffee border-0" title="Edit User">
+                                    {{-- 3. STAFF ACTION BUTTONS --}}
+                                    
+                                    {{-- EDIT BUTTON --}}
+                                    <a href="{{ route('users.edit', $user->id) }}" title="Edit User" 
+                                       style="width: 34px; height: 34px; display: inline-flex; align-items: center; justify-content: center; border-radius: 10px; border: none; background-color: #F3F4F6; color: #4B5563; margin-left: 4px; text-decoration: none; transition: all 0.2s;"
+                                       onmouseover="this.style.backgroundColor='#6F4E37'; this.style.color='white';"
+                                       onmouseout="this.style.backgroundColor='#F3F4F6'; this.style.color='#4B5563';">
                                         <i class="fas fa-pen-to-square"></i>
                                     </a>
                                     
-                                    {{-- UPDATED DELETE FORM: No onsubmit, added 'delete-form' class --}}
-                                    <form action="{{ route('users.destroy', $user->id) }}" method="POST" class="d-inline delete-form">
+                                    {{-- DELETE FORM & BUTTON --}}
+                                    <form action="{{ route('users.destroy', $user->id) }}" method="POST" class="delete-form" style="display: inline-block; margin: 0; padding: 0;">
                                         @csrf @method('DELETE')
-                                        <button type="submit" class="btn btn-sm btn-light text-danger border-0" title="Delete User">
+                                        <button type="submit" title="Delete User"
+                                                style="width: 34px; height: 34px; display: inline-flex; align-items: center; justify-content: center; border-radius: 10px; border: 0 !important; outline: none !important; background-color: #FEF2F2; color: #DC2626; margin-left: 4px; cursor: pointer; transition: all 0.2s;"
+                                                onmouseover="this.style.backgroundColor='#DC2626'; this.style.color='white';"
+                                                onmouseout="this.style.backgroundColor='#FEF2F2'; this.style.color='#DC2626';">
                                             <i class="fas fa-trash-can"></i>
                                         </button>
                                     </form>
@@ -108,28 +120,24 @@
 @section('scripts')
 <script>
     document.addEventListener('DOMContentLoaded', function() {
-        // Select all forms with the 'delete-form' class
+        // Find all forms that have the class 'delete-form'
         const deleteForms = document.querySelectorAll('.delete-form');
-
+        
         deleteForms.forEach(form => {
             form.addEventListener('submit', function(e) {
-                // Prevent the default form submission (browser alert)
                 e.preventDefault();
-
-                // Show SweetAlert confirmation
                 Swal.fire({
                     title: 'Delete User?',
                     text: "This action cannot be undone. The staff member will lose access immediately.",
                     icon: 'warning',
                     showCancelButton: true,
-                    confirmButtonColor: '#D32F2F', // Danger Red
-                    cancelButtonColor: '#EFEBE9',  // Light Gray
+                    confirmButtonColor: '#D32F2F',
+                    cancelButtonColor: '#EFEBE9',
                     cancelButtonText: '<span style="color: #6F4E37; font-weight: 600;">Cancel</span>',
                     confirmButtonText: 'Yes, delete it!',
-                    reverseButtons: true, // Moves confirm to the right side
-                    focusCancel: true // Focus on cancel by default to prevent accidents
+                    reverseButtons: true,
+                    focusCancel: true
                 }).then((result) => {
-                    // If user clicked 'Yes'
                     if (result.isConfirmed) {
                         form.submit();
                     }

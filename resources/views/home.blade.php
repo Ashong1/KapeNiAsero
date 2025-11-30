@@ -43,6 +43,22 @@
     .nav-tabs-custom .nav-link.active {
         background-color: var(--surface-bg); color: var(--primary-coffee);
     }
+
+    /* --- BRANDED ACTION BUTTONS --- */
+    .btn-icon { width: 32px; height: 32px; display: inline-flex; align-items: center; justify-content: center; border-radius: 10px; transition: all 0.2s cubic-bezier(0.25, 0.8, 0.25, 1); border: none; font-size: 0.85rem; margin-left: 4px; text-decoration: none; }
+    
+    .btn-icon-print { background-color: #F3F4F6; color: #4B5563; }
+    .btn-icon-print:hover { background-color: var(--primary-coffee); color: white; transform: translateY(-2px); }
+
+    /* Custom Buttons for Shift/Stock */
+    .btn-brand-coffee { background: var(--primary-coffee); color: white; border: none; box-shadow: 0 4px 10px rgba(111, 78, 55, 0.2); transition: all 0.2s; }
+    .btn-brand-coffee:hover { background: var(--primary-coffee-hover); color: white; transform: translateY(-2px); box-shadow: 0 6px 15px rgba(111, 78, 55, 0.3); }
+
+    .btn-brand-danger { background: #DC2626; color: white; border: none; box-shadow: 0 4px 10px rgba(220, 38, 38, 0.2); transition: all 0.2s; }
+    .btn-brand-danger:hover { background: #B91C1C; color: white; transform: translateY(-2px); }
+
+    .btn-brand-outline-danger { background: transparent; border: 1px solid #DC2626; color: #DC2626; transition: all 0.2s; }
+    .btn-brand-outline-danger:hover { background: #FEF2F2; color: #B91C1C; }
 </style>
 @endsection
 
@@ -72,7 +88,8 @@
                         <strong>Register OPEN</strong> 
                         <span class="text-muted ms-2 small">Started: {{ $activeShift->started_at->format('M d, h:i A') }}</span>
                     </div>
-                    <a href="{{ route('shifts.edit', $activeShift->id) }}" class="btn btn-sm btn-danger fw-bold shadow-sm">
+                    {{-- UPDATED BUTTON: End Shift --}}
+                    <a href="{{ route('shifts.edit', $activeShift->id) }}" class="btn btn-sm btn-brand-danger fw-bold rounded-pill px-3">
                         End Shift
                     </a>
                 </div>
@@ -83,7 +100,8 @@
                         <strong>Register CLOSED</strong> 
                         <span class="text-muted ms-2 small">You must open the register to record sales accurately.</span>
                     </div>
-                    <a href="{{ route('shifts.create') }}" class="btn btn-sm btn-primary fw-bold shadow-sm">
+                    {{-- UPDATED BUTTON: Open Register --}}
+                    <a href="{{ route('shifts.create') }}" class="btn btn-sm btn-brand-coffee fw-bold rounded-pill px-3">
                         Open Register
                     </a>
                 </div>
@@ -228,7 +246,10 @@
             <div class="card card-custom h-100">
                 <div class="table-card-header bg-danger-subtle bg-opacity-10">
                     <h5 class="m-0 fw-bold text-danger"><i class="fas fa-clipboard-list me-2"></i>Critical Stock</h5>
-                    <a href="{{ route('ingredients.index') }}" class="btn btn-sm btn-outline-danger rounded-pill px-2" style="font-size: 0.7rem;">Check</a>
+                    {{-- UPDATED BUTTON: Check --}}
+                    <a href="{{ route('ingredients.index') }}" class="btn btn-sm btn-brand-outline-danger rounded-pill px-3 fw-bold" style="font-size: 0.75rem;">
+                        Check Stock
+                    </a>
                 </div>
                 <div class="list-group list-group-flush overflow-auto" style="max-height: 250px;">
                     @forelse($lowStockIngredients as $ing)
@@ -300,7 +321,10 @@
                                     </td>
                                     <td class="text-end pe-4">
                                         @if($order->status !== 'voided')
-                                            <a href="{{ route('orders.receipt', $order->id) }}" target="_blank" class="btn btn-sm btn-light border" title="Receipt"><i class="fas fa-print"></i></a>
+                                            {{-- UPDATED BUTTON: Receipt --}}
+                                            <a href="{{ route('orders.receipt', $order->id) }}" target="_blank" class="btn-icon btn-icon-print" title="Receipt">
+                                                <i class="fas fa-print"></i>
+                                            </a>
                                         @endif
                                     </td>
                                 </tr>

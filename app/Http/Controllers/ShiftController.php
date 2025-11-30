@@ -9,6 +9,15 @@ use Illuminate\Support\Facades\Auth;
 
 class ShiftController extends Controller
 {
+    // --- ADMIN: Shift History Report ---
+    public function index()
+    {
+        // Get all shifts, latest first
+        $shifts = Shift::with('user')->latest()->paginate(10);
+        
+        return view('shifts.index', compact('shifts'));
+    }
+
     // Show form to open register
     public function create()
     {
@@ -84,7 +93,7 @@ class ShiftController extends Controller
         return redirect('/login')->with('success', 'Shift ended. Sales recorded: ₱' . number_format($cashSales, 2));
     }
 
-    // NEW: Handle Logout Button Click
+    // Handle Logout Button Click
     public function handleLogout(Request $request)
     {
         // If Admin, just logout normally
@@ -98,12 +107,10 @@ class ShiftController extends Controller
 
         if ($activeShift) {
             // Redirect to Close Register screen instead of logging out
-            // [FIXED]: Changed 'shifts.close' to 'shifts.edit' below
-            return redirect()->route('shifts.edit', $activeShift->id)
+            return redirect()->route('shifts.close', $activeShift->id)
                              ->with('error', 'Please close your register before logging out.');
         }
 
-        // If no shift found (rare), just logout
         Auth::logout();
         return redirect('/login');
     }

@@ -22,9 +22,10 @@ Route::middleware(['auth'])->group(function() {
     Route::resource('verify', TwoFactorController::class)->only(['index', 'store']);
 });
 
-// GENERAL ACCESS (With 2FA) - Employees and Admins
-Route::middleware(['auth', 'twofactor'])->group(function () {
-    Route::get('/orders', [OrderController::class, 'index'])->name('orders.index');
+// GENERAL ACCESS (Employees & Admins)
+// WE ADD 'shift' HERE so it runs on all these pages
+Route::middleware(['auth', 'twofactor', 'shift'])->group(function () {
+    
     Route::get('/home', [HomeController::class, 'index'])->name('home');
     Route::get('/products', [ProductController::class, 'index'])->name('products.index');
     
@@ -34,6 +35,18 @@ Route::middleware(['auth', 'twofactor'])->group(function () {
     // PAYMENT SUCCESS ROUTE
     Route::get('/orders/{order}/success', [OrderController::class, 'paymentSuccess'])->name('orders.success');
 
+    // --- SHIFT MANAGEMENT ---
+    // These must be accessible, which is why we added them to $excludedRoutes in the Middleware
+    Route::get('/register/open', [ShiftController::class, 'create'])->name('shifts.create');
+    Route::post('/register/open', [ShiftController::class, 'store'])->name('shifts.store');
+    Route::get('/register/close/{shift}', [ShiftController::class, 'edit'])->name('shifts.close');
+    Route::put('/register/close/{shift}', [ShiftController::class, 'update'])->name('shifts.update');
+    Route::get('/logout-action', [ShiftController::class, 'handleLogout'])->name('logout.action');
+
+    // --- POS & ORDER ROUTES (These will now be blocked if no shift is open) ---
+    Route::get('/orders', [OrderController::class, 'index'])->name('orders.index');
+    Route::get('/products', [ProductController::class, 'index'])->name('products.index');
+    Route::post('/checkout', [OrderController::class, 'store'])->name('checkout');
     Route::get('/orders/{order}/receipt', [OrderController::class, 'downloadReceipt'])->name('orders.receipt');
     Route::post('/orders/{order}/void-request', [OrderController::class, 'requestVoid'])->name('orders.requestVoid');
 
@@ -51,11 +64,14 @@ Route::middleware(['auth', 'twofactor'])->group(function () {
     Route::delete('/parked-orders/{order}', [ParkedOrderController::class, 'destroy']);
 });
 
-// Admin Only Routes
+// ADMIN ONLY ROUTES
 Route::middleware(['auth', 'twofactor', 'admin'])->group(function () {
     Route::resource('categories', App\Http\Controllers\CategoryController::class);
     Route::resource('ingredients', IngredientController::class);
     Route::resource('suppliers', App\Http\Controllers\SupplierController::class);
+    
+    // Shift History Report
+    Route::resource('shifts', ShiftController::class)->only(['index']);
     
     // Product Management
     Route::get('/products/create', [ProductController::class, 'create'])->name('products.create');

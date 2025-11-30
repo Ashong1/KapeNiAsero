@@ -51,8 +51,8 @@
             box-shadow: 0 4px 24px -1px rgba(62, 39, 35, 0.06);
             padding: 0.8rem 1rem;
             margin-bottom: 2rem;
-            border-radius: 24px;
             margin-top: 1rem;
+            border-radius: 24px;
         }
 
         .navbar-brand-wrapper { display: flex; align-items: center; gap: 1rem; }
@@ -204,13 +204,25 @@
                                 <i class="fas fa-chart-pie"></i> Dashboard
                             </a>
                         @endif
+                        
                         <a href="{{ route('orders.index') }}" class="nav-pill-custom {{ request()->routeIs('orders.index') ? 'active' : '' }}">
                             <i class="fas fa-history"></i> History
                         </a>
+
                         @if(Auth::user()->role == 'admin')
+<<<<<<< HEAD
                             {{-- REPORTS LINK --}}
+=======
+<<<<<<< HEAD
+                            {{-- ADDED SHIFT HISTORY LINK HERE --}}
+                            <a href="{{ route('shifts.index') }}" class="nav-pill-custom {{ request()->routeIs('shifts.*') ? 'active' : '' }}">
+                                <i class="fas fa-calendar-check"></i> Shifts
+=======
+                            {{-- NEW REPORTS LINK --}}
+>>>>>>> 710a17082e867de9b7639152b0fe8fdff058abe3
                             <a href="{{ route('reports.index') }}" class="nav-pill-custom {{ request()->routeIs('reports.*') ? 'active' : '' }}">
                                 <i class="fas fa-chart-line"></i> Reports
+>>>>>>> e8d5b34f19fff7aaa55a3ed774909b027e086cfc
                             </a>
 
                             {{-- AUDIT LOGS LINK --}}
@@ -239,16 +251,16 @@
                         <i class="fas fa-cash-register"></i> <span class="d-none d-md-inline">Open POS</span>
                     </a>
 
-                    {{-- SMART LOGOUT BUTTON LOGIC --}}
+                    {{-- LOGOUT BUTTON --}}
                     @if(Auth::user()->role === 'admin')
-                        {{-- Admin Logout: Normal --}}
+                        {{-- Admin Logout --}}
                         <a href="{{ route('logout') }}" class="btn btn-action btn-light text-danger border-0 justify-content-center" 
                            onclick="event.preventDefault(); document.getElementById('logout-form').submit();" title="Sign Out">
                             <i class="fas fa-power-off"></i>
                         </a>
                         <form id="logout-form" action="{{ route('logout') }}" method="POST" class="d-none">@csrf</form>
                     @else
-                        {{-- Employee Logout: Triggers Shift Close --}}
+                        {{-- Employee Logout (Triggers Shift Close Check) --}}
                         <a href="{{ route('logout.action') }}" class="btn btn-action btn-light text-danger border-0 justify-content-center" title="End Shift & Sign Out">
                             <i class="fas fa-power-off"></i>
                         </a>
@@ -282,8 +294,6 @@
 
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
-
-<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 @yield('scripts')
 </body>
 </html>

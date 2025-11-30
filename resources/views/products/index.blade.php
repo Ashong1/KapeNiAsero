@@ -45,11 +45,44 @@
     .btn-checkout { width: 100%; padding: 1rem; border-radius: 14px; font-weight: 700; font-size: 1.1rem; border: none; background: linear-gradient(135deg, var(--primary-coffee) 0%, var(--dark-coffee) 100%); color: white; box-shadow: 0 8px 20px rgba(111, 78, 55, 0.25); transition: all 0.3s; display: flex; justify-content: space-between; align-items: center; }
     .btn-checkout:hover { transform: translateY(-2px); box-shadow: 0 12px 25px rgba(111, 78, 55, 0.35); }
 
+<<<<<<< HEAD
     /* --- TOGGLE STYLES --- */
     .toggle-track { background-color: #F5F5F7; border-radius: 16px; padding: 4px; display: flex; border: 1px solid var(--border-light); }
     .toggle-option { flex: 1; border: none; background: transparent; padding: 0.7rem; border-radius: 12px; font-weight: 700; font-size: 0.9rem; color: var(--text-secondary); transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1); display: flex; align-items: center; justify-content: center; gap: 0.5rem; }
     .toggle-option:hover { color: var(--primary-coffee); }
     .toggle-option.active { background-color: white; color: var(--primary-coffee); box-shadow: 0 4px 12px rgba(0,0,0,0.08); transform: scale(1.02); }
+=======
+    /* --- NEW TOGGLE STYLES (MATCHING PREMIUM DESIGN) --- */
+    .toggle-track {
+        background-color: #F5F5F7; /* Matches App Input BG */
+        border-radius: 16px;
+        padding: 4px;
+        display: flex;
+        border: 1px solid var(--border-light);
+    }
+    .toggle-option {
+        flex: 1;
+        border: none;
+        background: transparent;
+        padding: 0.7rem;
+        border-radius: 12px;
+        font-weight: 700;
+        font-size: 0.9rem;
+        color: var(--text-secondary);
+        transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 0.5rem;
+    }
+    .toggle-option:hover { color: var(--primary-coffee); }
+    .toggle-option.active {
+        background-color: white;
+        color: var(--primary-coffee);
+        box-shadow: 0 4px 12px rgba(0,0,0,0.08);
+        transform: scale(1.02);
+    }
+>>>>>>> ccf3de0306db370f45c4cf5e5055d3d9b82e2be7
 
     /* --- ADMIN BUTTONS --- */
     .btn-admin-icon { width: 32px; height: 32px; border-radius: 8px; display: flex; align-items: center; justify-content: center; border: 1px solid transparent; transition: all 0.2s; cursor: pointer; text-decoration: none; }
@@ -173,6 +206,10 @@
             </div>
         </div>
 
+<<<<<<< HEAD
+=======
+        {{-- NEW TOGGLE DESIGN --}}
+>>>>>>> ccf3de0306db370f45c4cf5e5055d3d9b82e2be7
         <div class="px-4 pb-3 pt-3 bg-white">
             <div class="toggle-track">
                 <button class="toggle-option active" id="btn-dine-in" onclick="setOrderType('dine_in')">
@@ -209,8 +246,12 @@
 
 </div>
 
+<<<<<<< HEAD
 {{-- MODALS --}}
 {{-- 1. Checkout Modal --}}
+=======
+{{-- MODALS (Checkout & Success) --}}
+>>>>>>> ccf3de0306db370f45c4cf5e5055d3d9b82e2be7
 <div class="modal fade" id="checkoutModal" tabindex="-1" aria-hidden="true">
     <div class="modal-dialog modal-dialog-centered">
         <div class="modal-content modal-content-premium">
@@ -348,10 +389,25 @@
     // --- ORDER TYPE TOGGLE LOGIC ---
     function setOrderType(type) {
         orderType = type;
+<<<<<<< HEAD
         const btnDine = document.getElementById('btn-dine-in');
         const btnTake = document.getElementById('btn-take-out');
         if (type === 'dine_in') { btnDine.classList.add('active'); btnTake.classList.remove('active'); } 
         else { btnTake.classList.add('active'); btnDine.classList.remove('active'); }
+=======
+        
+        // Toggle Classes Cleaner
+        const btnDine = document.getElementById('btn-dine-in');
+        const btnTake = document.getElementById('btn-take-out');
+        
+        if (type === 'dine_in') {
+            btnDine.classList.add('active');
+            btnTake.classList.remove('active');
+        } else {
+            btnTake.classList.add('active');
+            btnDine.classList.remove('active');
+        }
+>>>>>>> ccf3de0306db370f45c4cf5e5055d3d9b82e2be7
     }
 
     // --- SEARCH & FILTER ---
@@ -383,9 +439,14 @@
     let cart = [];
     let isCartExpanded = false;
     let currentTotal = 0;
+<<<<<<< HEAD
     let lastOrderId = null; 
     let orderType = 'dine_in';
     const modifierModal = new bootstrap.Modal(document.getElementById('modifierModal'));
+=======
+    let lastOrderId = null; // Store order ID for printing
+    let orderType = 'dine_in'; // Default
+>>>>>>> ccf3de0306db370f45c4cf5e5055d3d9b82e2be7
 
     // 1. OPEN MODIFIER MODAL
     function addToCart(id, name, price) {
@@ -548,7 +609,14 @@
         fetch('/checkout', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json', 'X-CSRF-TOKEN': '{{ csrf_token() }}' },
+<<<<<<< HEAD
             body: JSON.stringify({ cart: cart, order_type: orderType })
+=======
+            body: JSON.stringify({ 
+                cart: cart,
+                order_type: orderType // <--- SEND TOGGLE VALUE
+            })
+>>>>>>> ccf3de0306db370f45c4cf5e5055d3d9b82e2be7
         })
         .then(res => res.json())
         .then(data => {
@@ -560,6 +628,11 @@
                 document.getElementById('successChange').innerText = document.getElementById('changeAmount').innerText;
                 cart = []; renderCart();
                 if(window.innerWidth < 992 && isCartExpanded) toggleCart();
+<<<<<<< HEAD
+=======
+
+                // 4. Show Success Modal & AUTO-PRINT
+>>>>>>> ccf3de0306db370f45c4cf5e5055d3d9b82e2be7
                 successModal.show();
                 printReceipt(); 
             } else {
@@ -571,7 +644,11 @@
 
     function printReceipt() {
         if(lastOrderId) {
-            window.open('/orders/' + lastOrderId + '/receipt', '_blank');
+            const url = '/orders/' + lastOrderId + '/receipt';
+            const win = window.open(url, '_blank');
+            if(!win || win.closed || typeof win.closed == 'undefined') {
+                console.log('Popup blocked. User must click button manually.');
+            }
         }
     }
 

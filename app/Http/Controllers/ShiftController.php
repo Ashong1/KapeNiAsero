@@ -9,9 +9,30 @@ use Illuminate\Support\Facades\Auth;
 
 class ShiftController extends Controller
 {
-    // Show form to open register
+    // --- ADMIN: SHIFT HISTORY & VARIANCE REPORT ---
+    public function index()
+    {
+        // Only Admin should see the history
+        if (Auth::user()->role !== 'admin') {
+            abort(403, 'Unauthorized access.');
+        }
+
+        // Get completed shifts (where ended_at is not null), latest first
+        $shifts = Shift::with('user')
+                       ->whereNotNull('ended_at')
+                       ->latest('ended_at')
+                       ->paginate(15);
+
+        return view('shifts.index', compact('shifts'));
+    }
+
+    // --- EMPLOYEE: OPEN REGISTER ---
     public function create()
     {
+        if (Auth::user()->role === 'admin') {
+            return redirect()->route('shifts.index')->with('error', 'Admins view history here. You do not open registers.');
+        }
+
         $activeShift = Shift::where('user_id', Auth::id())->whereNull('ended_at')->first();
         if ($activeShift) {
             return redirect()->route('products.index');
@@ -19,12 +40,14 @@ class ShiftController extends Controller
         return view('shifts.create');
     }
 
-    // Start the shift (Clock In)
+    // --- EMPLOYEE: START SHIFT ---
     public function store(Request $request)
     {
-        $request->validate([
-            'start_cash' => 'required|numeric|min:0',
-        ]);
+        if (Auth::user()->role === 'admin') {
+            abort(403);
+        }
+
+        $request->validate(['start_cash' => 'required|numeric|min:0']);
 
         Shift::create([
             'user_id' => Auth::id(),
@@ -32,18 +55,21 @@ class ShiftController extends Controller
             'started_at' => now(),
         ]);
 
-        // Redirect directly to POS after opening register
         return redirect()->route('products.index')->with('success', 'Shift started.');
     }
 
-    // Show form to close register (End Shift)
+    // --- EMPLOYEE: CLOSE REGISTER FORM ---
     public function edit(Shift $shift)
     {
+        if (Auth::user()->role === 'admin') {
+            return redirect()->route('shifts.index');
+        }
+
         if ($shift->user_id !== Auth::id() || $shift->ended_at) {
             abort(403);
         }
 
-        // LIVE SALES CALCULATION
+        // Calculate Cash Sales for this shift
         $cashSales = Order::where('user_id', Auth::id())
             ->where('created_at', '>=', $shift->started_at)
             ->where('payment_mode', 'cash')
@@ -55,12 +81,14 @@ class ShiftController extends Controller
         return view('shifts.edit', compact('shift', 'expectedCash', 'cashSales'));
     }
 
-    // Close the shift and LOGOUT
+    // --- EMPLOYEE: END SHIFT ---
     public function update(Request $request, Shift $shift)
     {
-        $request->validate([
-            'end_cash' => 'required|numeric|min:0',
-        ]);
+        if (Auth::user()->role === 'admin') {
+            abort(403);
+        }
+
+        $request->validate(['end_cash' => 'required|numeric|min:0']);
 
         $cashSales = Order::where('user_id', Auth::id())
             ->where('created_at', '>=', $shift->started_at)
@@ -76,7 +104,6 @@ class ShiftController extends Controller
             'ended_at' => now(),
         ]);
 
-        // FORCE LOGOUT AFTER CLOSING SHIFT
         Auth::logout();
         $request->session()->invalidate();
         $request->session()->regenerateToken();
@@ -84,26 +111,21 @@ class ShiftController extends Controller
         return redirect('/login')->with('success', 'Shift ended. Sales recorded: ₱' . number_format($cashSales, 2));
     }
 
-    // NEW: Handle Logout Button Click
+    // --- EMPLOYEE: LOGOUT HANDLER ---
     public function handleLogout(Request $request)
     {
-        // If Admin, just logout normally
         if (Auth::user()->role === 'admin') {
             Auth::logout();
             return redirect('/login');
         }
 
-        // If Employee, check for open shift
         $activeShift = Shift::where('user_id', Auth::id())->whereNull('ended_at')->first();
 
         if ($activeShift) {
-            // Redirect to Close Register screen instead of logging out
-            // FIX IS HERE: Changed 'shifts.close' to 'shifts.edit'
             return redirect()->route('shifts.edit', $activeShift->id)
                              ->with('error', 'Please close your register before logging out.');
         }
 
-        // If no shift found (rare), just logout
         Auth::logout();
         return redirect('/login');
     }

@@ -210,19 +210,15 @@
                         </a>
 
                         @if(Auth::user()->role == 'admin')
-<<<<<<< HEAD
+
                             {{-- REPORTS LINK --}}
-=======
-<<<<<<< HEAD
+
                             {{-- ADDED SHIFT HISTORY LINK HERE --}}
                             <a href="{{ route('shifts.index') }}" class="nav-pill-custom {{ request()->routeIs('shifts.*') ? 'active' : '' }}">
                                 <i class="fas fa-calendar-check"></i> Shifts
-=======
-                            {{-- NEW REPORTS LINK --}}
->>>>>>> 710a17082e867de9b7639152b0fe8fdff058abe3
                             <a href="{{ route('reports.index') }}" class="nav-pill-custom {{ request()->routeIs('reports.*') ? 'active' : '' }}">
                                 <i class="fas fa-chart-line"></i> Reports
->>>>>>> e8d5b34f19fff7aaa55a3ed774909b027e086cfc
+
                             </a>
 
                             {{-- AUDIT LOGS LINK --}}

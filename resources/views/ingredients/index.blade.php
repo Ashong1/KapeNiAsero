@@ -165,6 +165,12 @@
                                 </td>
                                 <td class="text-end pe-4">
                                     <div class="d-flex justify-content-end gap-1">
+                                        
+                                        {{-- NEW: EDIT DETAILS BUTTON --}}
+                                        <button type="button" class="btn btn-sm btn-warning text-white border shadow-sm" data-bs-toggle="modal" data-bs-target="#editModal{{ $ing->id }}" title="Edit Details (Supplier, Name)">
+                                            <i class="fas fa-edit"></i>
+                                        </button>
+
                                         {{-- HISTORY BUTTON --}}
                                         <a href="{{ route('ingredients.history', $ing->id) }}" class="btn btn-sm btn-info text-white border shadow-sm" title="View Stock Card/History">
                                             <i class="fas fa-list-alt"></i>
@@ -186,6 +192,67 @@
                                     </div>
                                 </td>
                             </tr>
+
+                            {{-- NEW: EDIT MODAL --}}
+                            <div class="modal fade" id="editModal{{ $ing->id }}" tabindex="-1" aria-hidden="true">
+                                <div class="modal-dialog">
+                                    <div class="modal-content rounded-4 border-0 shadow">
+                                        <div class="modal-header border-bottom-0">
+                                            <h5 class="modal-title fw-bold"><i class="fas fa-edit text-warning me-2"></i>Edit: {{ $ing->name }}</h5>
+                                            <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                                        </div>
+                                        <form action="{{ route('ingredients.update', $ing->id) }}" method="POST">
+                                            @csrf
+                                            @method('PUT')
+                                            <div class="modal-body">
+                                                
+                                                {{-- Name Edit --}}
+                                                <div class="mb-3">
+                                                    <label class="form-label fw-bold">Material Name</label>
+                                                    <input type="text" name="name" class="form-control" value="{{ $ing->name }}" required>
+                                                </div>
+
+                                                {{-- Supplier Edit --}}
+                                                <div class="mb-3">
+                                                    <label class="form-label fw-bold">Supplier</label>
+                                                    <select name="supplier_id" class="form-select">
+                                                        <option value="">-- No Specific Supplier --</option>
+                                                        @foreach($suppliers as $supplier)
+                                                            <option value="{{ $supplier->id }}" {{ $ing->supplier_id == $supplier->id ? 'selected' : '' }}>
+                                                                {{ $supplier->name }}
+                                                            </option>
+                                                        @endforeach
+                                                    </select>
+                                                    <div class="form-text">Select the supplier for this ingredient.</div>
+                                                </div>
+
+                                                <div class="row">
+                                                    {{-- Unit Edit --}}
+                                                    <div class="col-6 mb-3">
+                                                        <label class="form-label">Unit</label>
+                                                        <select name="unit" class="form-select">
+                                                            @foreach(['g', 'ml', 'pcs', 'shots', 'kg'] as $u)
+                                                                <option value="{{ $u }}" {{ $ing->unit == $u ? 'selected' : '' }}>{{ $u }}</option>
+                                                            @endforeach
+                                                        </select>
+                                                    </div>
+                                                    {{-- Reorder Level Edit --}}
+                                                    <div class="col-6 mb-3">
+                                                        <label class="form-label">Alert Level</label>
+                                                        <input type="number" name="reorder_level" class="form-control" value="{{ $ing->reorder_level }}">
+                                                    </div>
+                                                </div>
+
+                                            </div>
+                                            <div class="modal-footer border-top-0">
+                                                <button type="button" class="btn btn-light" data-bs-dismiss="modal">Cancel</button>
+                                                <button type="submit" class="btn btn-warning text-white fw-bold px-4">Save Changes</button>
+                                            </div>
+                                        </form>
+                                    </div>
+                                </div>
+                            </div>
+                            {{-- END EDIT MODAL --}}
 
                             {{-- RESTOCK MODAL (Placed inside loop for unique IDs) --}}
                             <div class="modal fade" id="restockModal{{ $ing->id }}" tabindex="-1" aria-hidden="true">

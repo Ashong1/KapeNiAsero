@@ -93,29 +93,51 @@ class IngredientController extends Controller
         return view('ingredients.history', compact('ingredient', 'logs'));
     }
 
-    // Updated Manual Adjustment
+    // Updated: Handles both Manual Stock Adjustment AND Editing Details (Supplier, Name, etc.)
     public function update(Request $request, Ingredient $ingredient)
     {
-        $request->validate(['stock' => 'required|numeric|min:0']);
-        
-        $oldStock = $ingredient->stock;
-        $newStock = $request->stock;
-        $diff = $newStock - $oldStock;
+        // Validate inputs (use 'sometimes' so we can update specific fields independently)
+        $request->validate([
+            'name'          => 'sometimes|required|string|max:255',
+            'supplier_id'   => 'nullable|exists:suppliers,id', // Allow selecting a supplier or null
+            'unit'          => 'sometimes|required|string',
+            'reorder_level' => 'sometimes|numeric|min:0',
+            'stock'         => 'sometimes|numeric|min:0', // Logic for stock adjustment
+        ]);
 
-        if ($diff != 0) {
-            $ingredient->update(['stock' => $newStock]);
-            
-            InventoryLog::create([
-                'ingredient_id' => $ingredient->id,
-                'user_id' => Auth::id(),
-                'type' => 'manual_adjustment',
-                'quantity_change' => $diff,
-                'running_balance' => $newStock,
-                'remarks' => 'Manual Correction via Admin Panel',
-            ]);
-        }
+        // 1. Update Basic Details if provided
+        if ($request->has('name')) $ingredient->name = $request->name;
+        if ($request->has('unit')) $ingredient->unit = $request->unit;
+        if ($request->has('reorder_level')) $ingredient->reorder_level = $request->reorder_level;
         
-        return redirect()->back()->with('success', 'Stock updated manually.');
+        // Handle Supplier ID specifically (check exists so we can set it to null if sent)
+        if ($request->exists('supplier_id')) {
+            $ingredient->supplier_id = $request->supplier_id;
+        }
+
+        // 2. Handle Stock Adjustment (Only runs if 'stock' is in the form)
+        if ($request->has('stock')) {
+            $oldStock = $ingredient->stock;
+            $newStock = $request->stock;
+            $diff = $newStock - $oldStock;
+
+            if ($diff != 0) {
+                $ingredient->stock = $newStock;
+                
+                InventoryLog::create([
+                    'ingredient_id' => $ingredient->id,
+                    'user_id' => Auth::id(),
+                    'type' => 'manual_adjustment',
+                    'quantity_change' => $diff,
+                    'running_balance' => $newStock,
+                    'remarks' => 'Manual Update via Admin Panel',
+                ]);
+            }
+        }
+
+        $ingredient->save();
+        
+        return redirect()->back()->with('success', 'Ingredient details updated successfully.');
     }
 
     public function destroy(Ingredient $ingredient)

@@ -68,6 +68,8 @@ Route::middleware(['auth', 'twofactor', 'shift'])->group(function () {
 Route::middleware(['auth', 'twofactor', 'admin'])->group(function () {
     Route::resource('categories', App\Http\Controllers\CategoryController::class);
     Route::resource('ingredients', IngredientController::class);
+    Route::post('/ingredients/{ingredient}/restock', [IngredientController::class, 'restock'])->name('ingredients.restock');
+    Route::get('/ingredients/{ingredient}/history', [IngredientController::class, 'history'])->name('ingredients.history');
     Route::resource('suppliers', App\Http\Controllers\SupplierController::class);
     
     // Shift History Report

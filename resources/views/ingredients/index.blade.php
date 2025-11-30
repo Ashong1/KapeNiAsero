@@ -115,7 +115,7 @@
                             <tr>
                                 <th class="ps-4">Item Name</th>
                                 <th>Supplier</th>
-                                <th>Quantity</th>
+                                <th>Quantity (Quick Edit)</th>
                                 <th>Status</th>
                                 <th class="text-end pe-4">Actions</th>
                             </tr>
@@ -140,22 +140,19 @@
                                     @endif
                                 </td>
                                 <td>
+                                    {{-- MANUAL OVERRIDE (For Corrections) --}}
                                     <form action="{{ route('ingredients.update', $ing->id) }}" method="POST" class="d-flex align-items-center gap-2">
                                         @csrf 
                                         @method('PUT')
+                                        {{-- Hidden fields to satisfy strict validation if needed, or remove if Controller validates only stock --}}
                                         <input type="hidden" name="name" value="{{ $ing->name }}">
-                                        <input type="hidden" name="reorder_level" value="{{ $ing->reorder_level }}">
-                                        <input type="hidden" name="unit" value="{{ $ing->unit }}">
-                                        @if($ing->supplier_id)
-                                            <input type="hidden" name="supplier_id" value="{{ $ing->supplier_id }}">
-                                        @endif
-
+                                        
                                         <div class="input-group input-group-sm" style="width: 140px;">
                                             <input type="number" name="stock" value="{{ $ing->stock }}" class="form-control text-center fw-bold text-dark" step="0.01" style="border-right:none;">
                                             <span class="input-group-text bg-white border-start-0 text-muted small">{{ $ing->unit }}</span>
                                         </div>
-                                        <button class="btn btn-sm btn-light text-success border shadow-sm" title="Quick Update">
-                                            <i class="fas fa-check"></i>
+                                        <button class="btn btn-sm btn-light text-warning border shadow-sm" title="Manual Correction (Audit)">
+                                            <i class="fas fa-pen"></i>
                                         </button>
                                     </form>
                                 </td>
@@ -167,15 +164,71 @@
                                     @endif
                                 </td>
                                 <td class="text-end pe-4">
-                                    <form action="{{ route('ingredients.destroy', $ing->id) }}" method="POST" class="d-inline">
-                                        @csrf 
-                                        @method('DELETE')
-                                        <button class="btn btn-sm btn-light text-danger border shadow-sm" onclick="return confirm('Remove {{ $ing->name }} from inventory? This might affect product recipes.')">
-                                            <i class="fas fa-trash"></i>
+                                    <div class="d-flex justify-content-end gap-1">
+                                        {{-- HISTORY BUTTON --}}
+                                        <a href="{{ route('ingredients.history', $ing->id) }}" class="btn btn-sm btn-info text-white border shadow-sm" title="View Stock Card/History">
+                                            <i class="fas fa-list-alt"></i>
+                                        </a>
+
+                                        {{-- RESTOCK BUTTON (Triggers Modal) --}}
+                                        <button type="button" class="btn btn-sm btn-success border shadow-sm" data-bs-toggle="modal" data-bs-target="#restockModal{{ $ing->id }}" title="Add Stock (Restock)">
+                                            <i class="fas fa-plus"></i>
                                         </button>
-                                    </form>
+
+                                        {{-- DELETE BUTTON --}}
+                                        <form action="{{ route('ingredients.destroy', $ing->id) }}" method="POST" class="d-inline">
+                                            @csrf 
+                                            @method('DELETE')
+                                            <button class="btn btn-sm btn-light text-danger border shadow-sm" onclick="return confirm('Remove {{ $ing->name }} from inventory? This might affect product recipes.')" title="Delete Item">
+                                                <i class="fas fa-trash"></i>
+                                            </button>
+                                        </form>
+                                    </div>
                                 </td>
                             </tr>
+
+                            {{-- RESTOCK MODAL (Placed inside loop for unique IDs) --}}
+                            <div class="modal fade" id="restockModal{{ $ing->id }}" tabindex="-1" aria-hidden="true">
+                                <div class="modal-dialog">
+                                    <div class="modal-content rounded-4 border-0 shadow">
+                                        <div class="modal-header border-bottom-0">
+                                            <h5 class="modal-title fw-bold"><i class="fas fa-box-open text-success me-2"></i>Restock: {{ $ing->name }}</h5>
+                                            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                                        </div>
+                                        <form action="{{ route('ingredients.restock', $ing->id) }}" method="POST">
+                                            @csrf
+                                            <div class="modal-body">
+                                                <div class="alert alert-light border mb-3">
+                                                    <small class="text-muted d-block">Current Stock</small>
+                                                    <span class="fw-bold fs-5">{{ $ing->stock }} {{ $ing->unit }}</span>
+                                                </div>
+
+                                                <div class="mb-3">
+                                                    <label class="form-label fw-bold">Quantity to Add ({{ $ing->unit }})</label>
+                                                    <input type="number" step="0.01" name="quantity" class="form-control form-control-lg" placeholder="0.00" required>
+                                                </div>
+
+                                                <div class="mb-3">
+                                                    <label class="form-label">Cost per Unit (₱) <span class="text-muted fw-normal small">(Optional)</span></label>
+                                                    <input type="number" step="0.01" name="unit_cost" class="form-control" placeholder="0.00">
+                                                    <small class="text-muted">Used to calculate Cost of Goods Sold later.</small>
+                                                </div>
+
+                                                <div class="mb-3">
+                                                    <label class="form-label">Reference / Remarks</label>
+                                                    <input type="text" name="remarks" class="form-control" placeholder="e.g. Invoice #1234, Delivery from Supplier X">
+                                                </div>
+                                            </div>
+                                            <div class="modal-footer border-top-0">
+                                                <button type="button" class="btn btn-light" data-bs-dismiss="modal">Cancel</button>
+                                                <button type="submit" class="btn btn-success fw-bold px-4">Confirm Restock</button>
+                                            </div>
+                                        </form>
+                                    </div>
+                                </div>
+                            </div>
+                            {{-- END MODAL --}}
+
                             @empty
                             <tr>
                                 <td colspan="5" class="text-center py-5 text-muted">

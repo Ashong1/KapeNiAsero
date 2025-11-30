@@ -11,10 +11,11 @@ return Application::configure(basePath: dirname(__DIR__))
         health: '/up',
     )
     ->withMiddleware(function (Middleware $middleware) {
-        // --- THIS IS THE SECTION YOU NEED TO FIX ---
+        // Register your aliases here
         $middleware->alias([
             'admin' => \App\Http\Middleware\IsAdmin::class,
-            'twofactor' => \App\Http\Middleware\TwoFactorMiddleware::class, // <--- MAKE SURE THIS LINE IS HERE
+            'twofactor' => \App\Http\Middleware\TwoFactorMiddleware::class,
+            'shift' => \App\Http\Middleware\EnsureShiftIsOpen::class, // <--- ADD THIS LINE
         ]);
     })
     ->withExceptions(function (Exceptions $exceptions): void {

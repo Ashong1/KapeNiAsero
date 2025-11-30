@@ -6,7 +6,7 @@ use App\Http\Controllers\OrderController;
 use App\Http\Controllers\IngredientController;
 use App\Http\Controllers\TwoFactorController;
 use App\Http\Controllers\HomeController;
-use App\Http\Controllers\ParkedOrderController; // <--- Import This
+use App\Http\Controllers\ParkedOrderController;
 use Illuminate\Support\Facades\Auth;
 
 Route::get('/', function () { return redirect('/login'); });
@@ -24,7 +24,13 @@ Route::middleware(['auth', 'twofactor'])->group(function () {
     Route::get('/orders', [OrderController::class, 'index'])->name('orders.index');
     Route::get('/home', [HomeController::class, 'index'])->name('home');
     Route::get('/products', [ProductController::class, 'index'])->name('products.index');
+    
+    // CHECKOUT LOGIC
     Route::post('/checkout', [OrderController::class, 'store'])->name('checkout');
+    
+    // --- NEW: PAYMENT SUCCESS ROUTE ---
+    Route::get('/orders/{order}/success', [OrderController::class, 'paymentSuccess'])->name('orders.success');
+
     Route::get('/orders/{order}/receipt', [OrderController::class, 'downloadReceipt'])->name('orders.receipt');
     Route::post('/orders/{order}/void-request', [OrderController::class, 'requestVoid'])->name('orders.requestVoid');
 

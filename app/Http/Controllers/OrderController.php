@@ -7,6 +7,7 @@ use App\Models\Order;
 use App\Models\OrderItem;
 use App\Models\Product;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Http; 
 use Barryvdh\DomPDF\Facade\Pdf; 
 
 class OrderController extends Controller
@@ -24,11 +25,10 @@ class OrderController extends Controller
             'cart' => 'required|array',
             'cart.*.id' => 'required|exists:products,id',
             'cart.*.quantity' => 'required|integer|min:1',
-            // Discount Validation
             'discount' => 'nullable|array',
             'discount.type' => 'nullable|in:fixed,percentage,none',
-            // Cash Validation
             'cash_tendered' => 'required|numeric|min:0', 
+            'payment_mode' => 'required|in:cash,gcash,card', 
         ]);
 
         try {
@@ -69,51 +69,46 @@ class OrderController extends Controller
                 } elseif ($type === 'fixed') {
                     $discountAmount = $val;
                 }
-                
-                // Prevent negative total
-                if ($discountAmount > $subtotal) {
-                    $discountAmount = $subtotal;
-                }
+                if ($discountAmount > $subtotal) $discountAmount = $subtotal;
             }
 
             $finalTotal = $subtotal - $discountAmount;
             
-            // 3. Calculate Change
+            // 3. Create Order (Initially PENDING)
             $cashTendered = floatval($request->cash_tendered);
             
-            // Ensure enough cash provided
-            // Note: Using round() to avoid floating point precision issues
-            if (round($cashTendered, 2) < round($finalTotal, 2)) {
-                DB::rollBack();
-                return response()->json(['success' => false, 'message' => 'Insufficient cash tendered.']);
+            // Check cash only if paying by cash
+            if ($request->payment_mode === 'cash') {
+                if (round($cashTendered, 2) < round($finalTotal, 2)) {
+                    DB::rollBack();
+                    return response()->json(['success' => false, 'message' => 'Insufficient cash tendered.']);
+                }
             }
-            
-            $changeAmount = $cashTendered - $finalTotal;
 
-            // 4. Create Order
+            $changeAmount = $request->payment_mode === 'cash' ? ($cashTendered - $finalTotal) : 0;
+
             $order = Order::create([
                 'user_id' => auth()->id(),
                 'subtotal' => $subtotal,
                 'discount_name' => $discountName,
                 'discount_amount' => $discountAmount,
                 'total_price' => $finalTotal,
-                'cash_tendered' => $cashTendered,   // <--- Save Cash
-                'change_amount' => $changeAmount,   // <--- Save Change
-                'payment_mode' => 'cash',
+                'cash_tendered' => $cashTendered,
+                'change_amount' => $changeAmount,
+                'payment_mode' => $request->payment_mode,
+                'status' => 'pending', 
                 'order_type' => $request->order_type ?? 'dine_in',
             ]);
 
-            // 5. Save Items & Deduct Inventory
+            // 4. Save Items & Deduct Inventory
             foreach ($request->cart as $item) {
                 $product = Product::find($item['id']);
-                
                 if (!$product->ingredients->isEmpty()) {
                     foreach ($product->ingredients as $ing) {
                         $needed = $ing->pivot->quantity_needed * $item['quantity'];
                         $ing->decrement('stock', $needed);
                     }
                 }
-
                 OrderItem::create([
                     'order_id' => $order->id,
                     'product_id' => $product->id,
@@ -123,19 +118,68 @@ class OrderController extends Controller
                 ]);
             }
 
-            DB::commit();
-            $this->logActivity('New Order', "Order #{$order->id} - Total: {$order->total_price}");
+            // 5. HANDLE PAYMENT MODES
+            if ($request->payment_mode === 'cash') {
+                $order->update(['status' => 'completed']);
+                DB::commit();
+                // Calls logActivity from Parent Controller
+                $this->logActivity('New Order', "Order #{$order->id} (Cash) - Total: {$order->total_price}");
+                return response()->json(['success' => true, 'message' => 'Order complete!', 'order_id' => $order->id]);
+            } else {
+                // --- PAYMONGO INTEGRATION ---
+                DB::commit(); 
+                
+                $response = Http::withHeaders([
+                    'Content-Type' => 'application/json',
+                    'Authorization' => 'Basic ' . base64_encode(config('services.paymongo.secret_key')),
+                ])->post('https://api.paymongo.com/v1/checkout_sessions', [
+                    'data' => [
+                        'attributes' => [
+                            'billing' => [
+                                'name' => auth()->user()->name,
+                                'email' => auth()->user()->email,
+                            ],
+                            'line_items' => [[
+                                'currency' => 'PHP',
+                                'amount' => (int) ($finalTotal * 100), // Convert to cents
+                                'name' => 'Order #' . $order->id,
+                                'quantity' => 1,
+                            ]],
+                            'payment_method_types' => ['gcash', 'card', 'paymaya'],
+                            'success_url' => route('orders.success', $order->id),
+                            'cancel_url' => route('orders.index'),
+                            'reference_number' => (string) $order->id,
+                        ]
+                    ]
+                ]);
 
-            return response()->json([
-                'success' => true, 
-                'message' => 'Order complete!', 
-                'order_id' => $order->id 
-            ]);
+                $data = $response->json();
+
+                if (isset($data['data']['attributes']['checkout_url'])) {
+                    return response()->json([
+                        'success' => true, 
+                        'redirect_url' => $data['data']['attributes']['checkout_url']
+                    ]);
+                } else {
+                    return response()->json(['success' => false, 'message' => 'Payment Gateway Error: ' . json_encode($data)]);
+                }
+            }
 
         } catch (\Exception $e) {
             DB::rollBack();
             return response()->json(['success' => false, 'message' => $e->getMessage()], 500);
         }
+    }
+
+    public function paymentSuccess(Order $order)
+    {
+        if ($order->status === 'pending') {
+            $order->update(['status' => 'completed']);
+            // Calls logActivity from Parent Controller
+            $this->logActivity('New Order', "Order #{$order->id} ({$order->payment_mode}) - Total: {$order->total_price}");
+        }
+        
+        return redirect()->route('orders.index')->with('success', "Payment Successful! Order #{$order->id} is completed.");
     }
 
     // --- PDF RECEIPT ---
@@ -155,6 +199,7 @@ class OrderController extends Controller
 
         $order->update(['status' => 'void_pending']);
         $employeeName = auth()->user()->name;
+        // Calls logActivity from Parent Controller
         $this->logActivity('Void Requested', "Void requested for Order #{$order->id} by {$employeeName}");
 
         return redirect()->back()->with('success', 'Void request submitted for Admin approval.');
@@ -178,6 +223,7 @@ class OrderController extends Controller
         }
 
         $order->update(['status' => 'voided']);
+        // Calls logActivity from Parent Controller
         $this->logActivity('Void Order', "Voided Order #{$order->id}");
 
         return redirect()->back()->with('success', "Order #{$order->id} has been voided and inventory restored.");

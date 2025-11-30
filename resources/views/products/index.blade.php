@@ -243,8 +243,23 @@
                     <small class="text-uppercase text-secondary fw-bold">Total Amount</small>
                     <div class="display-amount" id="modalTotalAmount">₱0.00</div>
                 </div>
+
+                <div class="mb-4">
+                    <label class="form-label small fw-bold text-secondary">Payment Method</label>
+                    <div class="d-grid gap-2" style="grid-template-columns: 1fr 1fr 1fr;">
+                        <input type="radio" class="btn-check" name="payment_mode" id="pay_cash" value="cash" checked onclick="setPaymentMode('cash')">
+                        <label class="btn btn-outline-secondary fw-bold" for="pay_cash"><i class="fas fa-money-bill me-1"></i> Cash</label>
+
+                        <input type="radio" class="btn-check" name="payment_mode" id="pay_gcash" value="gcash" onclick="setPaymentMode('gcash')">
+                        <label class="btn btn-outline-primary fw-bold" for="pay_gcash"><i class="fas fa-mobile-alt me-1"></i> GCash</label>
+
+                        <input type="radio" class="btn-check" name="payment_mode" id="pay_card" value="card" onclick="setPaymentMode('card')">
+                        <label class="btn btn-outline-dark fw-bold" for="pay_card"><i class="fas fa-credit-card me-1"></i> Card</label>
+                    </div>
+                </div>
+
                 <div class="mb-3">
-                    <label class="form-label">Cash Received</label>
+                    <label class="form-label" id="tenderedLabel">Cash Received</label>
                     <div class="input-group">
                         <span class="input-group-text bg-white border-end-0 text-secondary fw-bold" style="border-radius: 16px 0 0 16px;">₱</span>
                         <input type="number" id="cashInput" class="form-control input-tendered border-start-0" placeholder="0.00" style="border-radius: 0 16px 16px 0;">
@@ -433,6 +448,7 @@
     let lastOrderId = null; 
     let orderType = 'dine_in';
     let currentDiscount = { type: 'none', value: 0, name: '' };
+    let paymentMode = 'cash'; // Default
 
     const modifierModal = new bootstrap.Modal(document.getElementById('modifierModal'));
     const discountModal = new bootstrap.Modal(document.getElementById('discountModal'));
@@ -638,14 +654,40 @@
 
     // --- CHECKOUT ---
     const cashInput = document.getElementById('cashInput');
+    
+    // NEW: Handle Payment Mode
+    function setPaymentMode(mode) {
+        paymentMode = mode;
+        const label = document.getElementById('tenderedLabel');
+        const cashInput = document.getElementById('cashInput');
+
+        if (mode === 'cash') {
+            label.innerText = 'Cash Received';
+            cashInput.value = ''; // Reset for manual input
+            cashInput.readOnly = false;
+            document.getElementById('changeAmount').parentElement.style.opacity = '1';
+            setTimeout(() => cashInput.focus(), 100);
+        } else {
+            // For GCash/Card, usually payment is exact.
+            label.innerText = 'Reference / Amount Paid';
+            cashInput.value = currentTotal.toFixed(2); 
+            cashInput.readOnly = true; 
+            document.getElementById('changeAmount').parentElement.style.opacity = '0.5'; 
+        }
+        calculateChange();
+    }
+
     function openCheckoutModal() {
         if(cart.length === 0) return alert('Cart is empty');
         document.getElementById('modalTotalAmount').innerText = '₱' + currentTotal.toFixed(2);
-        cashInput.value = '';
+        
+        // Reset to default cash state
+        document.getElementById('pay_cash').click(); 
+        
         document.getElementById('changeAmount').innerText = '₱0.00';
         checkoutModal.show();
-        setTimeout(() => cashInput.focus(), 500); 
     }
+    
     cashInput.addEventListener('keyup', calculateChange);
     cashInput.addEventListener('change', calculateChange);
     function calculateChange() {
@@ -660,24 +702,37 @@
 
     function confirmPayment() {
         const cash = parseFloat(cashInput.value) || 0;
-        if (cash < currentTotal) { alert('Insufficient cash tendered!'); return; }
+        if (cash < currentTotal) { alert('Insufficient payment amount!'); return; }
+        
         fetch('/checkout', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json', 'X-CSRF-TOKEN': '{{ csrf_token() }}' },
-            body: JSON.stringify({ cart: cart, order_type: orderType, discount: currentDiscount, cash_tendered: cash })
+            body: JSON.stringify({ 
+                cart: cart, 
+                order_type: orderType, 
+                discount: currentDiscount, 
+                cash_tendered: cash,
+                payment_mode: paymentMode
+            })
         })
         .then(res => res.json())
         .then(data => {
             if(data.success) {
-                lastOrderId = data.order_id;
-                checkoutModal.hide();
-                document.getElementById('successTotal').innerText = document.getElementById('modalTotalAmount').innerText;
-                document.getElementById('successCash').innerText = '₱' + parseFloat(cashInput.value).toFixed(2);
-                document.getElementById('successChange').innerText = document.getElementById('changeAmount').innerText;
-                cart = []; renderCart();
-                if(window.innerWidth < 992 && isCartExpanded) toggleCart();
-                successModal.show();
-                printReceipt(); 
+                if (data.redirect_url) {
+                    // CASE 1: GCash/Card -> Redirect user to PayMongo
+                    window.location.href = data.redirect_url;
+                } else {
+                    // CASE 2: Cash -> Show Success Modal
+                    lastOrderId = data.order_id;
+                    checkoutModal.hide();
+                    document.getElementById('successTotal').innerText = document.getElementById('modalTotalAmount').innerText;
+                    document.getElementById('successCash').innerText = '₱' + parseFloat(cashInput.value).toFixed(2);
+                    document.getElementById('successChange').innerText = document.getElementById('changeAmount').innerText;
+                    cart = []; renderCart();
+                    if(window.innerWidth < 992 && isCartExpanded) toggleCart();
+                    successModal.show();
+                    printReceipt(); 
+                }
             } else { alert('Error: ' + data.message); }
         });
     }

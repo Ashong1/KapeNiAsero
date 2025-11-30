@@ -13,6 +13,7 @@ use App\Http\Controllers\SupplierController;
 use App\Http\Controllers\ShiftController; 
 use App\Http\Controllers\ParkedOrderController;
 use App\Http\Controllers\TwoFactorController;
+use App\Http\Controllers\UserController; // Import User Controller
 
 // NEW FEATURES
 use App\Http\Controllers\ReportController; 
@@ -69,6 +70,9 @@ Route::middleware(['auth', 'twofactor', 'admin'])->group(function () {
     Route::get('/ingredients/{ingredient}/history', [IngredientController::class, 'history'])->name('ingredients.history');
     Route::resource('suppliers', App\Http\Controllers\SupplierController::class);
     
+    // USER MANAGEMENT (NEW - STRICTLY CONTROLLED)
+    Route::resource('users', UserController::class); 
+
     // Product Management (Full Access)
     Route::get('/products/create', [ProductController::class, 'create'])->name('products.create');
     Route::post('/products', [ProductController::class, 'store'])->name('products.store');
@@ -95,4 +99,4 @@ Route::middleware(['auth', 'twofactor', 'admin'])->group(function () {
     // 3. System Settings
     Route::get('/settings', [SettingController::class, 'index'])->name('settings.index');
     Route::put('/settings', [SettingController::class, 'update'])->name('settings.update');
-});
+}); 

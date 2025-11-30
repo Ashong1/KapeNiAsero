@@ -14,7 +14,6 @@
         .totals { margin-top: 15px; text-align: right; }
         .footer { text-align: center; margin-top: 20px; font-size: 10px; }
         
-        /* Table for better alignment in PDF */
         table { width: 100%; border-collapse: collapse; }
         td { vertical-align: top; }
         .qty { width: 30px; }
@@ -25,6 +24,9 @@
     <div class="container">
         <div class="header">
             <h2>Kape Ni Asero</h2>
+                <div style="margin-top: 10px; border: 2px solid #000; padding: 5px; font-weight: bold; font-size: 16px;">
+                    {{ $order->order_type == 'take_out' ? 'TAKE OUT' : 'DINE IN' }}
+                </div>
             <p>123 Coffee Street, Manila</p>
             <p>Tel: (02) 8123-4567</p>
             <p>Date: {{ $order->created_at->format('M d, Y h:i A') }}</p>
@@ -38,7 +40,20 @@
             @foreach($order->items as $item)
             <tr>
                 <td class="qty">{{ $item->quantity }}x</td>
-                <td>{{ $item->product->name }}</td>
+                <td>
+                    {{ $item->product->name }}
+                    {{-- MODIFIER DISPLAY --}}
+                    @if(!empty($item->modifiers))
+                        <div style="font-size: 10px; color: #666; font-style: italic; margin-top: 2px;">
+                            @if(isset($item->modifiers['sugar']) && $item->modifiers['sugar'] !== '100%')
+                                Sugar: {{ $item->modifiers['sugar'] }}<br>
+                            @endif
+                            @if(isset($item->modifiers['ice']) && $item->modifiers['ice'] !== 'Normal')
+                                Ice: {{ $item->modifiers['ice'] }}
+                            @endif
+                        </div>
+                    @endif
+                </td>
                 <td class="price">P{{ number_format($item->price * $item->quantity, 2) }}</td>
             </tr>
             @endforeach

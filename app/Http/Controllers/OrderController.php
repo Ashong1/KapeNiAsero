@@ -24,6 +24,7 @@ class OrderController extends Controller
             'cart' => 'required|array',
             'cart.*.id' => 'required|exists:products,id',
             'cart.*.quantity' => 'required|integer|min:1',
+            // modifiers are optional, so no strict validation needed here
         ]);
 
         try {
@@ -55,6 +56,7 @@ class OrderController extends Controller
                 'user_id' => auth()->id(),
                 'total_price' => $totalAmount,
                 'payment_mode' => 'cash',
+                'order_type' => $request->order_type ?? 'dine_in',
             ]);
 
             // 3. Save Items & Deduct Inventory
@@ -73,13 +75,12 @@ class OrderController extends Controller
                     'product_id' => $product->id,
                     'quantity' => $item['quantity'],
                     'price' => $product->price,
+                    'modifiers' => $item['modifiers'] ?? null, // <--- SAVING MODIFIERS HERE
                 ]);
             }
 
             DB::commit();
             $this->logActivity('New Order', "Order #{$order->id} - Total: {$order->total_price}");
-
-            // --- KITCHEN FEATURE REMOVED ---
 
             // Return success with order_id for the frontend to print receipt
             return response()->json([

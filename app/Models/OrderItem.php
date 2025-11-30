@@ -9,9 +9,13 @@ class OrderItem extends Model
 {
     use HasFactory;
 
-    protected $fillable = ['order_id', 'product_id', 'quantity', 'price'];
+    protected $fillable = ['order_id', 'product_id', 'quantity', 'price', 'modifiers'];
 
-    // --- ADD THIS FUNCTION ---
+    // Automatically convert the JSON column to a PHP array
+    protected $casts = [
+        'modifiers' => 'array',
+    ];
+
     public function product()
     {
         return $this->belongsTo(Product::class);

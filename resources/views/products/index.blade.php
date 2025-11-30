@@ -45,6 +45,12 @@
     .btn-checkout { width: 100%; padding: 1rem; border-radius: 14px; font-weight: 700; font-size: 1.1rem; border: none; background: linear-gradient(135deg, var(--primary-coffee) 0%, var(--dark-coffee) 100%); color: white; box-shadow: 0 8px 20px rgba(111, 78, 55, 0.25); transition: all 0.3s; display: flex; justify-content: space-between; align-items: center; }
     .btn-checkout:hover { transform: translateY(-2px); box-shadow: 0 12px 25px rgba(111, 78, 55, 0.35); }
 
+    /* --- TOGGLE STYLES --- */
+    .toggle-track { background-color: #F5F5F7; border-radius: 16px; padding: 4px; display: flex; border: 1px solid var(--border-light); }
+    .toggle-option { flex: 1; border: none; background: transparent; padding: 0.7rem; border-radius: 12px; font-weight: 700; font-size: 0.9rem; color: var(--text-secondary); transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1); display: flex; align-items: center; justify-content: center; gap: 0.5rem; }
+    .toggle-option:hover { color: var(--primary-coffee); }
+    .toggle-option.active { background-color: white; color: var(--primary-coffee); box-shadow: 0 4px 12px rgba(0,0,0,0.08); transform: scale(1.02); }
+
     /* --- ADMIN BUTTONS --- */
     .btn-admin-icon { width: 32px; height: 32px; border-radius: 8px; display: flex; align-items: center; justify-content: center; border: 1px solid transparent; transition: all 0.2s; cursor: pointer; text-decoration: none; }
     .btn-edit { background: var(--surface-cream); color: var(--primary-coffee); border-color: rgba(111, 78, 55, 0.1); }
@@ -52,37 +58,18 @@
     .btn-delete { background: #FFF5F5; color: var(--danger-red); border-color: rgba(211, 47, 47, 0.1); }
     .btn-delete:hover { background: var(--danger-red); color: white; box-shadow: 0 4px 10px rgba(211, 47, 47, 0.2); }
 
-    /* --- PAYMENT MODAL STYLES --- */
+    /* --- PAYMENT & MODAL STYLES --- */
     .modal-backdrop.show { opacity: 0.2; backdrop-filter: blur(4px); }
-    .modal-content-premium {
-        border: none; border-radius: 24px; overflow: hidden; box-shadow: 0 25px 50px -12px rgba(0,0,0,0.25);
-    }
-    .modal-header-premium {
-        background: var(--surface-bg); border-bottom: 1px solid var(--border-light); padding: 1.5rem;
-    }
-    .display-amount {
-        font-size: 2.5rem; font-weight: 800; color: var(--primary-coffee); line-height: 1;
-    }
-    .input-tendered {
-        border: 2px solid var(--border-light); border-radius: 16px; padding: 1rem;
-        font-size: 1.5rem; font-weight: 700; color: var(--text-dark); width: 100%; text-align: right;
-        transition: all 0.2s;
-    }
-    .input-tendered:focus {
-        border-color: var(--primary-coffee); outline: none; box-shadow: 0 0 0 4px rgba(111, 78, 55, 0.1);
-    }
+    .modal-content-premium { border: none; border-radius: 24px; overflow: hidden; box-shadow: 0 25px 50px -12px rgba(0,0,0,0.25); }
+    .modal-header-premium { background: var(--surface-bg); border-bottom: 1px solid var(--border-light); padding: 1.5rem; }
+    .display-amount { font-size: 2.5rem; font-weight: 800; color: var(--primary-coffee); line-height: 1; }
+    .input-tendered { border: 2px solid var(--border-light); border-radius: 16px; padding: 1rem; font-size: 1.5rem; font-weight: 700; color: var(--text-dark); width: 100%; text-align: right; transition: all 0.2s; }
+    .input-tendered:focus { border-color: var(--primary-coffee); outline: none; box-shadow: 0 0 0 4px rgba(111, 78, 55, 0.1); }
     .quick-cash-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 0.5rem; margin-top: 1rem; }
-    .btn-quick-cash {
-        background: white; border: 1px solid var(--border-light); padding: 0.75rem; border-radius: 12px;
-        font-weight: 600; color: var(--text-dark); transition: all 0.1s;
-    }
+    .btn-quick-cash { background: white; border: 1px solid var(--border-light); padding: 0.75rem; border-radius: 12px; font-weight: 600; color: var(--text-dark); transition: all 0.1s; }
     .btn-quick-cash:hover { background: var(--surface-bg); border-color: var(--text-secondary); }
     .btn-quick-cash:active { transform: scale(0.95); background: var(--primary-coffee); color: white; }
-    
-    .change-display {
-        background: #F0FDF4; border: 1px dashed #4ADE80; color: #15803D;
-        padding: 1rem; border-radius: 12px; text-align: right;
-    }
+    .change-display { background: #F0FDF4; border: 1px dashed #4ADE80; color: #15803D; padding: 1rem; border-radius: 12px; text-align: right; }
     
     /* SUCCESS ANIMATION */
     .success-animation { animation: popIn 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275); }
@@ -185,6 +172,18 @@
                 <i class="fas fa-chevron-up d-lg-none text-secondary" id="cartToggleIcon"></i>
             </div>
         </div>
+
+        <div class="px-4 pb-3 pt-3 bg-white">
+            <div class="toggle-track">
+                <button class="toggle-option active" id="btn-dine-in" onclick="setOrderType('dine_in')">
+                    <i class="fas fa-utensils"></i> Dine In
+                </button>
+                <button class="toggle-option" id="btn-take-out" onclick="setOrderType('take_out')">
+                    <i class="fas fa-bag-shopping"></i> Take Out
+                </button>
+            </div>
+        </div>
+
         <div class="cart-body" id="cart-items">
             <div class="h-100 d-flex flex-column align-items-center justify-content-center text-center text-muted opacity-50">
                 <i class="fa-solid fa-basket-shopping fa-4x mb-3"></i>
@@ -210,6 +209,8 @@
 
 </div>
 
+{{-- MODALS --}}
+{{-- 1. Checkout Modal --}}
 <div class="modal fade" id="checkoutModal" tabindex="-1" aria-hidden="true">
     <div class="modal-dialog modal-dialog-centered">
         <div class="modal-content modal-content-premium">
@@ -250,6 +251,7 @@
     </div>
 </div>
 
+{{-- 2. Success Modal --}}
 <div class="modal fade" id="successModal" tabindex="-1" aria-hidden="true" data-bs-backdrop="static" data-bs-keyboard="false">
     <div class="modal-dialog modal-dialog-centered">
         <div class="modal-content modal-content-premium text-center p-4">
@@ -290,10 +292,68 @@
     </div>
 </div>
 
+{{-- 3. Modifier Modal (NEW) --}}
+<div class="modal fade" id="modifierModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered modal-sm">
+        <div class="modal-content modal-content-premium">
+            <div class="modal-header-premium p-3">
+                <h6 class="fw-bold m-0" id="modifierModalTitle">Customize Drink</h6>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body p-3">
+                <input type="hidden" id="modProductId">
+                <input type="hidden" id="modProductName">
+                <input type="hidden" id="modProductPrice">
+
+                <div class="mb-3">
+                    <label class="form-label small fw-bold text-secondary">Sugar Level</label>
+                    <div class="d-grid gap-2 grid-cols-3" style="display: grid; grid-template-columns: repeat(3, 1fr);">
+                        <input type="radio" class="btn-check" name="sugar" id="sugar0" value="0%" autocomplete="off">
+                        <label class="btn btn-outline-secondary btn-sm" for="sugar0">0%</label>
+
+                        <input type="radio" class="btn-check" name="sugar" id="sugar50" value="50%" autocomplete="off">
+                        <label class="btn btn-outline-secondary btn-sm" for="sugar50">50%</label>
+
+                        <input type="radio" class="btn-check" name="sugar" id="sugar100" value="100%" autocomplete="off" checked>
+                        <label class="btn btn-outline-secondary btn-sm" for="sugar100">100%</label>
+                    </div>
+                </div>
+
+                <div class="mb-3">
+                    <label class="form-label small fw-bold text-secondary">Ice Level</label>
+                    <div class="d-grid gap-2" style="display: grid; grid-template-columns: repeat(3, 1fr);">
+                        <input type="radio" class="btn-check" name="ice" id="iceNone" value="No Ice" autocomplete="off">
+                        <label class="btn btn-outline-secondary btn-sm" for="iceNone">None</label>
+
+                        <input type="radio" class="btn-check" name="ice" id="iceLess" value="Less Ice" autocomplete="off">
+                        <label class="btn btn-outline-secondary btn-sm" for="iceLess">Less</label>
+
+                        <input type="radio" class="btn-check" name="ice" id="iceNormal" value="Normal" autocomplete="off" checked>
+                        <label class="btn btn-outline-secondary btn-sm" for="iceNormal">Normal</label>
+                    </div>
+                </div>
+                
+                <button class="btn btn-primary-coffee w-100 fw-bold" onclick="confirmAddToCart()">
+                    Add to Order
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
 @endsection
 
 @section('scripts')
 <script>
+    // --- ORDER TYPE TOGGLE LOGIC ---
+    function setOrderType(type) {
+        orderType = type;
+        const btnDine = document.getElementById('btn-dine-in');
+        const btnTake = document.getElementById('btn-take-out');
+        if (type === 'dine_in') { btnDine.classList.add('active'); btnTake.classList.remove('active'); } 
+        else { btnTake.classList.add('active'); btnDine.classList.remove('active'); }
+    }
+
     // --- SEARCH & FILTER ---
     let activeCategory = 'all';
     function filterCategory(catId, element) {
@@ -318,17 +378,51 @@
         document.getElementById('noResults').classList.toggle('d-none', visibleCount > 0);
     }
 
-    // --- CART ---
+    // --- CART LOGIC ---
     @if(Auth::user()->role != 'admin')
     let cart = [];
     let isCartExpanded = false;
     let currentTotal = 0;
-    let lastOrderId = null; // Store order ID for printing
+    let lastOrderId = null; 
+    let orderType = 'dine_in';
+    const modifierModal = new bootstrap.Modal(document.getElementById('modifierModal'));
 
+    // 1. OPEN MODIFIER MODAL
     function addToCart(id, name, price) {
-        const existing = cart.find(item => item.id === id);
-        if (existing) { existing.quantity++; } 
-        else { cart.push({ id, name, price, quantity: 1 }); }
+        document.getElementById('modProductId').value = id;
+        document.getElementById('modProductName').value = name;
+        document.getElementById('modProductPrice').value = price;
+        document.getElementById('modifierModalTitle').innerText = name;
+        
+        // Reset Defaults
+        document.getElementById('sugar100').checked = true;
+        document.getElementById('iceNormal').checked = true;
+
+        modifierModal.show();
+    }
+
+    // 2. CONFIRM ADD TO CART
+    function confirmAddToCart() {
+        const id = parseInt(document.getElementById('modProductId').value);
+        const name = document.getElementById('modProductName').value;
+        const price = parseFloat(document.getElementById('modProductPrice').value);
+        
+        const sugar = document.querySelector('input[name="sugar"]:checked').value;
+        const ice = document.querySelector('input[name="ice"]:checked').value;
+        const modifiers = { sugar, ice };
+        
+        // Key to differentiate items with different options
+        const cartKey = `${id}-${sugar}-${ice}`;
+
+        const existing = cart.find(item => item.cartKey === cartKey);
+        
+        if (existing) {
+            existing.quantity++;
+        } else {
+            cart.push({ cartKey, id, name, price, quantity: 1, modifiers });
+        }
+
+        modifierModal.hide();
         renderCart();
     }
 
@@ -360,11 +454,20 @@
         cart.forEach((item, index) => {
             const itemTotal = item.price * item.quantity;
             total += itemTotal;
+
+            // Generate Modifier Text
+            let modText = '';
+            if(item.modifiers) {
+                if(item.modifiers.sugar !== '100%') modText += `<span class="badge bg-light text-secondary border me-1">Sugar: ${item.modifiers.sugar}</span>`;
+                if(item.modifiers.ice !== 'Normal') modText += `<span class="badge bg-light text-secondary border">Ice: ${item.modifiers.ice}</span>`;
+            }
+
             html += `
                 <div class="cart-item animate__animated animate__fadeInRight animate__faster">
                     <div style="min-width: 0; flex: 1;">
                         <div class="fw-bold text-dark text-truncate">${item.name}</div>
-                        <div class="small text-muted">₱${item.price}</div>
+                        <div class="small text-muted mb-1">₱${item.price}</div>
+                        <div style="font-size: 0.75rem;">${modText}</div>
                     </div>
                     <div class="d-flex align-items-center gap-3 ms-2">
                         <div class="qty-control">
@@ -383,7 +486,7 @@
     function updateTotals(subtotal) {
         const tax = subtotal * 0.12;
         const total = subtotal + tax;
-        currentTotal = total; // Store for checkout
+        currentTotal = total;
         document.getElementById('subtotal').innerText = '₱' + subtotal.toFixed(2);
         document.getElementById('tax').innerText = '₱' + tax.toFixed(2);
         document.getElementById('grand-total').innerText = '₱' + total.toFixed(2);
@@ -410,17 +513,13 @@
 
     function openCheckoutModal() {
         if(cart.length === 0) return alert('Cart is empty');
-        
-        // Reset fields
         document.getElementById('modalTotalAmount').innerText = '₱' + currentTotal.toFixed(2);
         cashInput.value = '';
         document.getElementById('changeAmount').innerText = '₱0.00';
-        
         checkoutModal.show();
         setTimeout(() => cashInput.focus(), 500); 
     }
 
-    // Real-time Change Calculation
     cashInput.addEventListener('keyup', calculateChange);
     cashInput.addEventListener('change', calculateChange);
 
@@ -428,7 +527,6 @@
         const cash = parseFloat(cashInput.value) || 0;
         const change = cash - currentTotal;
         const changeDisplay = document.getElementById('changeAmount');
-        
         if (change >= 0) {
             changeDisplay.innerText = '₱' + change.toFixed(2);
             changeDisplay.classList.remove('text-danger');
@@ -440,48 +538,30 @@
         }
     }
 
-    function setCash(amount) {
-        cashInput.value = amount;
-        calculateChange();
-    }
-
-    function setExactCash() {
-        cashInput.value = currentTotal.toFixed(2);
-        calculateChange();
-    }
+    function setCash(amount) { cashInput.value = amount; calculateChange(); }
+    function setExactCash() { cashInput.value = currentTotal.toFixed(2); calculateChange(); }
 
     function confirmPayment() {
         const cash = parseFloat(cashInput.value) || 0;
-        
-        if (cash < currentTotal) {
-            alert('Insufficient cash tendered!');
-            return;
-        }
+        if (cash < currentTotal) { alert('Insufficient cash tendered!'); return; }
 
-        // Proceed with checkout
         fetch('/checkout', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json', 'X-CSRF-TOKEN': '{{ csrf_token() }}' },
-            body: JSON.stringify({ cart })
+            body: JSON.stringify({ cart: cart, order_type: orderType })
         })
         .then(res => res.json())
         .then(data => {
             if(data.success) {
-                // 1. Save Data & Hide Checkout
                 lastOrderId = data.order_id;
                 checkoutModal.hide();
-
-                // 2. Populate Success Modal
                 document.getElementById('successTotal').innerText = document.getElementById('modalTotalAmount').innerText;
                 document.getElementById('successCash').innerText = '₱' + parseFloat(cashInput.value).toFixed(2);
                 document.getElementById('successChange').innerText = document.getElementById('changeAmount').innerText;
-
-                // 3. Clear Cart Data immediately so background updates
                 cart = []; renderCart();
                 if(window.innerWidth < 992 && isCartExpanded) toggleCart();
-
-                // 4. Show Success Modal
                 successModal.show();
+                printReceipt(); 
             } else {
                 alert('Error: ' + data.message);
             }
@@ -489,17 +569,14 @@
         .catch(err => console.error(err));
     }
 
-    // --- SUCCESS MODAL ACTIONS ---
     function printReceipt() {
         if(lastOrderId) {
             window.open('/orders/' + lastOrderId + '/receipt', '_blank');
         }
-        finishTransaction();
     }
 
     function finishTransaction() {
         successModal.hide();
-        // Reset Order ID
         lastOrderId = null;
     }
     @endif

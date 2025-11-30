@@ -6,15 +6,15 @@ use App\Http\Controllers\OrderController;
 use App\Http\Controllers\IngredientController;
 use App\Http\Controllers\TwoFactorController;
 use App\Http\Controllers\HomeController;
-use App\Http\Controllers\ShiftController; // <--- DON'T FORGET THIS IMPORT
-use App\Http\Controllers\ParkedOrderController; // <--- Import This
+use App\Http\Controllers\ShiftController; 
+use App\Http\Controllers\ParkedOrderController;
 use Illuminate\Support\Facades\Auth;
 
 Route::get('/', function () { return redirect('/login'); });
 
 Auth::routes();
 
-// 2FA Verification Routes (Must NOT use 'twofactor' middleware)
+// 2FA Verification Routes
 Route::middleware(['auth'])->group(function() {
     Route::get('verify/resend', [TwoFactorController::class, 'resend'])->name('verify.resend');
     Route::resource('verify', TwoFactorController::class)->only(['index', 'store']);
@@ -24,11 +24,17 @@ Route::middleware(['auth'])->group(function() {
 Route::middleware(['auth', 'twofactor'])->group(function () {
     Route::get('/orders', [OrderController::class, 'index'])->name('orders.index');
     Route::get('/home', [HomeController::class, 'index'])->name('home');
-    Route::get('/orders', [OrderController::class, 'index'])->name('orders.index');
     Route::get('/products', [ProductController::class, 'index'])->name('products.index');
     Route::post('/checkout', [OrderController::class, 'store'])->name('checkout');
     Route::get('/orders/{order}/receipt', [OrderController::class, 'downloadReceipt'])->name('orders.receipt');
     Route::post('/orders/{order}/void-request', [OrderController::class, 'requestVoid'])->name('orders.requestVoid');
+
+    // --- SHIFT MANAGEMENT ROUTES ---
+    // 1. The resource route for Create, Store, Edit, Update
+    Route::resource('shifts', ShiftController::class)->only(['create', 'store', 'edit', 'update']);
+    
+    // 2. The MISSING route that caused your error (Smart Logout)
+    Route::get('/logout-action', [ShiftController::class, 'handleLogout'])->name('logout.action');
 
     // --- PARKED ORDERS ROUTES ---
     Route::post('/park-order', [ParkedOrderController::class, 'store']);

@@ -98,7 +98,8 @@ class ShiftController extends Controller
 
         if ($activeShift) {
             // Redirect to Close Register screen instead of logging out
-            return redirect()->route('shifts.close', $activeShift->id)
+            // [FIXED]: Changed 'shifts.close' to 'shifts.edit' below
+            return redirect()->route('shifts.edit', $activeShift->id)
                              ->with('error', 'Please close your register before logging out.');
         }
 

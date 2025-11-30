@@ -109,11 +109,12 @@
         <div class="product-scroll-area">
             <div class="product-grid" id="productGrid">
                 @foreach($products as $product)
+                {{-- PASS THE CATEGORY NAME IN ONCLICK --}}
                 <div class="coffee-card product-item" 
                      data-name="{{ strtolower($product->name) }}"
                      data-category="{{ $product->category_id }}"
                      @if(Auth::user()->role != 'admin')
-                     onclick="addToCart({{ $product->id }}, '{{ $product->name }}', {{ $product->price }})"
+                     onclick="addToCart({{ $product->id }}, '{{ $product->name }}', {{ $product->price }}, '{{ $product->category->name ?? '' }}')"
                      @endif
                      >
                     <div class="card-img-box">
@@ -544,16 +545,43 @@
     function removeDiscount() { currentDiscount = { type: 'none', value: 0, name: '' }; discountModal.hide(); renderCart(); }
 
     // --- MODIFIER ---
-    function addToCart(id, name, price) {
-        document.getElementById('modProductId').value = id;
-        document.getElementById('modProductName').value = name;
-        document.getElementById('modProductPrice').value = price;
-        document.getElementById('modifierModalTitle').innerText = name;
-        document.getElementById('sugar100').checked = true;
-        document.getElementById('iceNormal').checked = true;
-        modifierModal.show();
+    // UPDATED: Now accepts category and skips modal for Pastries/Meals
+    function addToCart(id, name, price, category) {
+        const catLower = category.toLowerCase();
+        // Add categories that don't need customization here
+        const skipModifiers = ['pastry', 'pastries', 'meal', 'meals', 'dessert', 'food', 'snack']; 
+
+        if (skipModifiers.some(s => catLower.includes(s))) {
+            // DIRECT ADD TO CART (No Modifiers)
+            const cartKey = `${id}-nomod`; 
+            const existing = cart.find(item => item.cartKey === cartKey);
+            
+            if (existing) { 
+                existing.quantity++; 
+            } else { 
+                cart.push({ 
+                    cartKey, 
+                    id, 
+                    name, 
+                    price, 
+                    quantity: 1, 
+                    modifiers: null // Explicitly null
+                }); 
+            }
+            renderCart();
+        } else {
+            // SHOW MODIFIER MODAL (Drinks/Others)
+            document.getElementById('modProductId').value = id;
+            document.getElementById('modProductName').value = name;
+            document.getElementById('modProductPrice').value = price;
+            document.getElementById('modifierModalTitle').innerText = name;
+            document.getElementById('sugar100').checked = true;
+            document.getElementById('iceNormal').checked = true;
+            modifierModal.show();
+        }
     }
 
+    // Helper for confirm button in modal (still used for Drinks)
     function confirmAddToCart() {
         const id = parseInt(document.getElementById('modProductId').value);
         const name = document.getElementById('modProductName').value;
@@ -595,6 +623,7 @@
             const itemTotal = item.price * item.quantity;
             subtotal += itemTotal;
             let modText = '';
+            // Only show modifiers if they exist (not null)
             if(item.modifiers) {
                 if(item.modifiers.sugar !== '100%') modText += `<span class="badge bg-light text-secondary border me-1">Sugar: ${item.modifiers.sugar}</span>`;
                 if(item.modifiers.ice !== 'Normal') modText += `<span class="badge bg-light text-secondary border">Ice: ${item.modifiers.ice}</span>`;

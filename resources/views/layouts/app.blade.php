@@ -74,7 +74,7 @@
         .nav-pill-custom:hover { background-color: rgba(111, 78, 55, 0.08); color: var(--primary-coffee); }
         .nav-pill-custom.active { background-color: var(--primary-coffee); color: white; box-shadow: 0 4px 12px rgba(111, 78, 55, 0.25); }
 
-        /* --- PAGINATION CUSTOM (NEW ADDITION) --- */
+        /* --- PAGINATION CUSTOM --- */
         .pagination {
             justify-content: center;
             gap: 0.5rem;
@@ -223,13 +223,27 @@
                         @endif
                     </div>
                     <div class="vr d-none d-lg-block mx-1 opacity-25"></div>
+                    
+                    {{-- POS BUTTON --}}
                     <a href="{{ route('products.index') }}" class="btn btn-action btn-pos">
                         <i class="fas fa-cash-register"></i> <span class="d-none d-md-inline">Open POS</span>
                     </a>
-                    <a href="{{ route('logout') }}" class="btn btn-action btn-light text-danger border-0 justify-content-center" onclick="event.preventDefault(); document.getElementById('logout-form').submit();" title="Sign Out">
-                        <i class="fas fa-power-off"></i>
-                    </a>
-                    <form id="logout-form" action="{{ route('logout') }}" method="POST" class="d-none">@csrf</form>
+
+                    {{-- SMART LOGOUT BUTTON LOGIC --}}
+                    @if(Auth::user()->role === 'admin')
+                        {{-- Admin Logout: Normal --}}
+                        <a href="{{ route('logout') }}" class="btn btn-action btn-light text-danger border-0 justify-content-center" 
+                           onclick="event.preventDefault(); document.getElementById('logout-form').submit();" title="Sign Out">
+                            <i class="fas fa-power-off"></i>
+                        </a>
+                        <form id="logout-form" action="{{ route('logout') }}" method="POST" class="d-none">@csrf</form>
+                    @else
+                        {{-- Employee Logout: Triggers Shift Close --}}
+                        <a href="{{ route('logout.action') }}" class="btn btn-action btn-light text-danger border-0 justify-content-center" title="End Shift & Sign Out">
+                            <i class="fas fa-power-off"></i>
+                        </a>
+                    @endif
+
                 </div>
                 @endauth
             </div>
@@ -255,6 +269,9 @@
         @yield('content')
     </main>
 </div>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 @yield('scripts')

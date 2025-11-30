@@ -66,12 +66,9 @@ Route::middleware(['auth', 'twofactor', 'admin'])->group(function () {
     Route::resource('categories', CategoryController::class);
     Route::resource('ingredients', IngredientController::class);
     Route::resource('suppliers', SupplierController::class);
-<<<<<<< HEAD
     Route::post('/ingredients/{ingredient}/restock', [IngredientController::class, 'restock'])->name('ingredients.restock');
     Route::get('/ingredients/{ingredient}/history', [IngredientController::class, 'history'])->name('ingredients.history');
     Route::resource('suppliers', App\Http\Controllers\SupplierController::class);
-=======
->>>>>>> b3ca99ddefa3fef3cfea4198400f1ff8bd18a02a
     
     // USER MANAGEMENT (NEW - STRICTLY CONTROLLED)
     Route::resource('users', UserController::class); 

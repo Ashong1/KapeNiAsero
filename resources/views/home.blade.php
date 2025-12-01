@@ -331,12 +331,23 @@
                 </div>
             </div>
 
-            {{-- 2. Active Staff --}}
+            {{-- 2. Active Staff + ADD BUTTON --}}
             <div class="card card-custom mb-4">
                 <div class="table-card-header bg-success-subtle bg-opacity-10">
-                    <h5 class="m-0 fw-bold text-success"><i class="fas fa-users me-2"></i>On Duty</h5>
-                    <span class="badge bg-success rounded-pill">{{ $activeStaff->count() }}</span>
+                    {{-- Updated Header Layout --}}
+                    <div class="d-flex align-items-center gap-2">
+                        <h5 class="m-0 fw-bold text-success"><i class="fas fa-users me-2"></i>On Duty</h5>
+                        <span class="badge bg-success rounded-pill">{{ $activeStaff->count() }}</span>
+                    </div>
+
+                    {{-- ADMIN ONLY: Add Staff Button --}}
+                    @if(Auth::user()->role === 'admin')
+                        <a href="{{ route('users.create') }}" class="btn btn-sm bg-white text-success border border-success-subtle shadow-sm rounded-pill fw-bold px-3" style="font-size: 0.75rem;">
+                            <i class="fas fa-user-plus me-1"></i> Add New
+                        </a>
+                    @endif
                 </div>
+                
                 <div class="list-group list-group-flush">
                     @forelse($activeStaff as $shift)
                     <div class="list-group-item p-3 border-light d-flex align-items-center">

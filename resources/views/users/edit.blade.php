@@ -52,6 +52,8 @@
                         </div>
                     </div>
 
+                    {{-- RESTRICTION: Only show Password Change fields if the user is editing THEMSELVES --}}
+                    @if(Auth::id() === $user->id)
                     <div class="mb-4 bg-light p-3 rounded-3 border">
                         <label class="form-label text-secondary small fw-bold text-uppercase mb-3"><i class="fas fa-lock me-1"></i> Change Password</label>
                         <p class="small text-muted mb-3">Leave these fields blank if you don't want to change the password.</p>
@@ -68,6 +70,13 @@
                             </div>
                         </div>
                     </div>
+                    @else
+                    <div class="alert alert-secondary small">
+                        <i class="fas fa-info-circle me-1"></i> 
+                        For security reasons, you cannot change this user's password directly. 
+                        If they have forgotten their password, please ask them to use the "Forgot Password" link on the login page.
+                    </div>
+                    @endif
 
                     <div class="d-grid gap-2">
                         <button type="submit" class="btn btn-primary-coffee py-2 fw-bold shadow-sm">

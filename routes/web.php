@@ -13,7 +13,7 @@ use App\Http\Controllers\SupplierController;
 use App\Http\Controllers\ShiftController; 
 use App\Http\Controllers\ParkedOrderController;
 use App\Http\Controllers\TwoFactorController;
-use App\Http\Controllers\UserController; // Import User Controller
+use App\Http\Controllers\UserController; 
 
 // NEW FEATURES
 use App\Http\Controllers\ReportController; 
@@ -22,7 +22,8 @@ use App\Http\Controllers\SettingController;
 
 Route::get('/', function () { return redirect('/login'); });
 
-Auth::routes();
+// DISABLE REGISTRATION: Pass ['register' => false] to Auth::routes()
+Auth::routes(['register' => false]);
 
 // --- 2FA VERIFICATION ROUTES ---
 Route::middleware(['auth'])->group(function() {
@@ -48,7 +49,6 @@ Route::middleware(['auth', 'twofactor'])->group(function () {
     Route::post('/orders/{order}/void-request', [OrderController::class, 'requestVoid'])->name('orders.requestVoid');
 
     // Shift Management 
-    // 'index' is for Admins (History), others are for Employees (Actions)
     Route::resource('shifts', ShiftController::class)->only(['index', 'create', 'store', 'edit', 'update']);
     Route::get('/logout-action', [ShiftController::class, 'handleLogout'])->name('logout.action');
 
@@ -70,7 +70,7 @@ Route::middleware(['auth', 'twofactor', 'admin'])->group(function () {
     Route::get('/ingredients/{ingredient}/history', [IngredientController::class, 'history'])->name('ingredients.history');
     Route::resource('suppliers', App\Http\Controllers\SupplierController::class);
     
-    // USER MANAGEMENT (NEW - STRICTLY CONTROLLED)
+    // USER MANAGEMENT (Admins add users here)
     Route::resource('users', UserController::class); 
 
     // Product Management (Full Access)
@@ -88,7 +88,6 @@ Route::middleware(['auth', 'twofactor', 'admin'])->group(function () {
     Route::post('/orders/{order}/void', [OrderController::class, 'voidOrder'])->name('orders.void');
 
     // --- NEW FEATURES ---
-
     // 1. Reports
     Route::get('/reports', [ReportController::class, 'index'])->name('reports.index');
     Route::get('/reports/export', [ReportController::class, 'export'])->name('reports.export');
@@ -99,4 +98,4 @@ Route::middleware(['auth', 'twofactor', 'admin'])->group(function () {
     // 3. System Settings
     Route::get('/settings', [SettingController::class, 'index'])->name('settings.index');
     Route::put('/settings', [SettingController::class, 'update'])->name('settings.update');
-}); 
+});

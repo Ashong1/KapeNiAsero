@@ -94,8 +94,9 @@ class UserController extends Controller
         $user->email = $request->email;
         $user->role = $request->role;
 
-        // Only update password if a new one is provided
-        if ($request->filled('password')) {
+        // 3. Only update password if provided AND it is the user updating themselves
+        // Admins cannot change the password of other users (Employees) here.
+        if ($request->filled('password') && $user->id === Auth::id()) {
             $user->password = Hash::make($request->password);
         }
 

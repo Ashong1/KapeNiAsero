@@ -39,9 +39,8 @@
         
         .brand-content { position: relative; z-index: 2; text-align: center; }
         
-        /* INCREASED LOGO SIZE */
         .logo-img { 
-            width: 180px; /* Increased size */
+            width: 180px; 
             margin-bottom: 2rem; 
             filter: drop-shadow(0 8px 16px rgba(0,0,0,0.3)); 
             transition: transform 0.5s ease;
@@ -143,9 +142,7 @@
                     Sign In <i class="fas fa-arrow-right ms-2"></i>
                 </button>
 
-                <p class="text-center mt-4 small text-secondary">
-                    New Employee? <a href="{{ route('register') }}" class="auth-link">Create Account</a>
-                </p>
+                {{-- REMOVED "New Employee?" Link --}}
             </form>
         </div>
     </div>

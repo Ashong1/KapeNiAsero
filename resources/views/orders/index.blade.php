@@ -9,15 +9,24 @@
     .status-voided { background-color: #FFEBEE; color: #C62828; border: 1px solid #FFCDD2; }
     
     /* Action Buttons */
-    .btn-icon { width: 34px; height: 34px; display: inline-flex; align-items: center; justify-content: center; border-radius: 10px; transition: all 0.2s cubic-bezier(0.25, 0.8, 0.25, 1); border: none; font-size: 0.9rem; margin-left: 4px; text-decoration: none; }
+    .btn-icon { 
+        width: 34px; height: 34px; display: inline-flex; align-items: center; justify-content: center; 
+        border-radius: 10px; transition: all 0.2s cubic-bezier(0.25, 0.8, 0.25, 1); border: none; 
+        font-size: 0.9rem; margin-left: 4px; text-decoration: none; 
+        cursor: pointer; /* [ADDED] Makes it look clickable */
+    }
     .btn-icon-print { background-color: #F3F4F6; color: #4B5563; }
     .btn-icon-print:hover { background-color: var(--primary-coffee); color: white; transform: translateY(-2px); }
+    
     .btn-icon-void { background-color: #FEF2F2; color: #DC2626; }
     .btn-icon-void:hover { background-color: #DC2626; color: white; transform: translateY(-2px); box-shadow: 0 4px 10px rgba(220, 38, 38, 0.2); }
+    
     .btn-icon-request { background-color: #FFFBEB; color: #D97706; }
     .btn-icon-request:hover { background-color: #D97706; color: white; transform: translateY(-2px); }
+    
     .btn-icon-approve { background-color: #ECFDF5; color: #059669; }
     .btn-icon-approve:hover { background-color: #059669; color: white; transform: translateY(-2px); }
+    
     .btn-icon-disabled { background-color: #F3F4F6; color: #9CA3AF; cursor: not-allowed; }
 
     /* Header Styles */
@@ -42,13 +51,13 @@
     /* --- PAGINATION STYLING (BRAND SYNC) --- */
     .pagination {
         margin-bottom: 0;
-        gap: 5px; /* Adds space between buttons */
+        gap: 5px; 
     }
     
     .page-link {
         color: var(--primary-coffee);
         border: 1px solid transparent;
-        border-radius: 8px; /* Rounded squares to match theme */
+        border-radius: 8px; 
         font-weight: 600;
         padding: 0.5rem 0.85rem;
         transition: all 0.2s ease;
@@ -131,17 +140,20 @@
                             </td>
                             <td class="text-end pe-4">
                                 <div class="d-flex justify-content-end align-items-center">
+                                    {{-- Print Button --}}
                                     <a href="{{ route('orders.receipt', $order->id) }}" class="btn-icon btn-icon-print" target="_blank" title="Print Receipt">
                                         <i class="fas fa-print"></i>
                                     </a>
 
                                     @if($order->status == 'completed')
                                         @if(Auth::user()->role === 'admin')
+                                            {{-- Admin: Void Button --}}
                                             <form action="{{ route('orders.void', $order->id) }}" method="POST" class="d-inline confirm-void-form" data-id="{{ $order->id }}">
                                                 @csrf
                                                 <button type="submit" class="btn-icon btn-icon-void" title="Void Order"><i class="fas fa-ban"></i></button>
                                             </form>
                                         @else
+                                            {{-- Employee: Request Void Button --}}
                                             <form action="{{ route('orders.requestVoid', $order->id) }}" method="POST" class="d-inline confirm-request-form" data-id="{{ $order->id }}">
                                                 @csrf
                                                 <button type="submit" class="btn-icon btn-icon-request" title="Request Void"><i class="fas fa-flag"></i></button>
@@ -149,11 +161,13 @@
                                         @endif
                                     @elseif($order->status == 'void_pending')
                                         @if(Auth::user()->role === 'admin')
+                                            {{-- Admin: Approve Void --}}
                                             <form action="{{ route('orders.void', $order->id) }}" method="POST" class="d-inline confirm-approve-form" data-id="{{ $order->id }}">
                                                 @csrf
                                                 <button type="submit" class="btn-icon btn-icon-approve" title="Approve Void"><i class="fas fa-check"></i></button>
                                             </form>
                                         @else
+                                            {{-- Employee: Disabled --}}
                                             <button class="btn-icon btn-icon-disabled" disabled title="Waiting for Approval"><i class="fas fa-hourglass-half"></i></button>
                                         @endif
                                     @endif
@@ -183,24 +197,41 @@
 </div>
 
 @section('scripts')
+{{-- [ADDED] SweetAlert2 Library --}}
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+
 <script>
     document.addEventListener('DOMContentLoaded', function() {
+        // Universal function to handle confirmation popups
         function setupAlert(selector, title, text, btnText, btnColor) {
             document.querySelectorAll(selector).forEach(form => {
                 form.addEventListener('submit', function(e) {
-                    e.preventDefault();
-                    Swal.fire({
-                        title: title,
-                        text: text.replace(':id', this.getAttribute('data-id')),
-                        icon: 'warning',
-                        showCancelButton: true,
-                        confirmButtonColor: btnColor,
-                        cancelButtonText: 'Cancel',
-                        confirmButtonText: btnText
-                    }).then((r) => { if(r.isConfirmed) form.submit(); });
+                    e.preventDefault(); // Stop default form submit
+                    
+                    // Check if Swal is loaded properly
+                    if (typeof Swal !== 'undefined') {
+                        Swal.fire({
+                            title: title,
+                            text: text.replace(':id', this.getAttribute('data-id')),
+                            icon: 'warning',
+                            showCancelButton: true,
+                            confirmButtonColor: btnColor,
+                            cancelButtonText: 'Cancel',
+                            confirmButtonText: btnText
+                        }).then((r) => { 
+                            if(r.isConfirmed) form.submit(); // Submit only if confirmed
+                        });
+                    } else {
+                        // Browser default fallback
+                        if(confirm(title + "\n" + text.replace(':id', this.getAttribute('data-id')))) {
+                            form.submit();
+                        }
+                    }
                 });
             });
         }
+
+        // Attach alerts to specific forms
         setupAlert('.confirm-void-form', 'Void Order?', 'This will void Order #:id and return items to stock.', 'Yes, Void it', '#DC2626');
         setupAlert('.confirm-request-form', 'Request Void?', 'Submit a void request for Order #:id?', 'Submit Request', '#D97706');
         setupAlert('.confirm-approve-form', 'Approve Void?', 'Approve pending void for Order #:id?', 'Approve', '#059669');

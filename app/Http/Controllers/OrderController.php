@@ -6,9 +6,11 @@ use Illuminate\Http\Request;
 use App\Models\Order;
 use App\Models\OrderItem;
 use App\Models\Product;
+use App\Models\ActivityLog; // [IMPORTED] Fixed missing import
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Http; 
 use Barryvdh\DomPDF\Facade\Pdf; 
+use Illuminate\Support\Facades\Auth;
 
 class OrderController extends Controller
 {
@@ -122,8 +124,14 @@ class OrderController extends Controller
             if ($request->payment_mode === 'cash') {
                 $order->update(['status' => 'completed']);
                 DB::commit();
-                // Calls logActivity from Parent Controller
-                $this->logActivity('New Order', "Order #{$order->id} (Cash) - Total: {$order->total_price}");
+                
+                // [FIXED] Log directly using Model
+                ActivityLog::create([
+                    'user_id' => auth()->id(),
+                    'action' => 'New Order',
+                    'details' => "Order #{$order->id} (Cash) - Total: {$order->total_price}"
+                ]);
+
                 return response()->json(['success' => true, 'message' => 'Order complete!', 'order_id' => $order->id]);
             } else {
                 // --- PAYMONGO INTEGRATION ---
@@ -175,8 +183,13 @@ class OrderController extends Controller
     {
         if ($order->status === 'pending') {
             $order->update(['status' => 'completed']);
-            // Calls logActivity from Parent Controller
-            $this->logActivity('New Order', "Order #{$order->id} ({$order->payment_mode}) - Total: {$order->total_price}");
+            
+            // [FIXED] Log directly using Model
+            ActivityLog::create([
+                'user_id' => auth()->id(),
+                'action' => 'New Order',
+                'details' => "Order #{$order->id} ({$order->payment_mode}) - Total: {$order->total_price}"
+            ]);
         }
         
         return redirect()->route('orders.index')->with('success', "Payment Successful! Order #{$order->id} is completed.");
@@ -199,8 +212,13 @@ class OrderController extends Controller
 
         $order->update(['status' => 'void_pending']);
         $employeeName = auth()->user()->name;
-        // Calls logActivity from Parent Controller
-        $this->logActivity('Void Requested', "Void requested for Order #{$order->id} by {$employeeName}");
+
+        // [FIXED] Log directly using Model
+        ActivityLog::create([
+            'user_id' => auth()->id(),
+            'action' => 'Void Requested',
+            'details' => "Void requested for Order #{$order->id} by {$employeeName}"
+        ]);
 
         return redirect()->back()->with('success', 'Void request submitted for Admin approval.');
     }
@@ -223,8 +241,13 @@ class OrderController extends Controller
         }
 
         $order->update(['status' => 'voided']);
-        // Calls logActivity from Parent Controller
-        $this->logActivity('Void Order', "Voided Order #{$order->id}");
+        
+        // [FIXED] Log directly using Model
+        ActivityLog::create([
+            'user_id' => auth()->id(),
+            'action' => 'Void Order',
+            'details' => "Voided Order #{$order->id}"
+        ]);
 
         return redirect()->back()->with('success', "Order #{$order->id} has been voided and inventory restored.");
     }

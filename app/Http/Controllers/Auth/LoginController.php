@@ -4,8 +4,6 @@ namespace App\Http\Controllers\Auth;
 
 use App\Http\Controllers\Controller;
 use Illuminate\Foundation\Auth\AuthenticatesUsers;
-use Illuminate\Support\Facades\Mail;
-use App\Mail\TwoFactorCode;
 
 class LoginController extends Controller
 {
@@ -38,19 +36,5 @@ class LoginController extends Controller
     {
         $this->middleware('guest')->except('logout');
         $this->middleware('auth')->only('logout');
-    }
-    protected function authenticated(\Illuminate\Http\Request $request, $user)
-    {
-        $user->generateTwoFactorCode();
-        
-        // SEND REAL EMAIL
-        try {
-            Mail::to($user->email)->send(new TwoFactorCode($user->two_factor_code));
-        } catch (\Exception $e) {
-            \Log::error("Mail Error: " . $e->getMessage());
-            // Continue anyway so the user isn't stuck if internet is slow
-        }
-
-        return redirect()->route('verify.index');
     }
 }

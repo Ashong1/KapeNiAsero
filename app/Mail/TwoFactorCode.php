@@ -22,7 +22,7 @@ class TwoFactorCode extends Mailable
     public function envelope(): Envelope
     {
         return new Envelope(
-            subject: 'Your Login Code - Kape Ni Asero',
+            subject: 'Reset Password Verification - Kape Ni Asero',
         );
     }
 

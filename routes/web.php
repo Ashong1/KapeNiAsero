@@ -12,8 +12,8 @@ use App\Http\Controllers\CategoryController;
 use App\Http\Controllers\SupplierController;
 use App\Http\Controllers\ShiftController; 
 use App\Http\Controllers\ParkedOrderController;
-use App\Http\Controllers\TwoFactorController;
 use App\Http\Controllers\UserController; 
+use App\Http\Controllers\Auth\ForgotPasswordController; // Added Import
 
 // NEW FEATURES
 use App\Http\Controllers\ReportController; 
@@ -22,18 +22,16 @@ use App\Http\Controllers\SettingController;
 
 Route::get('/', function () { return redirect('/login'); });
 
-// DISABLE REGISTRATION: Pass ['register' => false] to Auth::routes()
+// DISABLE REGISTRATION
 Auth::routes(['register' => false]);
 
-// --- 2FA VERIFICATION ROUTES ---
-Route::middleware(['auth'])->group(function() {
-    Route::get('verify/resend', [TwoFactorController::class, 'resend'])->name('verify.resend');
-    Route::resource('verify', TwoFactorController::class)->only(['index', 'store']);
-});
+// --- PASSWORD RESET OTP ROUTES ---
+Route::get('password/otp', [ForgotPasswordController::class, 'showOtpForm'])->name('password.otp');
+Route::post('password/otp', [ForgotPasswordController::class, 'verifyOtp'])->name('password.verifyOtp');
 
-// --- GENERAL ACCESS (Employees & Admins) ---
-// Requires Login + 2FA
-Route::middleware(['auth', 'twofactor'])->group(function () {
+
+// --- GENERAL ACCESS ---
+Route::middleware(['auth'])->group(function () {
     
     // Dashboard & POS
     Route::get('/home', [HomeController::class, 'index'])->name('home');
@@ -60,7 +58,7 @@ Route::middleware(['auth', 'twofactor'])->group(function () {
 });
 
 // --- ADMIN ONLY ROUTES ---
-Route::middleware(['auth', 'twofactor', 'admin'])->group(function () {
+Route::middleware(['auth', 'admin'])->group(function () {
     
     // Master Data Management
     Route::resource('categories', CategoryController::class);
@@ -68,19 +66,18 @@ Route::middleware(['auth', 'twofactor', 'admin'])->group(function () {
     Route::resource('suppliers', SupplierController::class);
     Route::post('/ingredients/{ingredient}/restock', [IngredientController::class, 'restock'])->name('ingredients.restock');
     Route::get('/ingredients/{ingredient}/history', [IngredientController::class, 'history'])->name('ingredients.history');
-    Route::resource('suppliers', App\Http\Controllers\SupplierController::class);
     
-    // USER MANAGEMENT (Admins add users here)
+    // USER MANAGEMENT
     Route::resource('users', UserController::class); 
 
-    // Product Management (Full Access)
+    // Product Management
     Route::get('/products/create', [ProductController::class, 'create'])->name('products.create');
     Route::post('/products', [ProductController::class, 'store'])->name('products.store');
     Route::get('/products/{product}/edit', [ProductController::class, 'edit'])->name('products.edit');
     Route::put('/products/{product}', [ProductController::class, 'update'])->name('products.update');
     Route::delete('/products/{product}', [ProductController::class, 'destroy'])->name('products.destroy');
     
-    // Product Ingredients (Recipe)
+    // Product Ingredients
     Route::post('/products/{product}/ingredient', [ProductController::class, 'addIngredient'])->name('products.addIngredient');
     Route::delete('/products/{product}/ingredient/{ingredient}', [ProductController::class, 'removeIngredient'])->name('products.removeIngredient');
 
@@ -88,14 +85,9 @@ Route::middleware(['auth', 'twofactor', 'admin'])->group(function () {
     Route::post('/orders/{order}/void', [OrderController::class, 'voidOrder'])->name('orders.void');
 
     // --- NEW FEATURES ---
-    // 1. Reports
     Route::get('/reports', [ReportController::class, 'index'])->name('reports.index');
     Route::get('/reports/export', [ReportController::class, 'export'])->name('reports.export');
-
-    // 2. Audit Logs
     Route::get('/activity-logs', [ActivityLogController::class, 'index'])->name('activity-logs.index');
-
-    // 3. System Settings
     Route::get('/settings', [SettingController::class, 'index'])->name('settings.index');
     Route::put('/settings', [SettingController::class, 'update'])->name('settings.update');
 });

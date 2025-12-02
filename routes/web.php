@@ -55,6 +55,7 @@ Route::middleware(['auth'])->group(function () {
     Route::get('/parked-orders', [ParkedOrderController::class, 'index']);
     Route::get('/parked-orders/{order}/retrieve', [ParkedOrderController::class, 'retrieve']);
     Route::delete('/parked-orders/{order}', [ParkedOrderController::class, 'destroy']);
+    Route::put('/parked-orders/{order}', [ParkedOrderController::class, 'update']);
 });
 
 // --- ADMIN ONLY ROUTES ---

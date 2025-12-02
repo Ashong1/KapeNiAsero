@@ -17,40 +17,36 @@ class ReportController extends Controller
         $startDate = $request->input('start_date', Carbon::now()->startOfMonth()->toDateString());
         $endDate = $request->input('end_date', Carbon::now()->endOfMonth()->toDateString());
 
-        // Parse dates for Carbon (add end of day for the end date to catch all orders)
-        $start = Carbon::parse($startDate)->startOfDay();
-        $end = Carbon::parse($endDate)->endOfDay();
-
-        // 1. Summary Stats
-        $orders = Order::whereBetween('created_at', [$start, $end])
-                       ->where('status', 'completed');
+        // 1. Summary Stats (Using Scopes)
+        $orders = Order::completed()->dateRange($startDate, $endDate);
 
         $totalSales = $orders->sum('total_price');
         $totalOrders = $orders->count();
         $averageOrderValue = $totalOrders > 0 ? $totalSales / $totalOrders : 0;
+        
+        // Clone query for payment modes to avoid resetting the main query builder
         $cashSales = (clone $orders)->where('payment_mode', 'cash')->sum('total_price');
         $digitalSales = (clone $orders)->whereIn('payment_mode', ['gcash', 'card', 'paymaya'])->sum('total_price');
 
         // 2. Best Sellers (Product Performance)
-        $bestSellers = OrderItem::whereHas('order', function($q) use ($start, $end) {
-                                    $q->whereBetween('created_at', [$start, $end])
-                                      ->where('status', 'completed');
+        $bestSellers = OrderItem::whereHas('order', function($q) use ($startDate, $endDate) {
+                                    $q->completed()->dateRange($startDate, $endDate);
                                 })
                                 ->select(
                                     'product_id', 
                                     DB::raw('SUM(quantity) as total_qty'), 
                                     DB::raw('SUM(price * quantity) as total_revenue')
                                 )
-                                ->with('product') // Eager load product name
+                                ->with('product')
                                 ->groupBy('product_id')
                                 ->orderByDesc('total_qty')
-                                ->take(10) // Top 10
+                                ->take(10)
                                 ->get();
 
         // 3. Recent Orders List for the Table
         $reportOrders = Order::with('user')
-                             ->whereBetween('created_at', [$start, $end])
-                             ->where('status', 'completed')
+                             ->completed()
+                             ->dateRange($startDate, $endDate)
                              ->latest()
                              ->get();
 
@@ -64,14 +60,12 @@ class ReportController extends Controller
     {
         $startDate = $request->input('start_date', Carbon::now()->startOfMonth()->toDateString());
         $endDate = $request->input('end_date', Carbon::now()->endOfMonth()->toDateString());
-        $type = $request->input('type', 'csv'); // csv or pdf
+        $type = $request->input('type', 'csv'); 
 
-        $start = Carbon::parse($startDate)->startOfDay();
-        $end = Carbon::parse($endDate)->endOfDay();
-
+        // Use Scopes for cleaner query
         $orders = Order::with('user')
-                       ->whereBetween('created_at', [$start, $end])
-                       ->where('status', 'completed')
+                       ->completed()
+                       ->dateRange($startDate, $endDate)
                        ->latest()
                        ->get();
 
@@ -90,11 +84,14 @@ class ReportController extends Controller
             $callback = function() use ($orders) {
                 $file = fopen('php://output', 'w');
                 
-                // Header Row
+                // Header
                 fputcsv($file, ['Order ID', 'Date', 'Cashier', 'Payment Mode', 'Subtotal', 'Discount', 'Total']);
 
-                // Data Rows
+                $grandTotal = 0;
+
+                // Data
                 foreach ($orders as $order) {
+                    $grandTotal += $order->total_price;
                     fputcsv($file, [
                         $order->id,
                         $order->created_at->format('Y-m-d H:i:s'),
@@ -105,6 +102,10 @@ class ReportController extends Controller
                         number_format($order->total_price, 2, '.', '')
                     ]);
                 }
+
+                // Summary Row (Bonus Feature)
+                fputcsv($file, ['', '', '', '', '', 'GRAND TOTAL:', number_format($grandTotal, 2, '.', '')]);
+
                 fclose($file);
             };
 

@@ -118,14 +118,24 @@
                     <i class="fas fa-envelope input-group-icon"></i>
                     <input type="email" name="email" class="form-control @error('email') is-invalid @enderror" 
                            placeholder="Email Address" value="{{ old('email') }}" required autofocus>
-                    @error('email')<span class="text-danger small mt-1 d-block">{{ $message }}</span>@enderror
+                    
+                    {{-- CHANGED: Loop through ALL errors to show both the failure message and the attempts left --}}
+                    @if ($errors->has('email'))
+                        @foreach ($errors->get('email') as $message)
+                            <span class="text-danger small mt-1 d-block">
+                                <i class="fas fa-exclamation-circle me-1"></i> {{ $message }}
+                            </span>
+                        @endforeach
+                    @endif
                 </div>
 
                 <div class="position-relative">
                     <i class="fas fa-lock input-group-icon"></i>
                     <input type="password" name="password" class="form-control @error('password') is-invalid @enderror" 
                            placeholder="Password" required>
-                    @error('password')<span class="text-danger small mt-1 d-block">{{ $message }}</span>@enderror
+                    @error('password')
+                        <span class="text-danger small mt-1 d-block">{{ $message }}</span>
+                    @enderror
                 </div>
 
                 <div class="d-flex justify-content-between align-items-center mb-4">
@@ -141,8 +151,6 @@
                 <button type="submit" class="btn-coffee">
                     Sign In <i class="fas fa-arrow-right ms-2"></i>
                 </button>
-
-                {{-- REMOVED "New Employee?" Link --}}
             </form>
         </div>
     </div>

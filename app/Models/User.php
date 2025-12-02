@@ -20,9 +20,9 @@ class User extends Authenticatable
         'name',
         'email',
         'password',
-        'role',                 // Your custom role column
-        'two_factor_code',      // 2FA Code column
-        'two_factor_expires_at' // 2FA Expiry column
+        'role',                 
+        'two_factor_code',      
+        'two_factor_expires_at' 
     ];
 
     /**
@@ -43,10 +43,10 @@ class User extends Authenticatable
     protected $casts = [
         'email_verified_at' => 'datetime',
         'password' => 'hashed',
-        'two_factor_expires_at' => 'datetime', // Fixes the "lt()" error
+        'two_factor_expires_at' => 'datetime', 
     ];
 
-    // --- MISSING FUNCTIONS BELOW ---
+    // --- UPDATED FUNCTION BELOW ---
 
     /**
      * Generates a new code and saves it to the database.
@@ -55,7 +55,10 @@ class User extends Authenticatable
     {
         $this->timestamps = false; // Prevent updating 'updated_at'
         $this->two_factor_code = rand(100000, 999999);
-        $this->two_factor_expires_at = now()->addMinutes(10);
+        
+        // CHANGED: Expiry set to 3 minutes
+        $this->two_factor_expires_at = now()->addMinutes(3);
+        
         $this->save();
     }
 

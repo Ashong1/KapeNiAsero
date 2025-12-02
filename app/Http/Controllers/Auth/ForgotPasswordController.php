@@ -24,7 +24,6 @@ class ForgotPasswordController extends Controller
 
     /**
      * 1. Display the form to request a password reset link.
-     * (This fixes the "Method not found" error)
      */
     public function showLinkRequestForm()
     {
@@ -33,7 +32,7 @@ class ForgotPasswordController extends Controller
 
     /**
      * 2. Handle the "Send Reset Link" form submission.
-     * Instead of sending a link, we generate an OTP and send it.
+     * Modified to BLOCK Admins from using this feature.
      */
     public function sendResetLinkEmail(Request $request)
     {
@@ -41,9 +40,15 @@ class ForgotPasswordController extends Controller
 
         $user = User::where('email', $request->email)->first();
 
-        // If user doesn't exist, return error (Standard Laravel behavior)
+        // If user doesn't exist, return error
         if (!$user) {
             return back()->withErrors(['email' => 'We can\'t find a user with that e-mail address.']);
+        }
+
+        // --- NEW SECURITY CHECK ---
+        // Prevent Admins from resetting password via email
+        if ($user->role === 'admin') {
+            return back()->withErrors(['email' => 'Admins cannot reset passwords via email. Please contact support.']);
         }
 
         // Generate OTP using the User model function
@@ -70,7 +75,6 @@ class ForgotPasswordController extends Controller
 
     /**
      * 4. Verify the OTP.
-     * If valid, generate a token and redirect to the actual Password Reset form.
      */
     public function verifyOtp(Request $request)
     {
@@ -94,7 +98,6 @@ class ForgotPasswordController extends Controller
             $user->resetTwoFactorCode();
             
             // Generate a valid Password Reset Token for the user
-            // This allows us to use the standard "Reset Password" form securely
             $token = Password::createToken($user);
             
             // Redirect to the password reset form with the token

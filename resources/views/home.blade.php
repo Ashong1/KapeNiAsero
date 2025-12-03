@@ -8,7 +8,7 @@
         background: white; box-shadow: 0 10px 40px -10px rgba(0,0,0,0.08);
         transition: transform 0.3s cubic-bezier(0.34, 1.56, 0.64, 1), box-shadow 0.3s;
         height: 100%;
-        cursor: pointer; /* Makes cards look clickable */
+        cursor: pointer;
     }
     .kpi-card:hover { transform: translateY(-5px); box-shadow: 0 15px 50px -10px rgba(0,0,0,0.12); }
     
@@ -46,34 +46,27 @@
         background-color: var(--surface-bg); color: var(--primary-coffee);
     }
 
-    /* --- BRANDED ACTION BUTTONS --- */
+    /* Buttons */
     .btn-icon { 
         width: 32px; height: 32px; display: inline-flex; align-items: center; justify-content: center; 
         border-radius: 10px; transition: all 0.2s cubic-bezier(0.25, 0.8, 0.25, 1); 
         border: none; font-size: 0.85rem; margin-left: 4px; text-decoration: none; 
         cursor: pointer;
     }
-    
     .btn-icon-print { background-color: #F3F4F6; color: #4B5563; }
     .btn-icon-print:hover { background-color: var(--primary-coffee); color: white; transform: translateY(-2px); }
 
-    /* Custom Buttons for Shift/Stock */
     .btn-brand-coffee { background: var(--primary-coffee); color: white; border: none; box-shadow: 0 4px 10px rgba(111, 78, 55, 0.2); transition: all 0.2s; cursor: pointer; }
     .btn-brand-coffee:hover { background: var(--primary-coffee-hover); color: white; transform: translateY(-2px); box-shadow: 0 6px 15px rgba(111, 78, 55, 0.3); }
 
     .btn-brand-danger { background: #DC2626; color: white; border: none; box-shadow: 0 4px 10px rgba(220, 38, 38, 0.2); transition: all 0.2s; cursor: pointer; }
     .btn-brand-danger:hover { background: #B91C1C; color: white; transform: translateY(-2px); }
 
-    .btn-brand-outline-danger { background: transparent; border: 1px solid #DC2626; color: #DC2626; transition: all 0.2s; cursor: pointer; }
-    .btn-brand-outline-danger:hover { background: #FEF2F2; color: #B91C1C; }
-
-    /* Rank Badges for Best Sellers */
     .rank-badge { width: 24px; height: 24px; display: inline-flex; align-items: center; justify-content: center; border-radius: 50%; font-size: 0.75rem; font-weight: bold; margin-right: 10px; }
     .rank-1 { background-color: #FEF08A; color: #854D0E; border: 1px solid #FDE047; }
     .rank-2 { background-color: #E5E7EB; color: #374151; border: 1px solid #D1D5DB; }
     .rank-3 { background-color: #FDBA74; color: #9A3412; border: 1px solid #FB923C; }
     
-    /* Hover effects for clickable cards */
     .card-link { text-decoration: none; color: inherit; display: block; height: 100%; }
     .card-link:hover { text-decoration: none; color: inherit; }
 </style>
@@ -95,7 +88,7 @@
         </div>
     </div>
     
-    {{-- SHIFT STATUS ALERT (EMPLOYEES ONLY) --}}
+    {{-- SHIFT STATUS ALERT --}}
     @if(Auth::user()->role !== 'admin')
         <div class="mb-4">
             @if(isset($activeShift))
@@ -105,7 +98,6 @@
                         <strong>Register OPEN</strong> 
                         <span class="text-muted ms-2 small">Started: {{ $activeShift->started_at->format('M d, h:i A') }}</span>
                     </div>
-                    {{-- End Shift with Confirmation --}}
                     <a href="{{ route('shifts.edit', $activeShift->id) }}" id="btn-end-shift" class="btn btn-sm btn-brand-danger fw-bold rounded-pill px-3">
                         End Shift
                     </a>
@@ -117,7 +109,6 @@
                         <strong>Register CLOSED</strong> 
                         <span class="text-muted ms-2 small">You must open the register to record sales accurately.</span>
                     </div>
-                    {{-- Open Register --}}
                     <a href="{{ route('shifts.create') }}" class="btn btn-sm btn-brand-coffee fw-bold rounded-pill px-3">
                         Open Register
                     </a>
@@ -126,10 +117,9 @@
         </div>
     @endif
 
-    {{-- KPI CARDS ROW (4 Columns) --}}
+    {{-- KPI CARDS ROW --}}
     <div class="row mb-4 g-3">
-        
-        {{-- 1. Sales KPI -> Redirects to Reports --}}
+        {{-- Sales KPI --}}
         <div class="col-md-6 col-xl-3">
             <a href="{{ route('reports.index') }}" class="card-link" title="View Sales Reports">
                 <div class="card kpi-card p-4">
@@ -137,23 +127,17 @@
                     <div class="card-content-wrapper">
                         <span class="text-uppercase text-secondary fw-bold small tracking-wide mb-2">Total Sales</span>
                         <h3 class="fw-bold mb-0 text-dark">₱{{ number_format($todaySales ?? 0, 0) }}</h3>
-                        
                         <div class="mt-3 d-flex justify-content-between align-items-end">
                             <div class="text-success small fw-medium">
                                 <i class="fas fa-chart-line me-1"></i> AOV: ₱{{ number_format($averageOrderValue ?? 0, 0) }}
                             </div>
-                            @if(($todayDiscounts ?? 0) > 0)
-                                <div class="badge bg-danger-subtle text-danger border border-danger-subtle rounded-pill" title="Total Discounts Given">
-                                    -₱{{ number_format($todayDiscounts, 0) }} Off
-                                </div>
-                            @endif
                         </div>
                     </div>
                 </div>
             </a>
         </div>
 
-        {{-- 2. Orders KPI -> Redirects to Order History --}}
+        {{-- Orders KPI --}}
         <div class="col-md-6 col-xl-3">
             <a href="{{ route('orders.index') }}" class="card-link" title="View Order History">
                 <div class="card kpi-card p-4">
@@ -162,61 +146,40 @@
                         <div class="d-flex justify-content-between align-items-center mb-2">
                             <span class="text-uppercase text-secondary fw-bold small tracking-wide">Orders</span>
                             @if($parkedCount > 0)
-                                <span class="badge bg-warning text-dark border border-warning-subtle" title="Parked Orders">
-                                    <i class="fas fa-pause-circle me-1"></i> {{ $parkedCount }} Hold
-                                </span>
+                                <span class="badge bg-warning text-dark border border-warning-subtle">{{ $parkedCount }} Hold</span>
                             @endif
                         </div>
                         <h3 class="fw-bold mb-0 text-dark">{{ $todayOrders ?? 0 }}</h3>
-                        
                         <div class="mt-auto pt-2">
-                            @if($todayOrders > 0)
-                                <div class="progress progress-thin mb-1" style="height: 4px;">
-                                    <div class="progress-bar bg-primary-coffee" style="width: {{ ($orderStats->dine_in / max(1, $todayOrders)) * 100 }}%"></div>
-                                    <div class="progress-bar bg-secondary" style="width: {{ ($orderStats->take_out / max(1, $todayOrders)) * 100 }}%"></div>
-                                </div>
-                                <div class="d-flex justify-content-between small text-muted" style="font-size: 0.7rem;">
-                                    <span>{{ $orderStats->dine_in }} Dine-in</span>
-                                    <span>{{ $orderStats->take_out }} Take-out</span>
-                                </div>
-                            @else
-                                <div class="text-secondary small">No orders yet</div>
-                            @endif
-
-                            {{-- VOID ALERT --}}
-                            @if(($voidStats->count ?? 0) > 0)
-                                <div class="mt-2 pt-2 border-top border-light text-danger small fw-bold">
-                                    <i class="fas fa-ban me-1"></i> {{ $voidStats->count }} Voids (₱{{ number_format($voidStats->total_amount, 0) }})
-                                </div>
-                            @endif
+                            {{-- Check if orderStats exists to prevent errors --}}
+                            <div class="text-secondary small">
+                                {{ $orderStats->dine_in ?? 0 }} Dine-in / {{ $orderStats->take_out ?? 0 }} Take-out
+                            </div>
                         </div>
                     </div>
                 </div>
             </a>
         </div>
 
-        {{-- 3. Top Performer KPI -> Redirects to Reports (Performance) --}}
+        {{-- Top Server KPI --}}
         <div class="col-md-6 col-xl-3">
-            <a href="{{ route('reports.index') }}" class="card-link" title="View Performance Reports">
-                <div class="card kpi-card p-4" style="border-bottom: 4px solid var(--success-green);">
-                    <i class="fas fa-trophy kpi-bg-icon text-success"></i>
-                    <div class="card-content-wrapper">
-                        <span class="text-uppercase text-secondary fw-bold small tracking-wide mb-2">Top Star</span>
-                        @if($topServer)
-                            <h5 class="fw-bold mb-0 text-dark text-truncate">{{ $topServer->user->name }}</h5>
-                            <div class="mt-auto pt-2 text-success small fw-bold">
-                                ₱{{ number_format($topServer->total_sales, 0) }} <span class="text-muted fw-normal">({{ $topServer->order_count }} Orders)</span>
-                            </div>
-                        @else
-                            <h5 class="fw-bold mb-0 text-muted">--</h5>
-                            <div class="mt-auto pt-2 text-secondary small">No sales yet</div>
-                        @endif
-                    </div>
+            <div class="card kpi-card p-4" style="border-bottom: 4px solid var(--success-green);">
+                <i class="fas fa-trophy kpi-bg-icon text-success"></i>
+                <div class="card-content-wrapper">
+                    <span class="text-uppercase text-secondary fw-bold small tracking-wide mb-2">Top Star</span>
+                    @if($topServer)
+                        <h5 class="fw-bold mb-0 text-dark text-truncate">{{ $topServer->user->name }}</h5>
+                        <div class="mt-auto pt-2 text-success small fw-bold">
+                            ₱{{ number_format($topServer->total_sales, 0) }}
+                        </div>
+                    @else
+                        <h5 class="fw-bold mb-0 text-muted">--</h5>
+                    @endif
                 </div>
-            </a>
+            </div>
         </div>
 
-        {{-- 4. Critical Stock KPI -> Redirects to Ingredients --}}
+        {{-- Critical Stock KPI --}}
         <div class="col-md-6 col-xl-3">
             <a href="{{ route('ingredients.index') }}" class="card-link" title="View Ingredients Inventory">
                 <div class="card kpi-card p-4" style="border-bottom: 4px solid var(--danger-red);">
@@ -235,14 +198,53 @@
 
     {{-- MAIN CONTENT ROW --}}
     <div class="row g-4 mb-4">
-        {{-- Left Column: Charts & Financials --}}
+        
+        {{-- ======================================================= --}}
+        {{-- [NEW SECTION] Quick Product Lookup (Internal API + External Barcode API) --}}
+        {{-- ======================================================= --}}
+        <div class="col-12">
+            <div class="card card-custom border-primary">
+                <div class="card-body p-4">
+                    <div class="d-flex justify-content-between align-items-center mb-3">
+                        <h5 class="fw-bold text-primary-coffee m-0">
+                            <i class="fas fa-search me-2"></i>Quick Product & Barcode Lookup
+                        </h5>
+                        <div>
+                            <span class="badge bg-primary-subtle text-primary border border-primary-subtle me-2">
+                                Internal API
+                            </span>
+                            <span class="badge bg-dark text-white border border-dark">
+                                External Barcode API
+                            </span>
+                        </div>
+                    </div>
+                    
+                    <div class="row">
+                        <div class="col-md-6">
+                            <input type="text" id="apiSearchInput" class="form-control form-control-lg" placeholder="Start typing product name (e.g. 'Coffee')...">
+                        </div>
+                        <div class="col-md-6 d-flex align-items-center">
+                            <small class="text-muted fst-italic">
+                                <i class="fas fa-magic me-1"></i> 
+                                Search fetches data internally, then generates barcodes via <strong>External API</strong>.
+                            </small>
+                        </div>
+                    </div>
+
+                    {{-- API Results Container --}}
+                    <div id="apiResults" class="row mt-3 g-2" style="min-height: 50px;">
+                        <div class="col-12 text-muted small fst-italic">Results will appear here...</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        {{-- ======================================================= --}}
+
+        {{-- Left Column: Charts --}}
         <div class="col-lg-8">
-            
-            {{-- 1. Weekly Analytics Chart --}}
             <div class="card card-custom h-100 mb-4">
                 <div class="table-card-header border-0 pb-0">
                     <h5 class="m-0 fw-bold text-dark"><i class="fas fa-chart-area me-2 text-primary-coffee"></i>Weekly Analytics</h5>
-                    <span class="badge bg-light text-secondary border">Last 7 Days</span>
                 </div>
                 <div class="card-body p-4">
                     <div class="chart-container">
@@ -250,66 +252,16 @@
                     </div>
                 </div>
             </div>
-
-            {{-- 2. Financial Breakdown --}}
-            <div class="row g-3">
-                <div class="col-md-12">
-                    <div class="card card-custom">
-                        <div class="card-body p-4 d-flex align-items-center justify-content-between flex-wrap">
-                            <div>
-                                <h6 class="fw-bold text-secondary text-uppercase small mb-3">Payment Methods (Today)</h6>
-                                <div class="d-flex align-items-center gap-4">
-                                    {{-- Cash Stat --}}
-                                    <div class="d-flex align-items-center">
-                                        <div class="bg-success-subtle text-success rounded-circle p-2 me-2">
-                                            <i class="fas fa-money-bill-wave"></i>
-                                        </div>
-                                        <div>
-                                            <div class="h5 fw-bold mb-0">₱{{ number_format($paymentStats['cash'] ?? 0, 0) }}</div>
-                                            <small class="text-muted">Cash</small>
-                                        </div>
-                                    </div>
-                                    {{-- Digital Stat --}}
-                                    <div class="d-flex align-items-center border-start ps-4">
-                                        <div class="bg-primary-subtle text-primary rounded-circle p-2 me-2">
-                                            <i class="fas fa-mobile-alt"></i>
-                                        </div>
-                                        <div>
-                                            @php 
-                                                $digitalTotal = ($paymentStats['gcash'] ?? 0) + ($paymentStats['card'] ?? 0);
-                                            @endphp
-                                            <div class="h5 fw-bold mb-0">₱{{ number_format($digitalTotal, 0) }}</div>
-                                            <small class="text-muted">Digital</small>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-                            {{-- Visual Bar --}}
-                            <div class="flex-grow-1 ms-md-5 mt-3 mt-md-0" style="max-width: 300px;">
-                                @php $totalPay = ($todaySales > 0) ? $todaySales : 1; @endphp
-                                <div class="progress" style="height: 10px;">
-                                    <div class="progress-bar bg-success" role="progressbar" style="width: {{ (($paymentStats['cash'] ?? 0) / $totalPay) * 100 }}%"></div>
-                                    <div class="progress-bar bg-primary" role="progressbar" style="width: {{ ($digitalTotal / $totalPay) * 100 }}%"></div>
-                                </div>
-                                <div class="d-flex justify-content-between small text-muted mt-1">
-                                    <span>Cash {{ round((($paymentStats['cash'] ?? 0) / $totalPay) * 100) }}%</span>
-                                    <span>Digital {{ round(($digitalTotal / $totalPay) * 100) }}%</span>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
+            
+            {{-- Payment Breakdown (Optional, can be added back if needed) --}}
         </div>
 
-        {{-- Right Column: Top Products & Staff --}}
+        {{-- Right Column: Top Products --}}
         <div class="col-lg-4">
-            
-            {{-- 1. BEST SELLERS --}}
+            {{-- Best Sellers --}}
             <div class="card card-custom mb-4">
                 <div class="table-card-header bg-warning-subtle bg-opacity-10">
                     <h5 class="m-0 fw-bold text-dark"><i class="fas fa-star me-2 text-warning"></i>Best Sellers</h5>
-                    <span class="badge bg-warning text-dark border border-warning-subtle">Today</span>
                 </div>
                 <div class="list-group list-group-flush">
                     @forelse($topProducts ?? [] as $index => $item)
@@ -331,23 +283,19 @@
                 </div>
             </div>
 
-            {{-- 2. Active Staff + ADD BUTTON --}}
+            {{-- Active Staff --}}
             <div class="card card-custom mb-4">
                 <div class="table-card-header bg-success-subtle bg-opacity-10">
-                    {{-- Updated Header Layout --}}
                     <div class="d-flex align-items-center gap-2">
                         <h5 class="m-0 fw-bold text-success"><i class="fas fa-users me-2"></i>On Duty</h5>
                         <span class="badge bg-success rounded-pill">{{ $activeStaff->count() }}</span>
                     </div>
-
-                    {{-- ADMIN ONLY: Add Staff Button --}}
                     @if(Auth::user()->role === 'admin')
                         <a href="{{ route('users.create') }}" class="btn btn-sm bg-white text-success border border-success-subtle shadow-sm rounded-pill fw-bold px-3" style="font-size: 0.75rem;">
-                            <i class="fas fa-user-plus me-1"></i> Add New
+                            <i class="fas fa-user-plus me-1"></i> Add
                         </a>
                     @endif
                 </div>
-                
                 <div class="list-group list-group-flush">
                     @forelse($activeStaff as $shift)
                     <div class="list-group-item p-3 border-light d-flex align-items-center">
@@ -457,34 +405,26 @@
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 
 <script>
-    // 1. Chart Logic
+    // 1. Chart Logic (Weekly Analytics)
     const ctx = document.getElementById('salesChart');
-    const labels = @json($salesLabels);
-    const data = @json($salesData);
-
     if(ctx) {
+        const labels = @json($salesLabels);
+        const data = @json($salesData);
+
         new Chart(ctx, {
             type: 'line',
             data: {
                 labels: labels,
                 datasets: [{
-                    label: 'Daily Sales',
+                    label: 'Sales',
                     data: data,
-                    borderColor: '#6F4E37',
-                    backgroundColor: function(context) {
-                        const chart = context.chart;
-                        const {ctx, chartArea} = chart;
-                        if (!chartArea) return null;
-                        const gradient = ctx.createLinearGradient(0, chartArea.bottom, 0, chartArea.top);
-                        gradient.addColorStop(0, 'rgba(111, 78, 55, 0.05)');
-                        gradient.addColorStop(1, 'rgba(111, 78, 55, 0.4)');
-                        return gradient;
-                    },
+                    borderColor: '#6F4E37', // Coffee Color
+                    backgroundColor: 'rgba(111, 78, 55, 0.1)',
                     tension: 0.4,
                     fill: true,
-                    pointBackgroundColor: '#FFF',
-                    pointBorderColor: '#6F4E37',
-                    borderWidth: 3
+                    pointRadius: 4,
+                    pointBackgroundColor: '#fff',
+                    pointBorderColor: '#6F4E37'
                 }]
             },
             options: {
@@ -492,33 +432,92 @@
                 maintainAspectRatio: false,
                 plugins: { legend: { display: false } },
                 scales: {
-                    y: { beginAtZero: true, grid: { borderDash: [5, 5] }, ticks: { callback: v => '₱' + v } },
+                    y: { 
+                        beginAtZero: true, 
+                        grid: { borderDash: [5, 5] },
+                        ticks: { callback: v => '₱' + v } 
+                    },
                     x: { grid: { display: false } }
                 }
             }
         });
     }
 
-    // 2. End Shift Confirmation Logic
+    // 2. API Consumer Logic (Internal Search + External Barcode)
+    const searchInput = document.getElementById('apiSearchInput');
+    const resultsDiv = document.getElementById('apiResults');
+
+    if(searchInput) {
+        searchInput.addEventListener('keyup', function() {
+            const query = this.value;
+            
+            // Clear if empty or too short
+            if(query.length < 2) {
+                resultsDiv.innerHTML = '<div class="col-12 text-muted small fst-italic">Type at least 2 characters...</div>';
+                return;
+            }
+
+            // A. CONSUME INTERNAL API
+            fetch("{{ url('/api/pos/products') }}?search=" + query)
+                .then(response => response.json())
+                .then(res => {
+                    if(res.status === 'success' && res.data.length > 0) {
+                        let html = '';
+                        res.data.forEach(product => {
+                            // B. CONSUME EXTERNAL API (Barcode)
+                            const barcodeUrl = `https://bwipjs-api.metafloor.com/?bcid=code128&text=${product.id}&scale=2&height=10&incltext=true`;
+
+                            html += `
+                                <div class="col-md-4 col-sm-6">
+                                    <div class="p-3 border rounded bg-white h-100 shadow-sm position-relative">
+                                        
+                                        {{-- Product Details --}}
+                                        <div class="d-flex justify-content-between align-items-start">
+                                            <div>
+                                                <div class="fw-bold text-dark text-truncate" style="max-width: 160px;">${product.name}</div>
+                                                <div class="text-success fw-bold">₱${product.price}</div>
+                                            </div>
+                                        </div>
+                                        
+                                        <hr class="my-2" style="opacity: 0.1">
+                                        
+                                        {{-- External Barcode --}}
+                                        <div class="text-center mt-2">
+                                            <span class="d-block small text-muted mb-1" style="font-size: 0.65rem; letter-spacing: 0.5px;">EXTERNAL API GENERATED</span>
+                                            <img src="${barcodeUrl}" alt="Barcode" style="max-width: 100%; height: 35px; opacity: 0.8;">
+                                        </div>
+                                    </div>
+                                </div>
+                            `;
+                        });
+                        resultsDiv.innerHTML = html;
+                    } else {
+                        resultsDiv.innerHTML = '<div class="col-12 text-secondary small">No products found.</div>';
+                    }
+                })
+                .catch(err => {
+                    console.error('API Error:', err);
+                    resultsDiv.innerHTML = '<div class="col-12 text-danger small">Error connecting to API.</div>';
+                });
+        });
+    }
+
+    // 3. End Shift Confirmation
     document.addEventListener('DOMContentLoaded', function() {
         const endShiftBtn = document.getElementById('btn-end-shift');
         if(endShiftBtn) {
             endShiftBtn.addEventListener('click', function(e) {
                 e.preventDefault();
                 const url = this.getAttribute('href');
-                
                 Swal.fire({
                     title: 'End Shift?',
-                    text: "You are about to close the register. Make sure you have counted the cash.",
+                    text: "Register will close. Proceed?",
                     icon: 'warning',
                     showCancelButton: true,
                     confirmButtonColor: '#DC2626',
-                    cancelButtonColor: '#6B7280',
-                    confirmButtonText: 'Yes, End Shift'
+                    confirmButtonText: 'Yes, Close It'
                 }).then((result) => {
-                    if (result.isConfirmed) {
-                        window.location.href = url;
-                    }
+                    if (result.isConfirmed) window.location.href = url;
                 });
             });
         }

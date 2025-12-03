@@ -150,12 +150,6 @@
                             @endif
                         </div>
                         <h3 class="fw-bold mb-0 text-dark">{{ $todayOrders ?? 0 }}</h3>
-                        <div class="mt-auto pt-2">
-                            {{-- Check if orderStats exists to prevent errors --}}
-                            <div class="text-secondary small">
-                                {{ $orderStats->dine_in ?? 0 }} Dine-in / {{ $orderStats->take_out ?? 0 }} Take-out
-                            </div>
-                        </div>
                     </div>
                 </div>
             </a>
@@ -200,7 +194,7 @@
     <div class="row g-4 mb-4">
         
         {{-- ======================================================= --}}
-        {{-- [NEW SECTION] Quick Product Lookup (Internal API + External Barcode API) --}}
+        {{-- [UPDATED SECTION] Quick Product Lookup (Internal API + External Barcode API) --}}
         {{-- ======================================================= --}}
         <div class="col-12">
             <div class="card card-custom border-primary">
@@ -252,8 +246,6 @@
                     </div>
                 </div>
             </div>
-            
-            {{-- Payment Breakdown (Optional, can be added back if needed) --}}
         </div>
 
         {{-- Right Column: Top Products --}}
@@ -446,6 +438,7 @@
     // 2. API Consumer Logic (Internal Search + External Barcode)
     const searchInput = document.getElementById('apiSearchInput');
     const resultsDiv = document.getElementById('apiResults');
+    const storagePath = "{{ asset('storage') }}"; // [ADDED] Base Path for Images
 
     if(searchInput) {
         searchInput.addEventListener('keyup', function() {
@@ -457,6 +450,9 @@
                 return;
             }
 
+            // Show loading indicator
+            resultsDiv.innerHTML = '<div class="col-12 text-center text-muted py-3"><i class="fas fa-spinner fa-spin me-2"></i>Searching...</div>';
+
             // A. CONSUME INTERNAL API
             fetch("{{ url('/api/pos/products') }}?search=" + query)
                 .then(response => response.json())
@@ -467,6 +463,12 @@
                             // B. CONSUME EXTERNAL API (Barcode)
                             const barcodeUrl = `https://bwipjs-api.metafloor.com/?bcid=code128&text=${product.id}&scale=2&height=10&incltext=true`;
 
+                            // [ADDED] Image Logic
+                            let imageHtml = `<div class="bg-light rounded d-flex align-items-center justify-content-center" style="width: 50px; height: 50px;"><i class="fas fa-mug-hot text-secondary opacity-25"></i></div>`;
+                            if(product.image_path) {
+                                imageHtml = `<img src="${storagePath}/${product.image_path}" class="rounded" style="width: 50px; height: 50px; object-fit: cover;" alt="Product">`;
+                            }
+
                             html += `
                                 <div class="col-md-4 col-sm-6">
                                     <div class="p-3 border rounded bg-white h-100 shadow-sm position-relative">
@@ -474,9 +476,10 @@
                                         {{-- Product Details --}}
                                         <div class="d-flex justify-content-between align-items-start">
                                             <div>
-                                                <div class="fw-bold text-dark text-truncate" style="max-width: 160px;">${product.name}</div>
+                                                <div class="fw-bold text-dark text-truncate" style="max-width: 140px;">${product.name}</div>
                                                 <div class="text-success fw-bold">₱${product.price}</div>
                                             </div>
+                                            ${imageHtml}
                                         </div>
                                         
                                         <hr class="my-2" style="opacity: 0.1">

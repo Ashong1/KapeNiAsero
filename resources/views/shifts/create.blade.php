@@ -1,23 +1,66 @@
 @extends('layouts.app')
 
 @section('content')
-<div class="container">
-    <div class="row justify-content-center">
-        <div class="col-md-6">
-            <div class="card shadow">
-                <div class="card-header bg-primary text-white">Open Register / Clock In</div>
-                <div class="card-body">
-                    <form method="POST" action="{{ route('shifts.store') }}">
-                        @csrf
-                        <div class="mb-4">
-                            <label for="start_cash" class="form-label"><strong>Starting Cash in Drawer (₱)</strong></label>
-                            <input type="number" step="0.01" class="form-control form-control-lg" name="start_cash" required placeholder="0.00">
+<div class="container d-flex align-items-center justify-content-center" style="min-height: 80vh;">
+    <div class="col-md-5 col-lg-4">
+        
+        {{-- Brand Logo/Icon --}}
+        <div class="text-center mb-4">
+            <div class="d-inline-flex align-items-center justify-content-center bg-white rounded-circle shadow-sm" style="width: 80px; height: 80px;">
+                <i class="fas fa-store text-primary-coffee fa-2x"></i>
+            </div>
+            <h4 class="fw-bold mt-3 text-dark">Start Your Shift</h4>
+            <p class="text-secondary small">Good {{ now()->format('H') < 12 ? 'morning' : 'afternoon' }}, {{ Auth::user()->name }}!</p>
+        </div>
+
+        <div class="card card-custom border-0 shadow-lg" style="border-radius: 20px;">
+            <div class="card-body p-4">
+                <form method="POST" action="{{ route('shifts.store') }}">
+                    @csrf
+                    
+                    <div class="mb-4">
+                        <label for="start_cash" class="form-label small fw-bold text-secondary text-uppercase tracking-wide">
+                            <i class="fas fa-coins me-1 text-primary-coffee"></i> Starting Cash
+                        </label>
+                        <div class="input-group input-group-lg">
+                            <span class="input-group-text bg-light border-end-0 text-secondary fw-bold" style="border-top-left-radius: 12px; border-bottom-left-radius: 12px;">₱</span>
+                            <input type="number" 
+                                   step="0.01" 
+                                   class="form-control bg-light border-start-0 fw-bold text-dark" 
+                                   name="start_cash" 
+                                   required 
+                                   placeholder="0.00" 
+                                   autofocus
+                                   style="border-top-right-radius: 12px; border-bottom-right-radius: 12px; font-size: 1.5rem;">
                         </div>
-                        <button type="submit" class="btn btn-primary w-100 btn-lg">Open Register</button>
-                    </form>
-                </div>
+                        <div class="form-text text-muted small mt-2">
+                            <i class="fas fa-info-circle me-1"></i> Count the physical cash in the drawer before starting.
+                        </div>
+                    </div>
+
+                    <button type="submit" class="btn btn-primary-coffee w-100 py-3 rounded-4 fw-bold shadow-sm transition-all">
+                        <i class="fas fa-check-circle me-2"></i> Open Register
+                    </button>
+                </form>
             </div>
         </div>
+        
+        <div class="text-center mt-4">
+            <a href="{{ route('home') }}" class="text-secondary text-decoration-none small fw-bold">
+                <i class="fas fa-arrow-left me-1"></i> Back to Dashboard
+            </a>
+        </div>
+
     </div>
 </div>
+
+<style>
+    .transition-all { transition: all 0.2s ease; }
+    .transition-all:hover { transform: translateY(-2px); box-shadow: 0 10px 20px rgba(111, 78, 55, 0.2) !important; }
+    .text-primary-coffee { color: #6F4E37 !important; }
+    .btn-primary-coffee { background-color: #6F4E37; border-color: #6F4E37; color: white; }
+    .btn-primary-coffee:hover { background-color: #5A3D2B; border-color: #5A3D2B; }
+    .input-group-text { border-color: #eee; }
+    .form-control:focus { box-shadow: none; border-color: #6F4E37; }
+</style>
 @endsection

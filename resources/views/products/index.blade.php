@@ -117,9 +117,10 @@
                      onclick="addToCart({{ $product->id }}, '{{ $product->name }}', {{ $product->price }}, '{{ $product->category->name ?? '' }}')"
                      @endif
                      >
-                    <div class="card-img-box">
+                     <div class="card-img-box">
                         @if($product->image_path)
-                            <img src="{{ asset('storage/' . $product->image_path) }}" class="img-fluid" style="height: 100px; object-fit: contain;">
+                            {{-- [UPDATED] Added border-radius and shadow --}}
+                            <img src="{{ asset('storage/' . $product->image_path) }}" class="img-fluid shadow-sm" style="height: 100px; object-fit: contain; border-radius: 10px;">
                         @else
                             <i class="fas fa-mug-hot fa-3x text-secondary opacity-25"></i>
                         @endif

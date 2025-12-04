@@ -7,6 +7,8 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Database\QueryException;
+use Illuminate\Support\Facades\Mail;
+use App\Mail\UserCredentials;
 
 class UserController extends Controller
 {
@@ -33,6 +35,7 @@ class UserController extends Controller
      */
     public function store(Request $request)
     {
+        // 1. VALIDATION (Rules must be strings or arrays only)
         $request->validate([
             'name' => 'required|string|max:255',
             'email' => 'required|string|email|max:255|unique:users',
@@ -40,12 +43,24 @@ class UserController extends Controller
             'role' => 'required|in:admin,employee',
         ]);
 
-        User::create([
+        // 2. Capture raw password for email
+        $rawPassword = $request->password;
+
+        // 3. CREATE USER (Set the boolean flag here)
+        $user = User::create([
             'name' => $request->name,
             'email' => $request->email,
-            'password' => Hash::make($request->password),
+            'password' => Hash::make($rawPassword),
             'role' => $request->role,
+            'must_change_password' => true, // <--- Correct placement
         ]);
+
+        // 4. Send email
+        try {
+            Mail::to($user->email)->send(new UserCredentials($user, $rawPassword));
+        } catch (\Exception $e) {
+            // Log error or ignore
+        }
 
         return redirect()->route('users.index')
             ->with('success', 'New user account created successfully.');

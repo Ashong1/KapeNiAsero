@@ -28,7 +28,7 @@ class LoginController extends Controller
      *
      * @var string
      */
-    protected $redirectTo = '/home';
+    //protected $redirectTo = '/home';
 
     /**
      * Create a new controller instance.
@@ -99,5 +99,15 @@ class LoginController extends Controller
                 "Warning: You have {$remaining} attempt(s) remaining."
             ],
         ]);
+    }
+    public function redirectTo()
+    {
+        // Admins go to Dashboard
+        if (auth()->user()->role === 'admin') {
+            return '/home';
+        }
+
+        // Employees go strictly to the POS/Orders page
+        return '/orders';
     }
 }

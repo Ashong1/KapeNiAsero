@@ -19,6 +19,7 @@ use App\Http\Controllers\Auth\ForgotPasswordController;
 use App\Http\Controllers\ReportController; 
 use App\Http\Controllers\ActivityLogController;
 use App\Http\Controllers\SettingController;
+use App\Http\Controllers\ChangePasswordController; // Imported
 
 Route::get('/', function () { return redirect('/login'); });
 
@@ -32,53 +33,67 @@ Route::post('password/otp', [ForgotPasswordController::class, 'verifyOtp'])->nam
 Route::post('password/otp/resend', [ForgotPasswordController::class, 'resendOtp'])->name('password.resendOtp');
 
 
-// --- GENERAL ACCESS ---
+// --- AUTHENTICATED ROUTES ---
 Route::middleware(['auth'])->group(function () {
-    // ... (Keep existing routes) ...
-    Route::get('/home', [HomeController::class, 'index'])->name('home');
-    Route::get('/products', [ProductController::class, 'index'])->name('products.index');
-    Route::get('/orders', [OrderController::class, 'index'])->name('orders.index');
-    
-    Route::post('/checkout', [OrderController::class, 'store'])->name('checkout');
-    Route::get('/orders/{order}/success', [OrderController::class, 'paymentSuccess'])->name('orders.success');
-    Route::get('/orders/{order}/receipt', [OrderController::class, 'downloadReceipt'])->name('orders.receipt');
-    
-    Route::post('/orders/{order}/void-request', [OrderController::class, 'requestVoid'])->name('orders.requestVoid');
 
-    Route::resource('shifts', ShiftController::class)->only(['index', 'create', 'store', 'edit', 'update']);
+    // 1. CHANGE PASSWORD ROUTES (Accessible to everyone logged in)
+    Route::get('/change-password', [ChangePasswordController::class, 'show'])->name('password.change');
+    Route::post('/change-password', [ChangePasswordController::class, 'update'])->name('password.update');
+
+    // 2. LOGOUT ACTION (Accessible so users can exit the flow)
     Route::get('/logout-action', [ShiftController::class, 'handleLogout'])->name('logout.action');
 
-    Route::post('/park-order', [ParkedOrderController::class, 'store']);
-    Route::get('/parked-orders', [ParkedOrderController::class, 'index']);
-    Route::get('/parked-orders/{order}/retrieve', [ParkedOrderController::class, 'retrieve']);
-    Route::delete('/parked-orders/{order}', [ParkedOrderController::class, 'destroy']);
-    Route::put('/parked-orders/{order}', [ParkedOrderController::class, 'update']);
-});
+    // 3. ROUTES REQUIRING MANDATORY PASSWORD CHANGE
+    // All routes inside here will be blocked if 'must_change_password' is true
+    Route::middleware(['force.change.password'])->group(function () {
 
-// --- ADMIN ONLY ROUTES ---
-Route::middleware(['auth', 'admin'])->group(function () {
-    Route::resource('categories', CategoryController::class);
-    Route::resource('ingredients', IngredientController::class);
-    Route::resource('suppliers', SupplierController::class);
-    Route::post('/ingredients/{ingredient}/restock', [IngredientController::class, 'restock'])->name('ingredients.restock');
-    Route::get('/ingredients/{ingredient}/history', [IngredientController::class, 'history'])->name('ingredients.history');
-    
-    Route::resource('users', UserController::class); 
+        // --- GENERAL ACCESS (Pos, Shifts, etc.) ---
+        Route::get('/home', [HomeController::class, 'index'])->name('home');
+        Route::get('/products', [ProductController::class, 'index'])->name('products.index');
+        Route::get('/orders', [OrderController::class, 'index'])->name('orders.index');
+        
+        Route::post('/checkout', [OrderController::class, 'store'])->name('checkout');
+        Route::get('/orders/{order}/success', [OrderController::class, 'paymentSuccess'])->name('orders.success');
+        Route::get('/orders/{order}/receipt', [OrderController::class, 'downloadReceipt'])->name('orders.receipt');
+        
+        Route::post('/orders/{order}/void-request', [OrderController::class, 'requestVoid'])->name('orders.requestVoid');
 
-    Route::get('/products/create', [ProductController::class, 'create'])->name('products.create');
-    Route::post('/products', [ProductController::class, 'store'])->name('products.store');
-    Route::get('/products/{product}/edit', [ProductController::class, 'edit'])->name('products.edit');
-    Route::put('/products/{product}', [ProductController::class, 'update'])->name('products.update');
-    Route::delete('/products/{product}', [ProductController::class, 'destroy'])->name('products.destroy');
-    
-    Route::post('/products/{product}/ingredient', [ProductController::class, 'addIngredient'])->name('products.addIngredient');
-    Route::delete('/products/{product}/ingredient/{ingredient}', [ProductController::class, 'removeIngredient'])->name('products.removeIngredient');
+        Route::resource('shifts', ShiftController::class)->only(['index', 'create', 'store', 'edit', 'update']);
 
-    Route::post('/orders/{order}/void', [OrderController::class, 'voidOrder'])->name('orders.void');
+        Route::post('/park-order', [ParkedOrderController::class, 'store']);
+        Route::get('/parked-orders', [ParkedOrderController::class, 'index']);
+        Route::get('/parked-orders/{order}/retrieve', [ParkedOrderController::class, 'retrieve']);
+        Route::delete('/parked-orders/{order}', [ParkedOrderController::class, 'destroy']);
+        Route::put('/parked-orders/{order}', [ParkedOrderController::class, 'update']);
 
-    Route::get('/reports', [ReportController::class, 'index'])->name('reports.index');
-    Route::get('/reports/export', [ReportController::class, 'export'])->name('reports.export');
-    Route::get('/activity-logs', [ActivityLogController::class, 'index'])->name('activity-logs.index');
-    Route::get('/settings', [SettingController::class, 'index'])->name('settings.index');
-    Route::put('/settings', [SettingController::class, 'update'])->name('settings.update');
+        // --- ADMIN ONLY ROUTES ---
+        // Nested here so Admins are ALSO forced to change password if flagged
+        Route::middleware(['admin'])->group(function () {
+            Route::resource('categories', CategoryController::class);
+            Route::resource('ingredients', IngredientController::class);
+            Route::resource('suppliers', SupplierController::class);
+            Route::post('/ingredients/{ingredient}/restock', [IngredientController::class, 'restock'])->name('ingredients.restock');
+            Route::get('/ingredients/{ingredient}/history', [IngredientController::class, 'history'])->name('ingredients.history');
+            
+            Route::resource('users', UserController::class); 
+
+            Route::get('/products/create', [ProductController::class, 'create'])->name('products.create');
+            Route::post('/products', [ProductController::class, 'store'])->name('products.store');
+            Route::get('/products/{product}/edit', [ProductController::class, 'edit'])->name('products.edit');
+            Route::put('/products/{product}', [ProductController::class, 'update'])->name('products.update');
+            Route::delete('/products/{product}', [ProductController::class, 'destroy'])->name('products.destroy');
+            
+            Route::post('/products/{product}/ingredient', [ProductController::class, 'addIngredient'])->name('products.addIngredient');
+            Route::delete('/products/{product}/ingredient/{ingredient}', [ProductController::class, 'removeIngredient'])->name('products.removeIngredient');
+
+            Route::post('/orders/{order}/void', [OrderController::class, 'voidOrder'])->name('orders.void');
+
+            Route::get('/reports', [ReportController::class, 'index'])->name('reports.index');
+            Route::get('/reports/export', [ReportController::class, 'export'])->name('reports.export');
+            Route::get('/activity-logs', [ActivityLogController::class, 'index'])->name('activity-logs.index');
+            Route::get('/settings', [SettingController::class, 'index'])->name('settings.index');
+            Route::put('/settings', [SettingController::class, 'update'])->name('settings.update');
+        });
+
+    });
 });

@@ -22,6 +22,10 @@ class HomeController extends Controller
 
     public function index()
     {
+        if (Auth::user()->role !== 'admin') {
+        return redirect()->route('orders.index');
+    }
+
         $today = Carbon::today();
 
         // 1. Fetch Today's Completed Orders

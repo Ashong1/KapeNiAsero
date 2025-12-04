@@ -22,7 +22,8 @@ class User extends Authenticatable
         'password',
         'role',                 
         'two_factor_code',      
-        'two_factor_expires_at' 
+        'two_factor_expires_at',
+        'must_change_password', 
     ];
 
     /**
@@ -43,7 +44,8 @@ class User extends Authenticatable
     protected $casts = [
         'email_verified_at' => 'datetime',
         'password' => 'hashed',
-        'two_factor_expires_at' => 'datetime', 
+        'two_factor_expires_at' => 'datetime',
+        'must_change_password' => 'boolean',
     ];
 
     // --- UPDATED FUNCTION BELOW ---

@@ -64,4 +64,13 @@
         </div>
     </div>
 </div>
+<script>
+    document.querySelector('form').addEventListener('submit', function(e) {
+        const btn = this.querySelector('button[type="submit"]');
+        if(btn) {
+            btn.disabled = true;
+            btn.innerText = 'Creating...';
+        }
+    });
+</script>
 @endsection

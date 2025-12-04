@@ -45,7 +45,8 @@ Route::middleware(['auth'])->group(function () {
 
     // 3. ROUTES REQUIRING MANDATORY PASSWORD CHANGE
     // All routes inside here will be blocked if 'must_change_password' is true
-    Route::middleware(['force.change.password'])->group(function () {
+    // ADDED 'shift' MIDDLEWARE HERE:
+    Route::middleware(['force.change.password', 'shift'])->group(function () {
 
         // --- GENERAL ACCESS (Pos, Shifts, etc.) ---
         Route::get('/home', [HomeController::class, 'index'])->name('home');

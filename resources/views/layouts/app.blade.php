@@ -2,7 +2,8 @@
 <html lang="{{ str_replace('_', '-', app()->getLocale()) }}">
 <head>
     <meta charset="utf-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1">
+    {{-- Prevent auto-zoom on mobile inputs --}}
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
     <meta name="csrf-token" content="{{ csrf_token() }}">
 
     <title>{{ config('app.name', 'Kape Ni Asero') }}</title>
@@ -42,7 +43,7 @@
             padding-bottom: 3rem;
         }
 
-        /* --- PREMIUM NAVBAR --- */
+        /* --- PREMIUM NAVBAR (Original Design) --- */
         .navbar-premium {
             background-color: var(--surface-glass);
             backdrop-filter: blur(16px);
@@ -165,7 +166,8 @@
 <body>
 
 <div class="container">
-    <nav class="navbar navbar-expand-xl navbar-premium">
+    {{-- Added sticky-top here: Navbar stays visible while scrolling, but keeps the "floating" design --}}
+    <nav class="navbar navbar-expand-xl navbar-premium sticky-top">
         <div class="container-fluid px-1">
             <a class="navbar-brand p-0" href="{{ route('home') }}">
                 <div class="navbar-brand-wrapper">
@@ -258,9 +260,6 @@
             </div>
         </div>
     </nav>
-
-    {{-- ALERT SECTION REMOVED --}}
-    {{-- Alerts are now handled by SweetAlert script below --}}
 
     <main>
         @yield('content')

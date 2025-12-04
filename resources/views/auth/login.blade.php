@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
     <title>Login | Kape Ni Asero</title>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
@@ -106,6 +106,11 @@
 
     <div class="right-pane">
         <div class="auth-card">
+            
+            <div class="text-center mb-4 d-md-none">
+                <img src="{{ asset('ka.png') }}" alt="Logo" style="width: 80px; height: auto;">
+                <h4 class="fw-bold mt-2 text-dark">Kape Ni Asero</h4>
+            </div>
             <div class="mb-4 text-center text-md-start">
                 <h3 class="fw-bold text-dark">Welcome Back</h3>
                 <p class="text-secondary small">Please enter your credentials to access the system.</p>
@@ -121,7 +126,6 @@
                                placeholder="Email Address" value="{{ old('email') }}" required autofocus>
                     </div>
                     
-                    {{-- Error messages moved OUTSIDE the position-relative div to prevent icon shifting --}}
                     @if ($errors->has('email'))
                         @foreach ($errors->get('email') as $message)
                             <span class="text-danger small d-block ms-1">
@@ -138,7 +142,6 @@
                                placeholder="Password" required>
                     </div>
                     
-                    {{-- Error messages moved OUTSIDE for consistency --}}
                     @error('password')
                         <span class="text-danger small d-block ms-1">{{ $message }}</span>
                     @enderror

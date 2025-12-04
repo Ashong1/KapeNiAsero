@@ -107,7 +107,7 @@ class LoginController extends Controller
             return '/home';
         }
 
-        // Employees go strictly to the POS/Orders page
-        return '/orders';
+        // Employees go to /home so HomeController can check if they have a shift
+        return '/home'; 
     }
 }

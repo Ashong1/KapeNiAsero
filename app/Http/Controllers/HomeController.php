@@ -22,51 +22,40 @@ class HomeController extends Controller
 
     public function index()
     {
-        if (Auth::user()->role !== 'admin') {
-        return redirect()->route('orders.index');
-    }
+        $user = Auth::user();
 
+        // --- EMPLOYEE LOGIC ---
+        // If user is NOT admin, manage their flow based on shift status
+        if ($user->role !== 'admin') {
+            // Check for an active shift for this specific user
+            $activeShift = Shift::where('user_id', $user->id)->whereNull('ended_at')->first();
+
+            if (!$activeShift) {
+                // No active shift? Force them to the "Start Shift" screen
+                return redirect()->route('shifts.create');
+            }
+
+            // Has active shift? Go to POS
+            return redirect()->route('orders.index');
+        }
+
+        // --- ADMIN DASHBOARD LOGIC ---
+        
         $today = Carbon::today();
 
-        // 1. Fetch Today's Completed Orders
-        $todayOrdersList = Order::whereDate('created_at', $today)
-                                ->where('status', 'completed')
-                                ->get();
-
-        // 2. Calculate Basic KPIs
+        // 1. KPIs
+        $todayOrdersList = Order::whereDate('created_at', $today)->where('status', 'completed')->get();
         $todaySales = $todayOrdersList->sum('total_price');
-        $todayOrdersCount = $todayOrdersList->count();
+        $todayOrdersCount = $todayOrdersList->count(); 
         $averageOrderValue = $todayOrdersCount > 0 ? $todaySales / $todayOrdersCount : 0;
         
-        // FIX: Manually calculate Dine-in vs Take-out counts
-        // Note: Assumes your DB column is 'type' or 'order_type'. Adjust 'type' below if needed.
-        $orderStats = (object) [
-            'dine_in' => $todayOrdersList->whereIn('type', ['dine_in', 'Dine-in'])->count(),
-            'take_out' => $todayOrdersList->whereIn('type', ['take_out', 'Take-out'])->count(),
-        ];
-
-        // 3. Payment Methods (Cash vs Digital)
-        $paymentStats = [
-            'cash' => $todayOrdersList->where('payment_method', 'cash')->sum('total_price'),
-            'gcash' => $todayOrdersList->where('payment_method', 'gcash')->sum('total_price'),
-            'card' => $todayOrdersList->where('payment_method', 'card')->sum('total_price'),
-        ];
-
-        // 4. Discounts & Voids
-        $todayDiscounts = 0; // If you have a discount column, sum it here: $todayOrdersList->sum('discount');
-        
-        $voidStats = Order::whereDate('created_at', $today)
-                          ->where('status', 'voided')
-                          ->selectRaw('count(*) as count, sum(total_price) as total_amount')
-                          ->first();
-
-        // 5. Parked/Hold Orders
+        // 2. Parked Orders
         $parkedCount = DB::table('parked_orders')->count();
 
-        // 6. Low Stock Ingredients
+        // 3. Low Stock
         $lowStockIngredients = Ingredient::whereColumn('stock', '<=', 'reorder_level')->get();
 
-        // 7. Top Server (User with most sales today)
+        // 4. Top Server
         $topServer = Order::whereDate('created_at', $today)
                           ->where('status', 'completed')
                           ->select('user_id', DB::raw('SUM(total_price) as total_sales'), DB::raw('COUNT(*) as order_count'))
@@ -75,10 +64,10 @@ class HomeController extends Controller
                           ->with('user')
                           ->first();
 
-        // 8. Best Selling Products (Top 5 Today)
+        // 5. Best Sellers
         $topProducts = DB::table('order_items')
                          ->join('orders', 'order_items.order_id', '=', 'orders.id')
-                         ->join('products', 'order_items.product_id', '=', 'products.id') // Join products to get name/price
+                         ->join('products', 'order_items.product_id', '=', 'products.id')
                          ->select('order_items.product_id', DB::raw('SUM(order_items.quantity) as total_sold'))
                          ->whereDate('orders.created_at', $today)
                          ->where('orders.status', 'completed')
@@ -87,12 +76,11 @@ class HomeController extends Controller
                          ->limit(5)
                          ->get();
         
-        // Hydrate product details manually to avoid complex relation loading on query builder
         foreach($topProducts as $item) {
             $item->product = Product::find($item->product_id);
         }
 
-        // 9. Weekly Sales Chart Data
+        // 6. Weekly Chart Data
         $salesDataRaw = Order::where('status', 'completed')
                              ->whereBetween('created_at', [now()->subDays(6)->startOfDay(), now()->endOfDay()])
                              ->select(DB::raw('DATE(created_at) as date'), DB::raw('SUM(total_price) as daily_total'))
@@ -104,23 +92,25 @@ class HomeController extends Controller
         $salesData = [];
         for ($i = 6; $i >= 0; $i--) {
             $date = now()->subDays($i)->format('Y-m-d');
-            $salesLabels[] = now()->subDays($i)->format('M d'); // e.g. "Oct 25"
+            $salesLabels[] = now()->subDays($i)->format('M d');
             $salesData[] = $salesDataRaw[$date] ?? 0;
         }
 
-        // 10. Active Staff & Shift
-        $activeShift = Shift::where('user_id', Auth::id())->whereNull('ended_at')->first();
+        // 7. Active Staff List (This fixes the "On Duty" display)
+        // Get ALL shifts that haven't ended yet
         $activeStaff = Shift::whereNull('ended_at')->with('user')->get();
+        
+        // Also get current user's shift for context if needed
+        $activeShift = Shift::where('user_id', Auth::id())->whereNull('ended_at')->first();
 
-        // 11. Recent Activity
+        // 8. Recent Activity
         $recentOrders = Order::latest()->take(5)->with('user')->get();
         $recentLogs = ActivityLog::latest()->take(5)->with('user')->get();
 
         return view('home', compact(
-            'todaySales', 'todayOrdersCount', 'averageOrderValue', 'orderStats', 
-            'paymentStats', 'todayDiscounts', 'voidStats', 'parkedCount', 
+            'todaySales', 'averageOrderValue', 'parkedCount', 
             'lowStockIngredients', 'topServer', 'topProducts', 'salesLabels', 
             'salesData', 'activeShift', 'activeStaff', 'recentOrders', 'recentLogs'
-        ))->with('todayOrders', $todayOrdersCount); // Alias for view compatibility
+        ))->with('todayOrders', $todayOrdersCount);
     }
 }

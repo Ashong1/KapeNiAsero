@@ -194,7 +194,7 @@
     <div class="row g-4 mb-4">
         
         {{-- ======================================================= --}}
-        {{-- [UPDATED SECTION] Quick Product Lookup (Internal API + External Barcode API) --}}
+        {{-- Quick Product Lookup --}}
         {{-- ======================================================= --}}
         <div class="col-12">
             <div class="card card-custom border-primary">
@@ -275,7 +275,7 @@
                 </div>
             </div>
 
-            {{-- Active Staff --}}
+            {{-- Active Staff (THE IMPORTANT FIX) --}}
             <div class="card card-custom mb-4">
                 <div class="table-card-header bg-success-subtle bg-opacity-10">
                     <div class="d-flex align-items-center gap-2">
@@ -292,15 +292,20 @@
                     @forelse($activeStaff as $shift)
                     <div class="list-group-item p-3 border-light d-flex align-items-center">
                         <div class="avatar-circle bg-primary-coffee me-3">
-                            {{ substr($shift->user->name, 0, 1) }}
+                            {{ substr($shift->user->name ?? 'U', 0, 1) }}
                         </div>
                         <div>
-                            <div class="fw-bold text-dark">{{ $shift->user->name }}</div>
-                            <small class="text-muted">In: {{ $shift->started_at->format('h:i A') }}</small>
+                            <div class="fw-bold text-dark">{{ $shift->user->name ?? 'Unknown User' }}</div>
+                            <small class="text-muted">In: {{ \Carbon\Carbon::parse($shift->started_at)->format('h:i A') }}</small>
+                        </div>
+                        <div class="ms-auto text-end">
+                            <span class="badge bg-success-subtle text-success border border-success-subtle rounded-pill" style="font-size: 0.65rem;">
+                                ONLINE
+                            </span>
                         </div>
                     </div>
                     @empty
-                    <div class="text-center py-4 text-muted small">No active shifts.</div>
+                    <div class="text-center py-4 text-muted small">No active shifts found.</div>
                     @endforelse
                 </div>
             </div>
@@ -438,7 +443,7 @@
     // 2. API Consumer Logic (Internal Search + External Barcode)
     const searchInput = document.getElementById('apiSearchInput');
     const resultsDiv = document.getElementById('apiResults');
-    const storagePath = "{{ asset('storage') }}"; // [ADDED] Base Path for Images
+    const storagePath = "{{ asset('storage') }}";
 
     if(searchInput) {
         searchInput.addEventListener('keyup', function() {
@@ -457,13 +462,13 @@
             fetch("{{ url('/api/pos/products') }}?search=" + query)
                 .then(response => response.json())
                 .then(res => {
-                    if(res.status === 'success' && res.data.length > 0) {
+                    if(res && res.length > 0) { // Safety check
                         let html = '';
-                        res.data.forEach(product => {
+                        res.forEach(product => {
                             // B. CONSUME EXTERNAL API (Barcode)
                             const barcodeUrl = `https://bwipjs-api.metafloor.com/?bcid=code128&text=${product.id}&scale=2&height=10&incltext=true`;
 
-                            // [ADDED] Image Logic
+                            // Image Logic
                             let imageHtml = `<div class="bg-light rounded d-flex align-items-center justify-content-center" style="width: 50px; height: 50px;"><i class="fas fa-mug-hot text-secondary opacity-25"></i></div>`;
                             if(product.image_path) {
                                 imageHtml = `<img src="${storagePath}/${product.image_path}" class="rounded" style="width: 50px; height: 50px; object-fit: cover;" alt="Product">`;
@@ -473,7 +478,6 @@
                                 <div class="col-md-4 col-sm-6">
                                     <div class="p-3 border rounded bg-white h-100 shadow-sm position-relative">
                                         
-                                        {{-- Product Details --}}
                                         <div class="d-flex justify-content-between align-items-start">
                                             <div>
                                                 <div class="fw-bold text-dark text-truncate" style="max-width: 140px;">${product.name}</div>
@@ -484,7 +488,6 @@
                                         
                                         <hr class="my-2" style="opacity: 0.1">
                                         
-                                        {{-- External Barcode --}}
                                         <div class="text-center mt-2">
                                             <span class="d-block small text-muted mb-1" style="font-size: 0.65rem; letter-spacing: 0.5px;">EXTERNAL API GENERATED</span>
                                             <img src="${barcodeUrl}" alt="Barcode" style="max-width: 100%; height: 35px; opacity: 0.8;">

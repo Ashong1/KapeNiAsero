@@ -4,7 +4,6 @@
 <div class="container d-flex align-items-center justify-content-center" style="min-height: 80vh;">
     <div class="col-md-5 col-lg-4">
         
-        {{-- Brand Logo/Icon --}}
         <div class="text-center mb-4">
             <div class="d-inline-flex align-items-center justify-content-center bg-white rounded-circle shadow-sm" style="width: 80px; height: 80px;">
                 <i class="fas fa-store text-primary-coffee fa-2x"></i>
@@ -46,9 +45,12 @@
         </div>
         
         <div class="text-center mt-4">
-            <a href="{{ route('home') }}" class="text-secondary text-decoration-none small fw-bold">
-                <i class="fas fa-arrow-left me-1"></i> Back to Dashboard
-            </a>
+            <form action="{{ route('logout') }}" method="POST">
+                @csrf
+                <button type="submit" class="btn btn-link text-secondary text-decoration-none small fw-bold">
+                    Logout
+                </button>
+            </form>
         </div>
 
     </div>

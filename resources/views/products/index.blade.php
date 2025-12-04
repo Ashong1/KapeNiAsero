@@ -3,24 +3,76 @@
 @section('styles')
 <style>
     /* --- LAYOUT OVERRIDES --- */
-    .container { max-width: 100% !important; padding: 0 !important; }
-    body { padding-bottom: 0 !important; overflow: hidden; background: #F8F9FA; }
-    .pos-layout { height: calc(100vh - 80px); display: flex; overflow: hidden; }
+    /* 1. Body: remove default padding so we can control it via Flexbox */
+    body { padding-bottom: 0 !important; overflow: hidden; }
 
-    /* --- LEFT: PRODUCT AREA --- */
-    .product-section { flex: 1; display: flex; flex-direction: column; height: 100%; overflow: hidden; }
-    .pos-header { padding: 1.5rem 2rem 1rem 2rem; background: white; border-bottom: 1px solid var(--border-light); z-index: 10; flex-shrink: 0; }
+    /* 2. Container: Fill viewport, use flex column */
+    .container { 
+        height: 100vh;        
+        display: flex;        
+        flex-direction: column; 
+    }
+
+    /* 3. Navbar: Prevent shrinking */
+    .navbar-premium { flex-shrink: 0; margin-bottom: 1.5rem !important; }
+
+    /* 4. Main: Fill remaining vertical space */
+    main { 
+        flex: 1; 
+        display: flex; 
+        flex-direction: column; 
+        min-height: 0; /* Crucial for nested scrolling */
+    }
+
+    /* 5. POS Layout: Holds the two floating cards */
+    .pos-layout { 
+        flex: 1; 
+        display: flex; 
+        gap: 1.5rem; /* Gap between Left and Right cards */
+        min-height: 0; 
+        padding-bottom: 1.5rem; /* "Border" at the bottom */
+        overflow: hidden;
+    }
+
+    /* --- LEFT CARD: PRODUCT AREA --- */
+    .product-section { 
+        flex: 1; 
+        background: white;          /* Card Background */
+        border-radius: 24px;        /* Matches Dashboard Cards */
+        box-shadow: 0 10px 40px -10px rgba(0,0,0,0.08); 
+        display: flex; 
+        flex-direction: column; 
+        overflow: hidden;           /* Clip content to rounded corners */
+        height: 100%;
+    }
+    
+    .pos-header { 
+        padding: 1.5rem; 
+        background: white; 
+        border-bottom: 1px solid var(--border-light); 
+        z-index: 10; 
+        flex-shrink: 0; 
+    }
+    
     .search-wrapper { position: relative; margin-bottom: 1rem; }
     .search-input { width: 100%; padding: 0.8rem 1rem 0.8rem 3rem; border-radius: 12px; border: 1px solid var(--border-light); background: #F5F5F7; font-weight: 500; transition: all 0.2s; }
     .search-input:focus { background: white; border-color: var(--primary-coffee); box-shadow: 0 0 0 4px rgba(111, 78, 55, 0.1); outline: none; }
     .search-icon { position: absolute; left: 1.2rem; top: 50%; transform: translateY(-50%); color: #9CA3AF; font-size: 0.9rem; }
+    
     .category-scroll { display: flex; gap: 0.8rem; overflow-x: auto; padding-bottom: 5px; scrollbar-width: none; }
     .category-scroll::-webkit-scrollbar { display: none; }
-    .cat-pill { white-space: nowrap; padding: 0.6rem 1.2rem; border-radius: 100px; font-size: 0.9rem; font-weight: 600; color: var(--text-secondary); background: #fff; border: 1px solid var(--border-light); cursor: pointer; transition: all 0.2s; user-select: none; display: flex; align-items: center; gap: 0.5rem; }
+    .cat-pill { white-space: nowrap; padding: 0.6rem 1.2rem; border-radius: 100px; font-size: 0.9rem; font-weight: 600; color: var(--text-secondary); background: white; border: 1px solid var(--border-light); cursor: pointer; transition: all 0.2s; user-select: none; display: flex; align-items: center; gap: 0.5rem; }
     .cat-pill:hover { background: #FAFAFA; color: var(--text-dark); }
     .cat-pill.active { background: var(--primary-coffee); color: white; border-color: var(--primary-coffee); box-shadow: 0 4px 10px rgba(111, 78, 55, 0.2); }
-    .product-scroll-area { flex: 1; overflow-y: auto; padding: 2rem; background: radial-gradient(circle at top left, #fff8f0 0%, transparent 40%); }
-    .product-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(170px, 1fr)); gap: 1.5rem; padding-bottom: 5rem; }
+    
+    .product-scroll-area { 
+        flex: 1; 
+        overflow-y: auto; 
+        padding: 1.5rem; 
+        background: radial-gradient(circle at top left, #fff8f0 0%, transparent 40%); 
+    }
+    
+    .product-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(160px, 1fr)); gap: 1rem; padding-bottom: 3rem; }
     .coffee-card { background: white; border: 1px solid rgba(0,0,0,0.04); border-radius: 20px; overflow: hidden; transition: all 0.2s; position: relative; box-shadow: 0 4px 10px rgba(0,0,0,0.03); height: 100%; display: flex; flex-direction: column; cursor: pointer; }
     .coffee-card:active { transform: scale(0.98); }
     .coffee-card:hover { transform: translateY(-5px); box-shadow: 0 15px 30px rgba(0,0,0,0.08); border-color: var(--primary-coffee); }
@@ -31,9 +83,20 @@
     .product-title { font-weight: 700; font-size: 0.95rem; margin-bottom: 0.25rem; color: var(--text-dark); line-height: 1.3; }
     .product-price { font-weight: 800; color: var(--primary-coffee); font-size: 1.1rem; }
 
-    /* --- RIGHT: CART SECTION --- */
-    .cart-section { width: 420px; background: white; border-left: 1px solid var(--border-light); display: flex; flex-direction: column; box-shadow: -5px 0 25px rgba(0,0,0,0.03); z-index: 50; height: 100%; }
-    .cart-header { padding: 1.5rem; border-bottom: 1px solid var(--border-light); background: rgba(255,255,255,0.95); display: flex; justify-content: space-between; align-items: center; }
+    /* --- RIGHT CARD: CART SECTION --- */
+    .cart-section { 
+        width: 400px; 
+        background: white;          /* Card Background */
+        border-radius: 24px;        /* Matches Dashboard Cards */
+        box-shadow: 0 10px 40px -10px rgba(0,0,0,0.08); 
+        display: flex; 
+        flex-direction: column; 
+        overflow: hidden;
+        height: 100%;
+        border-left: none; /* Removed border since it's a separate card now */
+    }
+    
+    .cart-header { padding: 1.5rem; border-bottom: 1px solid var(--border-light); background: rgba(255,255,255,0.95); display: flex; justify-content: space-between; align-items: center; flex-shrink: 0; }
     .cart-body { flex: 1; overflow-y: auto; padding: 1.5rem; background: #FAFAFA; }
     .cart-item { background: white; border-radius: 16px; padding: 1rem; margin-bottom: 0.8rem; box-shadow: 0 2px 6px rgba(0,0,0,0.02); display: flex; justify-content: space-between; align-items: center; border: 1px solid transparent; transition: all 0.2s; }
     .cart-item:hover { border-color: var(--primary-coffee); transform: translateX(2px); }
@@ -41,7 +104,7 @@
     .btn-qty { width: 24px; height: 24px; display: flex; align-items: center; justify-content: center; border-radius: 6px; border: none; background: white; color: var(--text-dark); font-size: 0.7rem; cursor: pointer; box-shadow: 0 1px 3px rgba(0,0,0,0.1); transition: all 0.1s; }
     .btn-qty:hover { background: var(--primary-coffee); color: white; }
     .btn-qty:active { transform: scale(0.9); }
-    .cart-footer { padding: 1.5rem; background: white; border-top: 1px solid var(--border-light); box-shadow: 0 -10px 40px rgba(0,0,0,0.05); }
+    .cart-footer { padding: 1.5rem; background: white; border-top: 1px solid var(--border-light); box-shadow: 0 -10px 40px rgba(0,0,0,0.05); flex-shrink: 0; }
     .btn-checkout { width: 100%; padding: 1rem; border-radius: 14px; font-weight: 700; font-size: 1.1rem; border: none; background: linear-gradient(135deg, var(--primary-coffee) 0%, var(--dark-coffee) 100%); color: white; box-shadow: 0 8px 20px rgba(111, 78, 55, 0.25); transition: all 0.3s; display: flex; justify-content: space-between; align-items: center; }
     .btn-checkout:hover { transform: translateY(-2px); box-shadow: 0 12px 25px rgba(111, 78, 55, 0.35); }
 
@@ -77,10 +140,15 @@
 
     @media (max-width: 991px) {
         body { overflow: auto !important; height: auto !important; }
+        .container { height: auto; display: block; } /* Reset flex for mobile */
+        main { display: block; overflow: visible; }
+        .navbar-premium { margin-bottom: 2rem !important; }
+        
         .pos-layout { flex-direction: column; overflow: visible; height: auto; padding-bottom: 80px; }
-        .product-section { height: auto; overflow: visible; }
+        .product-section { height: auto; overflow: visible; border-radius: 0; box-shadow: none; }
         .product-scroll-area { overflow: visible; padding: 1.5rem; }
-        .cart-section { width: 100%; position: fixed; bottom: 0; left: 0; height: auto; transform: translateY(calc(100% - 85px)); transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1); border-top-left-radius: 24px; border-top-right-radius: 24px; box-shadow: 0 -5px 30px rgba(0,0,0,0.15); border-left: none; }
+        /* Cart adjustment for Mobile */
+        .cart-section { width: 100%; border-radius: 24px 24px 0 0; position: fixed; bottom: 0; left: 0; height: auto; transform: translateY(calc(100% - 85px)); transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1); box-shadow: 0 -5px 30px rgba(0,0,0,0.15); border-left: none; }
         .cart-section.expanded { transform: translateY(0); height: 85vh; }
         .cart-body { padding-bottom: 2rem; }
     }
@@ -119,7 +187,6 @@
                      >
                      <div class="card-img-box">
                         @if($product->image_path)
-                            {{-- [UPDATED] Added border-radius and shadow --}}
                             <img src="{{ asset('storage/' . $product->image_path) }}" class="img-fluid shadow-sm" style="height: 100px; object-fit: contain; border-radius: 10px;">
                         @else
                             <i class="fas fa-mug-hot fa-3x text-secondary opacity-25"></i>
@@ -134,7 +201,6 @@
                                     <a href="{{ route('products.edit', $product->id) }}" class="btn-admin-icon btn-edit" title="Edit" onclick="event.stopPropagation()">
                                         <i class="fa-solid fa-pen-to-square"></i>
                                     </a>
-                                    {{-- UPDATED: ADMIN DELETE WITH SWEETALERT --}}
                                     <form action="{{ route('products.destroy', $product->id) }}" method="POST" class="d-inline admin-delete-form" data-product-name="{{ $product->name }}">
                                         @csrf @method('DELETE')
                                         <button type="submit" class="btn-admin-icon btn-delete" title="Delete" onclick="event.stopPropagation()">
@@ -169,7 +235,6 @@
                      style="width: 24px; height: 24px; font-size: 0.75rem;" id="cart-badge-count">0</div>
             </div>
             <div class="d-flex align-items-center gap-2">
-                {{-- SAVED ORDERS BUTTON --}}
                 <button class="btn btn-sm btn-light text-primary-coffee border-0 p-1" onclick="event.stopPropagation(); openSavedOrders()" title="Recall Saved Order">
                     <i class="fa-solid fa-clock-rotate-left"></i>
                 </button>
@@ -212,11 +277,9 @@
             </div>
 
             <div class="d-flex gap-2 mb-3">
-                {{-- DISCOUNT BTN --}}
                 <button class="btn btn-sm btn-outline-secondary w-50 border-dashed" onclick="openDiscountModal()">
                     <i class="fa-solid fa-tag me-1"></i> Discount
                 </button>
-                {{-- PARK BTN --}}
                 <button class="btn btn-sm btn-outline-warning w-50 border-dashed" onclick="parkOrder()">
                     <i class="fa-solid fa-circle-pause me-1"></i> Hold Order
                 </button>
@@ -232,7 +295,7 @@
 
 </div>
 
-{{-- MODALS DEFINITIONS (Kept inline to avoid missing file error) --}}
+{{-- MODALS DEFINITIONS --}}
 
 {{-- 1. Checkout Modal --}}
 <div class="modal fade" id="checkoutModal" tabindex="-1" aria-hidden="true">

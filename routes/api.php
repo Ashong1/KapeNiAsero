@@ -18,7 +18,7 @@ Route::get('/pos/products', [PosApiController::class, 'getProducts']);
 
 
 // --- Protected Routes (Requires Bearer Token) ---
-Route::middleware('auth:sanctum')->group(function () {
+Route::middleware(['web', 'auth'])->group(function () {
     
     // User Info
     Route::get('/user', function (Request $request) {
@@ -45,6 +45,9 @@ Route::middleware('auth:sanctum')->group(function () {
         
         // 6. View history logs (Stock Card)
         Route::get('/ingredients/{id}/history', [InventoryApiController::class, 'history']);
+
+        // 7. DELETE endpoint (Required for Final Project)
+        Route::delete('/ingredients/{id}', [InventoryApiController::class, 'destroy']);
     });
 
 });

@@ -202,18 +202,15 @@
                                 </td>
                                 <td>
                                     {{-- MANUAL OVERRIDE (For Corrections) --}}
-                                    <form action="{{ route('ingredients.update', $ing->id) }}" method="POST" class="d-flex align-items-center gap-2">
-                                        @csrf 
-                                        @method('PUT')
-                                        <input type="hidden" name="name" value="{{ $ing->name }}">
+                                    {{-- API CONSUMPTION TARGET: 'api-quick-edit-form' --}}
+                                    <form class="d-flex align-items-center gap-2 api-quick-edit-form" data-id="{{ $ing->id }}">
                                         
                                         <div class="input-group input-group-sm" style="width: 140px;">
                                             <input type="number" name="stock" value="{{ $ing->stock }}" class="form-control text-center fw-bold text-dark" step="0.01" style="border-right:none;">
                                             <span class="input-group-text bg-white border-start-0 text-muted small">{{ $ing->unit }}</span>
                                         </div>
-                                        {{-- Updated Button Color --}}
-                                        <button class="btn btn-sm btn-action-edit shadow-sm" title="Manual Correction">
-                                            <i class="fas fa-pen"></i>
+                                        <button type="submit" class="btn btn-sm btn-action-edit shadow-sm" title="Quick Update via API">
+                                            <i class="fas fa-bolt"></i>
                                         </button>
                                     </form>
                                 </td>
@@ -353,6 +350,9 @@
     </div>
 </div>
 
+{{-- AXIOS FOR API CONSUMPTION --}}
+<script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
+
 <script>
     // Search Script
     document.getElementById('inventorySearch').addEventListener('keyup', function() {
@@ -385,6 +385,50 @@
                     confirmButtonText: 'Yes, remove it',
                     reverseButtons: true
                 }).then((result) => { if (result.isConfirmed) form.submit(); });
+            });
+        });
+
+        // --- NEW: API CONSUMPTION FOR QUICK EDIT ---
+        // This satisfies the requirement: "Your system must consume at least one (1) API"
+        document.querySelectorAll('.api-quick-edit-form').forEach(form => {
+            form.addEventListener('submit', function(e) {
+                e.preventDefault();
+                
+                const id = this.getAttribute('data-id');
+                const stockInput = this.querySelector('input[name="stock"]');
+                const newStock = stockInput.value;
+
+                // Show Loading
+                const btn = this.querySelector('button');
+                const originalIcon = btn.innerHTML;
+                btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i>';
+                btn.disabled = true;
+
+                // Call Internal API
+                axios.put(`/api/inventory/ingredients/${id}`, {
+                    stock: newStock
+                })
+                .then(response => {
+                    if(response.data.status === 'success') {
+                        Swal.fire({
+                            icon: 'success',
+                            title: 'API Updated!',
+                            text: 'Stock adjusted via Internal API.',
+                            timer: 1500,
+                            showConfirmButton: false
+                        });
+                        // Optional: Reload to reflect changes if server logic requires it
+                        // location.reload(); 
+                    }
+                })
+                .catch(error => {
+                    console.error(error);
+                    Swal.fire('Error', 'Failed to update via API. Check console.', 'error');
+                })
+                .finally(() => {
+                    btn.innerHTML = originalIcon;
+                    btn.disabled = false;
+                });
             });
         });
     });

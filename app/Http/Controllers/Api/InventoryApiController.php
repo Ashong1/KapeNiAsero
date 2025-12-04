@@ -217,4 +217,27 @@ class InventoryApiController extends Controller
             'data' => $logs
         ]);
     }
+
+    /**
+     * DELETE /api/inventory/ingredients/{id}
+     * Remove an ingredient.
+     */
+    public function destroy($id)
+    {
+        $ingredient = Ingredient::find($id);
+
+        if (!$ingredient) {
+            return response()->json(['status' => 'error', 'message' => 'Ingredient not found'], 404);
+        }
+
+        // Optional: Check if used in products before deleting
+        // if($ingredient->products()->exists()) { ... }
+
+        $ingredient->delete();
+
+        return response()->json([
+            'status' => 'success',
+            'message' => 'Ingredient deleted successfully via API'
+        ]);
+    }
 }

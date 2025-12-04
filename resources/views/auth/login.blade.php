@@ -114,27 +114,33 @@
             <form method="POST" action="{{ route('login') }}">
                 @csrf
 
-                <div class="position-relative">
-                    <i class="fas fa-envelope input-group-icon"></i>
-                    <input type="email" name="email" class="form-control @error('email') is-invalid @enderror" 
-                           placeholder="Email Address" value="{{ old('email') }}" required autofocus>
+                <div class="mb-4">
+                    <div class="position-relative" style="margin-bottom: 0.5rem;">
+                        <i class="fas fa-envelope input-group-icon"></i>
+                        <input type="email" name="email" class="form-control @error('email') is-invalid @enderror" 
+                               placeholder="Email Address" value="{{ old('email') }}" required autofocus>
+                    </div>
                     
-                    {{-- CHANGED: Loop through ALL errors to show both the failure message and the attempts left --}}
+                    {{-- Error messages moved OUTSIDE the position-relative div to prevent icon shifting --}}
                     @if ($errors->has('email'))
                         @foreach ($errors->get('email') as $message)
-                            <span class="text-danger small mt-1 d-block">
+                            <span class="text-danger small d-block ms-1">
                                 <i class="fas fa-exclamation-circle me-1"></i> {{ $message }}
                             </span>
                         @endforeach
                     @endif
                 </div>
 
-                <div class="position-relative">
-                    <i class="fas fa-lock input-group-icon"></i>
-                    <input type="password" name="password" class="form-control @error('password') is-invalid @enderror" 
-                           placeholder="Password" required>
+                <div class="mb-4">
+                    <div class="position-relative" style="margin-bottom: 0.5rem;">
+                        <i class="fas fa-lock input-group-icon"></i>
+                        <input type="password" name="password" class="form-control @error('password') is-invalid @enderror" 
+                               placeholder="Password" required>
+                    </div>
+                    
+                    {{-- Error messages moved OUTSIDE for consistency --}}
                     @error('password')
-                        <span class="text-danger small mt-1 d-block">{{ $message }}</span>
+                        <span class="text-danger small d-block ms-1">{{ $message }}</span>
                     @enderror
                 </div>
 

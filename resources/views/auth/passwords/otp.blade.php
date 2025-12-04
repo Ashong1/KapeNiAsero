@@ -28,6 +28,8 @@
         .form-control:focus { background-color: #fff; border-color: var(--primary-coffee); box-shadow: 0 0 0 4px rgba(111, 78, 55, 0.1); }
         .input-group-icon { position: absolute; left: 1rem; top: 50%; transform: translateY(-50%); color: #9CA3AF; z-index: 4; }
         
+        .input-wrapper { margin-bottom: 1rem; }
+
         .btn-coffee {
             background: var(--primary-coffee); color: white; width: 100%; padding: 0.8rem; border-radius: 12px;
             font-weight: 600; border: none; transition: all 0.2s; box-shadow: 0 4px 12px rgba(111, 78, 55, 0.25);
@@ -39,19 +41,25 @@
 
 <div class="glass-card">
     <h3 class="fw-bold text-dark mb-2">Check Your Email</h3>
-    <p class="text-secondary small mb-4">We sent a verification code to<br><strong>{{ $email }}</strong></p>
+    <p class="text-secondary small mb-3">We sent a verification code to<br><strong>{{ $email }}</strong></p>
+
+    <div class="mb-4 small">
+        <span class="text-muted">Code expires in: <span id="otp-timer" class="fw-bold text-danger">03:00</span></span>
+    </div>
 
     <form method="POST" action="{{ route('password.verifyOtp') }}">
         @csrf
         <input type="hidden" name="email" value="{{ $email }}">
 
-        <div class="position-relative mb-4 text-start">
-            <i class="fas fa-key input-group-icon"></i>
-            <input id="two_factor_code" type="text" class="form-control @error('two_factor_code') is-invalid @enderror" 
-                   name="two_factor_code" required autofocus 
-                   placeholder="Enter 6-digit Code" maxlength="6">
+        <div class="input-wrapper text-start">
+            <div class="position-relative">
+                <i class="fas fa-key input-group-icon"></i>
+                <input id="two_factor_code" type="text" class="form-control @error('two_factor_code') is-invalid @enderror" 
+                       name="two_factor_code" required autofocus 
+                       placeholder="Enter 6-digit Code" maxlength="6">
+            </div>
             @error('two_factor_code')
-                <span class="text-danger small mt-1 d-block">{{ $message }}</span>
+                <span class="text-danger small mt-1 d-block ps-1">{{ $message }}</span>
             @enderror
         </div>
 
@@ -66,6 +74,32 @@
         </div>
     </form>
 </div>
+
+<script>
+    document.addEventListener('DOMContentLoaded', function () {
+        let timeRemaining = 180; // 3 minutes in seconds
+        const timerDisplay = document.getElementById('otp-timer');
+
+        function updateTimer() {
+            const minutes = Math.floor(timeRemaining / 60);
+            const seconds = timeRemaining % 60;
+            
+            // Format time as MM:SS
+            timerDisplay.textContent = String(minutes).padStart(2, '0') + ':' + String(seconds).padStart(2, '0');
+
+            if (timeRemaining <= 0) {
+                clearInterval(countdown);
+                timerDisplay.textContent = 'EXPIRED';
+                timerDisplay.classList.add('text-decoration-line-through');
+            } else {
+                timeRemaining--;
+            }
+        }
+
+        const countdown = setInterval(updateTimer, 1000);
+        updateTimer(); // Initialize immediately
+    });
+</script>
 
 </body>
 </html>

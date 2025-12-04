@@ -28,6 +28,9 @@
         .form-control:focus { background-color: #fff; border-color: var(--primary-coffee); box-shadow: 0 0 0 4px rgba(111, 78, 55, 0.1); }
         .input-group-icon { position: absolute; left: 1rem; top: 50%; transform: translateY(-50%); color: #9CA3AF; z-index: 4; }
         
+        /* Helper to ensure spacing when error appears */
+        .input-wrapper { margin-bottom: 1.5rem; }
+        
         .btn-coffee {
             background: var(--primary-coffee); color: white; width: 100%; padding: 0.8rem; border-radius: 12px;
             font-weight: 600; border: none; transition: all 0.2s; box-shadow: 0 4px 12px rgba(111, 78, 55, 0.25);
@@ -51,13 +54,16 @@
     <form method="POST" action="{{ route('password.email') }}">
         @csrf
 
-        <div class="position-relative mb-4 text-start">
-            <i class="fas fa-envelope input-group-icon"></i>
-            <input id="email" type="email" class="form-control @error('email') is-invalid @enderror" 
-                   name="email" value="{{ old('email') }}" required autocomplete="email" autofocus 
-                   placeholder="Email Address">
+        <div class="input-wrapper text-start">
+            <div class="position-relative">
+                <i class="fas fa-envelope input-group-icon"></i>
+                <input id="email" type="email" class="form-control @error('email') is-invalid @enderror" 
+                       name="email" value="{{ old('email') }}" required autocomplete="email" autofocus 
+                       placeholder="Email Address">
+            </div>
+            {{-- Error moved OUTSIDE the position-relative div --}}
             @error('email')
-                <span class="text-danger small mt-1 d-block">{{ $message }}</span>
+                <span class="text-danger small mt-1 d-block ps-1">{{ $message }}</span>
             @enderror
         </div>
 

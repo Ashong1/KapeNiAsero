@@ -6,10 +6,12 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
+use Laravel\Sanctum\HasApiTokens; // <--- 1. Import this Trait
 
 class User extends Authenticatable
 {
-    use HasFactory, Notifiable;
+    // <--- 2. Add HasApiTokens to this list
+    use HasApiTokens, HasFactory, Notifiable;
 
     /**
      * The attributes that are mass assignable.
@@ -48,8 +50,6 @@ class User extends Authenticatable
         'must_change_password' => 'boolean',
     ];
 
-    // --- UPDATED FUNCTION BELOW ---
-
     /**
      * Generates a new code and saves it to the database.
      */
@@ -58,7 +58,7 @@ class User extends Authenticatable
         $this->timestamps = false; // Prevent updating 'updated_at'
         $this->two_factor_code = rand(100000, 999999);
         
-        // CHANGED: Expiry set to 3 minutes
+        // Expiry set to 3 minutes
         $this->two_factor_expires_at = now()->addMinutes(3);
         
         $this->save();

@@ -19,7 +19,11 @@ use App\Http\Controllers\Auth\ForgotPasswordController;
 use App\Http\Controllers\ReportController; 
 use App\Http\Controllers\ActivityLogController;
 use App\Http\Controllers\SettingController;
-use App\Http\Controllers\ChangePasswordController; // Imported
+use App\Http\Controllers\ChangePasswordController;
+
+// API Controllers (For Internal Use)
+use App\Http\Controllers\Api\PosApiController; 
+use App\Http\Controllers\Api\InventoryApiController; // <--- 1. ADD THIS IMPORT
 
 Route::get('/', function () { return redirect('/login'); });
 
@@ -29,26 +33,29 @@ Auth::routes(['register' => false]);
 // --- PASSWORD RESET OTP ROUTES ---
 Route::get('password/otp', [ForgotPasswordController::class, 'showOtpForm'])->name('password.otp');
 Route::post('password/otp', [ForgotPasswordController::class, 'verifyOtp'])->name('password.verifyOtp');
-// ADDED: Resend Route
 Route::post('password/otp/resend', [ForgotPasswordController::class, 'resendOtp'])->name('password.resendOtp');
 
 
 // --- AUTHENTICATED ROUTES ---
 Route::middleware(['auth'])->group(function () {
 
-    // 1. CHANGE PASSWORD ROUTES (Accessible to everyone logged in)
+    // 1. CHANGE PASSWORD ROUTES
     Route::get('/change-password', [ChangePasswordController::class, 'show'])->name('password.change');
     Route::post('/change-password', [ChangePasswordController::class, 'update'])->name('password.update');
 
-    // 2. LOGOUT ACTION (Accessible so users can exit the flow)
+    // 2. LOGOUT ACTION
     Route::get('/logout-action', [ShiftController::class, 'handleLogout'])->name('logout.action');
 
     // 3. ROUTES REQUIRING MANDATORY PASSWORD CHANGE
-    // All routes inside here will be blocked if 'must_change_password' is true
-    // ADDED 'shift' MIDDLEWARE HERE:
     Route::middleware(['force.change.password', 'shift'])->group(function () {
 
-        // --- GENERAL ACCESS (Pos, Shifts, etc.) ---
+        // --- POS API (Internal) ---
+        Route::prefix('pos')->group(function () {
+            Route::get('/products', [PosApiController::class, 'getProducts']);
+            Route::get('/categories', [PosApiController::class, 'getCategories']);
+        });
+
+        // --- GENERAL ACCESS ---
         Route::get('/home', [HomeController::class, 'index'])->name('home');
         Route::get('/products', [ProductController::class, 'index'])->name('products.index');
         Route::get('/orders', [OrderController::class, 'index'])->name('orders.index');
@@ -56,7 +63,6 @@ Route::middleware(['auth'])->group(function () {
         Route::post('/checkout', [OrderController::class, 'store'])->name('checkout');
         Route::get('/orders/{order}/success', [OrderController::class, 'paymentSuccess'])->name('orders.success');
         Route::get('/orders/{order}/receipt', [OrderController::class, 'downloadReceipt'])->name('orders.receipt');
-        
         Route::post('/orders/{order}/void-request', [OrderController::class, 'requestVoid'])->name('orders.requestVoid');
 
         Route::resource('shifts', ShiftController::class)->only(['index', 'create', 'store', 'edit', 'update']);
@@ -68,8 +74,13 @@ Route::middleware(['auth'])->group(function () {
         Route::put('/parked-orders/{order}', [ParkedOrderController::class, 'update']);
 
         // --- ADMIN ONLY ROUTES ---
-        // Nested here so Admins are ALSO forced to change password if flagged
         Route::middleware(['admin'])->group(function () {
+            
+            // <--- 2. ADD INVENTORY API ROUTES HERE
+            Route::prefix('internal-api')->group(function() {
+                Route::put('/ingredients/{id}', [InventoryApiController::class, 'update']);
+            });
+
             Route::resource('categories', CategoryController::class);
             Route::resource('ingredients', IngredientController::class);
             Route::resource('suppliers', SupplierController::class);

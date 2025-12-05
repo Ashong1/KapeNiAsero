@@ -14,15 +14,18 @@ class PosApiController extends Controller
     /**
      * Get all active products with their categories and ingredients.
      */
-    public function getProducts()
+    public function getProducts(Request $request) // Add Request $request
     {
-        $products = Product::with(['category', 'ingredients'])
-            ->where('stock', '>', 0) 
-            ->get();
-
-        return response()->json($products);
+        $query = Product::with(['category', 'ingredients'])->where('stock', '>', 0);
+    
+        // Filter by search term if provided
+        if ($request->has('search')) {
+            $search = $request->input('search');
+            $query->where('name', 'like', "%{$search}%");
+        }
+    
+        return response()->json($query->get());
     }
-
     /**
      * Get all categories for the POS tabs.
      */

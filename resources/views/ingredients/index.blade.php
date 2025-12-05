@@ -404,8 +404,8 @@
                 btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i>';
                 btn.disabled = true;
 
-                // Call Internal API
-                axios.put(`/api/inventory/ingredients/${id}`, {
+                // <--- UPDATED URL HERE: Matches the web.php route
+                axios.put(`/internal-api/ingredients/${id}`, {
                     stock: newStock
                 })
                 .then(response => {
@@ -423,7 +423,11 @@
                 })
                 .catch(error => {
                     console.error(error);
-                    Swal.fire('Error', 'Failed to update via API. Check console.', 'error');
+                    let msg = 'Failed to update via API. Check console.';
+                    if(error.response && error.response.status === 401) {
+                         msg = 'Session expired. Please login again.';
+                    }
+                    Swal.fire('Error', msg, 'error');
                 })
                 .finally(() => {
                     btn.innerHTML = originalIcon;

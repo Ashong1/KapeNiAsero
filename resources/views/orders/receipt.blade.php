@@ -44,8 +44,9 @@
         <div class="divider"></div>
 
         <div class="customer-info">
-            {{-- DISPLAY CUSTOMER NAME --}}
+            {{-- DISPLAY CUSTOMER NAME OR UNDERSCORE --}}
             <p>Customer: <strong>{{ $order->customer_name ?? '________________________' }}</strong></p>
+            <p>Address: _________________________</p>
             <p>TIN: _____________________________</p>
         </div>
         <div class="divider"></div>
@@ -122,14 +123,24 @@
                 
                 <tr><td colspan="2" style="height: 10px;"></td></tr>
 
+                {{-- DYNAMIC LABEL BASED ON PAYMENT MODE --}}
                 <tr>
-                    <td>Cash Tendered</td>
+                    @if($order->payment_mode === 'cash')
+                        <td>Cash Tendered</td>
+                    @else
+                        <td>Amount Paid ({{ ucfirst($order->payment_mode) }})</td>
+                    @endif
+                    
                     <td class="price">{{ number_format($order->cash_tendered, 2) }}</td>
                 </tr>
+                
+                {{-- HIDE CHANGE FOR NON-CASH PAYMENTS --}}
+                @if($order->payment_mode === 'cash')
                 <tr>
                     <td>Change</td>
                     <td class="price">{{ number_format($order->change_amount, 2) }}</td>
                 </tr>
+                @endif
             </table>
         </div>
 

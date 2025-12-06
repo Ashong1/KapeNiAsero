@@ -13,6 +13,7 @@ class Order extends Model
 
     protected $fillable = [
         'user_id', 
+        'customer_name', // <--- ADD THIS
         'subtotal',
         'discount_name',
         'discount_amount',
@@ -24,8 +25,6 @@ class Order extends Model
         'order_type'
     ];
 
-    // --- RELATIONSHIPS ---
-
     public function items()
     {
         return $this->hasMany(OrderItem::class);
@@ -36,33 +35,18 @@ class Order extends Model
         return $this->belongsTo(User::class);
     }
 
-    // --- NEW SCOPES (For Cleaner Controller Code) ---
-
-    /**
-     * Scope a query to only include completed orders.
-     * Usage: Order::completed()->get();
-     */
     public function scopeCompleted(Builder $query)
     {
         return $query->where('status', 'completed');
     }
 
-    /**
-     * Scope a query to only include voided orders.
-     * Usage: Order::voided()->get();
-     */
     public function scopeVoided(Builder $query)
     {
         return $query->where('status', 'voided');
     }
 
-    /**
-     * Scope a query to filter by date range.
-     * Usage: Order::dateRange($start, $end)->get();
-     */
     public function scopeDateRange(Builder $query, $start, $end)
     {
-        // Ensure we cover the full day of the end date (00:00:00 to 23:59:59)
         return $query->whereBetween('created_at', [
             Carbon::parse($start)->startOfDay(), 
             Carbon::parse($end)->endOfDay()

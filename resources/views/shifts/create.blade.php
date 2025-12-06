@@ -14,6 +14,14 @@
 
         <div class="card card-custom border-0 shadow-lg" style="border-radius: 20px;">
             <div class="card-body p-4">
+                
+                {{-- 1. SHOW MIDDLEWARE ERROR (If they tried to force access another URL) --}}
+                @if (session('error'))
+                    <div class="alert alert-danger small mb-4 rounded-3 border-0 shadow-sm">
+                        <i class="fas fa-exclamation-triangle me-1"></i> {{ session('error') }}
+                    </div>
+                @endif
+
                 <form method="POST" action="{{ route('shifts.store') }}">
                     @csrf
                     
@@ -23,14 +31,22 @@
                         </label>
                         <div class="input-group input-group-lg">
                             <span class="input-group-text bg-light border-end-0 text-secondary fw-bold" style="border-top-left-radius: 12px; border-bottom-left-radius: 12px;">₱</span>
+                            
+                            {{-- Add is-invalid class if validation fails --}}
                             <input type="number" 
                                    step="0.01" 
-                                   class="form-control bg-light border-start-0 fw-bold text-dark" 
+                                   class="form-control bg-light border-start-0 fw-bold text-dark @error('start_cash') is-invalid @enderror" 
                                    name="start_cash" 
-                                   required 
                                    placeholder="0.00" 
                                    autofocus
                                    style="border-top-right-radius: 12px; border-bottom-right-radius: 12px; font-size: 1.5rem;">
+                                   
+                            {{-- 2. SHOW VALIDATION ERROR (If input is empty) --}}
+                            @error('start_cash')
+                                <span class="invalid-feedback text-start small fw-bold mt-2" role="alert">
+                                    {{ $message }}
+                                </span>
+                            @enderror
                         </div>
                         <div class="form-text text-muted small mt-2">
                             <i class="fas fa-info-circle me-1"></i> Count the physical cash in the drawer before starting.

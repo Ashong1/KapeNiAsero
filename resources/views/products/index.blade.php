@@ -2,76 +2,25 @@
 
 @section('styles')
 <style>
-    /* --- LAYOUT OVERRIDES --- */
-    /* 1. Body: remove default padding so we can control it via Flexbox */
+    /* ... (Keep all existing styles) ... */
+    /* Ensure the styles match your previous file exactly */
     body { padding-bottom: 0 !important; overflow: hidden; }
-
-    /* 2. Container: Fill viewport, use flex column */
-    .container { 
-        height: 100vh;        
-        display: flex;        
-        flex-direction: column; 
-    }
-
-    /* 3. Navbar: Prevent shrinking */
+    .container { height: 100vh; display: flex; flex-direction: column; }
     .navbar-premium { flex-shrink: 0; margin-bottom: 1.5rem !important; }
-
-    /* 4. Main: Fill remaining vertical space */
-    main { 
-        flex: 1; 
-        display: flex; 
-        flex-direction: column; 
-        min-height: 0; /* Crucial for nested scrolling */
-    }
-
-    /* 5. POS Layout: Holds the two floating cards */
-    .pos-layout { 
-        flex: 1; 
-        display: flex; 
-        gap: 1.5rem; /* Gap between Left and Right cards */
-        min-height: 0; 
-        padding-bottom: 1.5rem; /* "Border" at the bottom */
-        overflow: hidden;
-    }
-
-    /* --- LEFT CARD: PRODUCT AREA --- */
-    .product-section { 
-        flex: 1; 
-        background: white;          /* Card Background */
-        border-radius: 24px;        /* Matches Dashboard Cards */
-        box-shadow: 0 10px 40px -10px rgba(0,0,0,0.08); 
-        display: flex; 
-        flex-direction: column; 
-        overflow: hidden;           /* Clip content to rounded corners */
-        height: 100%;
-    }
-    
-    .pos-header { 
-        padding: 1.5rem; 
-        background: white; 
-        border-bottom: 1px solid var(--border-light); 
-        z-index: 10; 
-        flex-shrink: 0; 
-    }
-    
+    main { flex: 1; display: flex; flex-direction: column; min-height: 0; }
+    .pos-layout { flex: 1; display: flex; gap: 1.5rem; min-height: 0; padding-bottom: 1.5rem; overflow: hidden; }
+    .product-section { flex: 1; background: white; border-radius: 24px; box-shadow: 0 10px 40px -10px rgba(0,0,0,0.08); display: flex; flex-direction: column; overflow: hidden; height: 100%; }
+    .pos-header { padding: 1.5rem; background: white; border-bottom: 1px solid var(--border-light); z-index: 10; flex-shrink: 0; }
     .search-wrapper { position: relative; margin-bottom: 1rem; }
     .search-input { width: 100%; padding: 0.8rem 1rem 0.8rem 3rem; border-radius: 12px; border: 1px solid var(--border-light); background: #F5F5F7; font-weight: 500; transition: all 0.2s; }
     .search-input:focus { background: white; border-color: var(--primary-coffee); box-shadow: 0 0 0 4px rgba(111, 78, 55, 0.1); outline: none; }
     .search-icon { position: absolute; left: 1.2rem; top: 50%; transform: translateY(-50%); color: #9CA3AF; font-size: 0.9rem; }
-    
     .category-scroll { display: flex; gap: 0.8rem; overflow-x: auto; padding-bottom: 5px; scrollbar-width: none; }
     .category-scroll::-webkit-scrollbar { display: none; }
     .cat-pill { white-space: nowrap; padding: 0.6rem 1.2rem; border-radius: 100px; font-size: 0.9rem; font-weight: 600; color: var(--text-secondary); background: white; border: 1px solid var(--border-light); cursor: pointer; transition: all 0.2s; user-select: none; display: flex; align-items: center; gap: 0.5rem; }
     .cat-pill:hover { background: #FAFAFA; color: var(--text-dark); }
     .cat-pill.active { background: var(--primary-coffee); color: white; border-color: var(--primary-coffee); box-shadow: 0 4px 10px rgba(111, 78, 55, 0.2); }
-    
-    .product-scroll-area { 
-        flex: 1; 
-        overflow-y: auto; 
-        padding: 1.5rem; 
-        background: radial-gradient(circle at top left, #fff8f0 0%, transparent 40%); 
-    }
-    
+    .product-scroll-area { flex: 1; overflow-y: auto; padding: 1.5rem; background: radial-gradient(circle at top left, #fff8f0 0%, transparent 40%); }
     .product-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(160px, 1fr)); gap: 1rem; padding-bottom: 3rem; }
     .coffee-card { background: white; border: 1px solid rgba(0,0,0,0.04); border-radius: 20px; overflow: hidden; transition: all 0.2s; position: relative; box-shadow: 0 4px 10px rgba(0,0,0,0.03); height: 100%; display: flex; flex-direction: column; cursor: pointer; }
     .coffee-card:active { transform: scale(0.98); }
@@ -82,20 +31,7 @@
     .card-content { padding: 1rem; flex: 1; display: flex; flex-direction: column; justify-content: space-between; }
     .product-title { font-weight: 700; font-size: 0.95rem; margin-bottom: 0.25rem; color: var(--text-dark); line-height: 1.3; }
     .product-price { font-weight: 800; color: var(--primary-coffee); font-size: 1.1rem; }
-
-    /* --- RIGHT CARD: CART SECTION --- */
-    .cart-section { 
-        width: 400px; 
-        background: white;          /* Card Background */
-        border-radius: 24px;        /* Matches Dashboard Cards */
-        box-shadow: 0 10px 40px -10px rgba(0,0,0,0.08); 
-        display: flex; 
-        flex-direction: column; 
-        overflow: hidden;
-        height: 100%;
-        border-left: none; /* Removed border since it's a separate card now */
-    }
-    
+    .cart-section { width: 400px; background: white; border-radius: 24px; box-shadow: 0 10px 40px -10px rgba(0,0,0,0.08); display: flex; flex-direction: column; overflow: hidden; height: 100%; border-left: none; }
     .cart-header { padding: 1.5rem; border-bottom: 1px solid var(--border-light); background: rgba(255,255,255,0.95); display: flex; justify-content: space-between; align-items: center; flex-shrink: 0; }
     .cart-body { flex: 1; overflow-y: auto; padding: 1.5rem; background: #FAFAFA; }
     .cart-item { background: white; border-radius: 16px; padding: 1rem; margin-bottom: 0.8rem; box-shadow: 0 2px 6px rgba(0,0,0,0.02); display: flex; justify-content: space-between; align-items: center; border: 1px solid transparent; transition: all 0.2s; }
@@ -107,21 +43,15 @@
     .cart-footer { padding: 1.5rem; background: white; border-top: 1px solid var(--border-light); box-shadow: 0 -10px 40px rgba(0,0,0,0.05); flex-shrink: 0; }
     .btn-checkout { width: 100%; padding: 1rem; border-radius: 14px; font-weight: 700; font-size: 1.1rem; border: none; background: linear-gradient(135deg, var(--primary-coffee) 0%, var(--dark-coffee) 100%); color: white; box-shadow: 0 8px 20px rgba(111, 78, 55, 0.25); transition: all 0.3s; display: flex; justify-content: space-between; align-items: center; }
     .btn-checkout:hover { transform: translateY(-2px); box-shadow: 0 12px 25px rgba(111, 78, 55, 0.35); }
-
-    /* --- TOGGLE STYLES --- */
     .toggle-track { background-color: #F5F5F7; border-radius: 16px; padding: 4px; display: flex; border: 1px solid var(--border-light); }
     .toggle-option { flex: 1; border: none; background: transparent; padding: 0.7rem; border-radius: 12px; font-weight: 700; font-size: 0.9rem; color: var(--text-secondary); transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1); display: flex; align-items: center; justify-content: center; gap: 0.5rem; }
     .toggle-option:hover { color: var(--primary-coffee); }
     .toggle-option.active { background-color: white; color: var(--primary-coffee); box-shadow: 0 4px 12px rgba(0,0,0,0.08); transform: scale(1.02); }
-
-    /* --- ADMIN BUTTONS --- */
     .btn-admin-icon { width: 32px; height: 32px; border-radius: 8px; display: flex; align-items: center; justify-content: center; border: 1px solid transparent; transition: all 0.2s; cursor: pointer; text-decoration: none; }
     .btn-edit { background: var(--surface-cream); color: var(--primary-coffee); border-color: rgba(111, 78, 55, 0.1); }
     .btn-edit:hover { background: var(--primary-coffee); color: white; box-shadow: 0 4px 10px rgba(111, 78, 55, 0.2); }
     .btn-delete { background: #FFF5F5; color: var(--danger-red); border-color: rgba(211, 47, 47, 0.1); }
     .btn-delete:hover { background: var(--danger-red); color: white; box-shadow: 0 4px 10px rgba(211, 47, 47, 0.2); }
-
-    /* --- PAYMENT & MODAL STYLES --- */
     .modal-backdrop.show { opacity: 0.2; backdrop-filter: blur(4px); }
     .modal-content-premium { border: none; border-radius: 24px; overflow: hidden; box-shadow: 0 25px 50px -12px rgba(0,0,0,0.25); }
     .modal-header-premium { background: var(--surface-bg); border-bottom: 1px solid var(--border-light); padding: 1.5rem; }
@@ -133,21 +63,17 @@
     .btn-quick-cash:hover { background: var(--surface-bg); border-color: var(--text-secondary); }
     .btn-quick-cash:active { transform: scale(0.95); background: var(--primary-coffee); color: white; }
     .change-display { background: #F0FDF4; border: 1px dashed #4ADE80; color: #15803D; padding: 1rem; border-radius: 12px; text-align: right; }
-    
-    /* SUCCESS ANIMATION */
     .success-animation { animation: popIn 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275); }
     @keyframes popIn { 0% { transform: scale(0); opacity: 0; } 100% { transform: scale(1); opacity: 1; } }
 
     @media (max-width: 991px) {
         body { overflow: auto !important; height: auto !important; }
-        .container { height: auto; display: block; } /* Reset flex for mobile */
+        .container { height: auto; display: block; }
         main { display: block; overflow: visible; }
         .navbar-premium { margin-bottom: 2rem !important; }
-        
         .pos-layout { flex-direction: column; overflow: visible; height: auto; padding-bottom: 80px; }
         .product-section { height: auto; overflow: visible; border-radius: 0; box-shadow: none; }
         .product-scroll-area { overflow: visible; padding: 1.5rem; }
-        /* Cart adjustment for Mobile */
         .cart-section { width: 100%; border-radius: 24px 24px 0 0; position: fixed; bottom: 0; left: 0; height: auto; transform: translateY(calc(100% - 85px)); transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1); box-shadow: 0 -5px 30px rgba(0,0,0,0.15); border-left: none; }
         .cart-section.expanded { transform: translateY(0); height: 85vh; }
         .cart-body { padding-bottom: 2rem; }
@@ -157,7 +83,7 @@
 
 @section('content')
 <div class="pos-layout">
-    
+    {{-- (Product Section remains the same) --}}
     <div class="product-section">
         <div class="pos-header">
             <div class="search-wrapper">
@@ -177,7 +103,6 @@
         <div class="product-scroll-area">
             <div class="product-grid" id="productGrid">
                 @foreach($products as $product)
-                {{-- PASS THE CATEGORY NAME IN ONCLICK --}}
                 <div class="coffee-card product-item" 
                      data-name="{{ strtolower($product->name) }}"
                      data-category="{{ $product->category_id }}"
@@ -225,6 +150,7 @@
         </div>
     </div>
 
+    {{-- (Cart Section remains the same) --}}
     @if(Auth::user()->role != 'admin')
     <div class="cart-section" id="cartSection">
         <div class="cart-header" onclick="toggleCart()">
@@ -292,12 +218,11 @@
         </div>
     </div>
     @endif
-
 </div>
 
 {{-- MODALS DEFINITIONS --}}
 
-{{-- 1. Checkout Modal --}}
+{{-- 1. Checkout Modal (UPDATED WITH CUSTOMER NAME) --}}
 <div class="modal fade" id="checkoutModal" tabindex="-1" aria-hidden="true">
     <div class="modal-dialog modal-dialog-centered">
         <div class="modal-content modal-content-premium">
@@ -309,6 +234,15 @@
                 <div class="text-center mb-4">
                     <small class="text-uppercase text-secondary fw-bold">Total Amount</small>
                     <div class="display-amount" id="modalTotalAmount">₱0.00</div>
+                </div>
+
+                {{-- NEW: CUSTOMER NAME INPUT --}}
+                <div class="mb-4">
+                    <label class="form-label small fw-bold text-secondary">Customer Name (Optional)</label>
+                    <div class="input-group">
+                        <span class="input-group-text bg-white border-end-0 text-secondary"><i class="fas fa-user"></i></span>
+                        <input type="text" id="customerNameInput" class="form-control border-start-0" placeholder="Walk-in Customer">
+                    </div>
                 </div>
 
                 <div class="mb-4">
@@ -353,7 +287,7 @@
     </div>
 </div>
 
-{{-- 2. Success Modal --}}
+{{-- Other Modals (Success, Modifier, Discount, Park, Saved) remain identical --}}
 <div class="modal fade" id="successModal" tabindex="-1" aria-hidden="true" data-bs-backdrop="static" data-bs-keyboard="false">
     <div class="modal-dialog modal-dialog-centered">
         <div class="modal-content modal-content-premium text-center p-4">
@@ -379,7 +313,6 @@
     </div>
 </div>
 
-{{-- 3. Modifier Modal --}}
 <div class="modal fade" id="modifierModal" tabindex="-1" aria-hidden="true">
     <div class="modal-dialog modal-dialog-centered modal-sm">
         <div class="modal-content modal-content-premium">
@@ -411,7 +344,6 @@
     </div>
 </div>
 
-{{-- 4. Discount Modal --}}
 <div class="modal fade" id="discountModal" tabindex="-1" aria-hidden="true">
     <div class="modal-dialog modal-dialog-centered modal-sm">
         <div class="modal-content modal-content-premium">
@@ -433,7 +365,6 @@
     </div>
 </div>
 
-{{-- 5. PARK ORDER MODAL (Input Name) --}}
 <div class="modal fade" id="parkModal" tabindex="-1" aria-hidden="true">
     <div class="modal-dialog modal-dialog-centered modal-sm">
         <div class="modal-content modal-content-premium">
@@ -450,7 +381,6 @@
     </div>
 </div>
 
-{{-- 6. SAVED ORDERS MODAL (List) --}}
 <div class="modal fade" id="savedOrdersModal" tabindex="-1" aria-hidden="true">
     <div class="modal-dialog modal-dialog-centered">
         <div class="modal-content modal-content-premium">
@@ -460,7 +390,6 @@
             </div>
             <div class="modal-body p-0">
                 <div class="list-group list-group-flush" id="savedOrdersList">
-                    {{-- JS populates this --}}
                     <div class="p-4 text-center text-muted">
                         <i class="fa-solid fa-spinner fa-spin"></i> Loading...
                     </div>
@@ -474,7 +403,7 @@
 
 @section('scripts')
 <script>
-    // --- ADMIN CONFIRM DELETE ---
+    // (Existing Scripts remain same until confirmPayment)
     document.addEventListener('DOMContentLoaded', function() {
         const adminDeleteForms = document.querySelectorAll('.admin-delete-form');
         adminDeleteForms.forEach(form => {
@@ -495,7 +424,6 @@
         });
     });
 
-    // --- POS LOGIC ---
     function setOrderType(type) {
         orderType = type;
         const btnDine = document.getElementById('btn-dine-in');
@@ -504,7 +432,6 @@
         else { btnTake.classList.add('active'); btnDine.classList.remove('active'); }
     }
 
-    // --- SEARCH ---
     let activeCategory = 'all';
     function filterCategory(catId, element) {
         document.querySelectorAll('.cat-pill').forEach(el => el.classList.remove('active'));
@@ -528,7 +455,6 @@
         document.getElementById('noResults').classList.toggle('d-none', visibleCount > 0);
     }
 
-    // --- CART VARS ---
     @if(Auth::user()->role != 'admin')
     let cart = [];
     let isCartExpanded = false;
@@ -536,7 +462,7 @@
     let lastOrderId = null; 
     let orderType = 'dine_in';
     let currentDiscount = { type: 'none', value: 0, name: '' };
-    let paymentMode = 'cash'; // Default
+    let paymentMode = 'cash'; 
 
     const modifierModal = new bootstrap.Modal(document.getElementById('modifierModal'));
     const discountModal = new bootstrap.Modal(document.getElementById('discountModal'));
@@ -545,7 +471,6 @@
     const parkModal = new bootstrap.Modal(document.getElementById('parkModal'));
     const savedOrdersModal = new bootstrap.Modal(document.getElementById('savedOrdersModal'));
 
-    // --- PARK / HOLD ORDER ---
     function parkOrder() {
         if(cart.length === 0) return Swal.fire({ icon: 'warning', title: 'Cart Empty', text: 'Add items first.' });
         document.getElementById('parkNote').value = '';
@@ -644,25 +569,20 @@
                 fetch(`/parked-orders/${id}`, {
                     method: 'DELETE',
                     headers: { 'Content-Type': 'application/json', 'X-CSRF-TOKEN': '{{ csrf_token() }}' }
-                }).then(() => openSavedOrders()); // Reload list
+                }).then(() => openSavedOrders()); 
             }
         });
     }
 
-    // --- DISCOUNT ---
     function openDiscountModal() { discountModal.show(); }
     function applyDiscount(type, value, name) { currentDiscount = { type, value, name }; discountModal.hide(); renderCart(); }
     function removeDiscount() { currentDiscount = { type: 'none', value: 0, name: '' }; discountModal.hide(); renderCart(); }
 
-    // --- MODIFIER ---
-    // UPDATED: Now accepts category and skips modal for Pastries/Meals
     function addToCart(id, name, price, category) {
         const catLower = category.toLowerCase();
-        // Add categories that don't need customization here
         const skipModifiers = ['pastry', 'pastries', 'meal', 'meals', 'dessert', 'food', 'snack']; 
 
         if (skipModifiers.some(s => catLower.includes(s))) {
-            // DIRECT ADD TO CART (No Modifiers)
             const cartKey = `${id}-nomod`; 
             const existing = cart.find(item => item.cartKey === cartKey);
             
@@ -675,12 +595,11 @@
                     name, 
                     price, 
                     quantity: 1, 
-                    modifiers: null // Explicitly null
+                    modifiers: null 
                 }); 
             }
             renderCart();
         } else {
-            // SHOW MODIFIER MODAL (Drinks/Others)
             document.getElementById('modProductId').value = id;
             document.getElementById('modProductName').value = name;
             document.getElementById('modProductPrice').value = price;
@@ -691,7 +610,6 @@
         }
     }
 
-    // Helper for confirm button in modal (still used for Drinks)
     function confirmAddToCart() {
         const id = parseInt(document.getElementById('modProductId').value);
         const name = document.getElementById('modProductName').value;
@@ -707,7 +625,6 @@
         renderCart();
     }
 
-    // --- CART ---
     function updateQty(index, change) {
         if (cart[index].quantity + change <= 0) { 
             Swal.fire({
@@ -759,7 +676,6 @@
             const itemTotal = item.price * item.quantity;
             subtotal += itemTotal;
             let modText = '';
-            // Only show modifiers if they exist (not null)
             if(item.modifiers) {
                 if(item.modifiers.sugar !== '100%') modText += `<span class="badge bg-light text-secondary border me-1">Sugar: ${item.modifiers.sugar}</span>`;
                 if(item.modifiers.ice !== 'Normal') modText += `<span class="badge bg-light text-secondary border">Ice: ${item.modifiers.ice}</span>`;
@@ -820,7 +736,6 @@
     // --- CHECKOUT ---
     const cashInput = document.getElementById('cashInput');
     
-    // NEW: Handle Payment Mode
     function setPaymentMode(mode) {
         paymentMode = mode;
         const label = document.getElementById('tenderedLabel');
@@ -828,12 +743,11 @@
 
         if (mode === 'cash') {
             label.innerText = 'Cash Received';
-            cashInput.value = ''; // Reset for manual input
+            cashInput.value = ''; 
             cashInput.readOnly = false;
             document.getElementById('changeAmount').parentElement.style.opacity = '1';
             setTimeout(() => cashInput.focus(), 100);
         } else {
-            // For GCash/Card, usually payment is exact.
             label.innerText = 'Reference / Amount Paid';
             cashInput.value = currentTotal.toFixed(2); 
             cashInput.readOnly = true; 
@@ -846,11 +760,14 @@
         if(cart.length === 0) return Swal.fire({ icon: 'warning', title: 'Empty Cart', text: 'Cannot checkout empty cart.' });
         document.getElementById('modalTotalAmount').innerText = '₱' + currentTotal.toFixed(2);
         
-        // Reset to default cash state
+        // Reset Inputs
+        document.getElementById('customerNameInput').value = ''; // Clear Name
         document.getElementById('pay_cash').click(); 
         
         document.getElementById('changeAmount').innerText = '₱0.00';
         checkoutModal.show();
+        // Focus name field first
+        setTimeout(() => document.getElementById('customerNameInput').focus(), 500);
     }
     
     cashInput.addEventListener('keyup', calculateChange);
@@ -871,6 +788,9 @@
             return Swal.fire({ icon: 'error', title: 'Insufficient Payment', text: 'Please enter a valid amount.' });
         }
         
+        // NEW: Get Customer Name
+        const customerName = document.getElementById('customerNameInput').value;
+
         fetch('/checkout', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json', 'X-CSRF-TOKEN': '{{ csrf_token() }}' },
@@ -879,17 +799,16 @@
                 order_type: orderType, 
                 discount: currentDiscount, 
                 cash_tendered: cash,
-                payment_mode: paymentMode
+                payment_mode: paymentMode,
+                customer_name: customerName // <--- SEND NAME TO BACKEND
             })
         })
         .then(res => res.json())
         .then(data => {
             if(data.success) {
                 if (data.redirect_url) {
-                    // CASE 1: GCash/Card -> Redirect user to PayMongo
                     window.location.href = data.redirect_url;
                 } else {
-                    // CASE 2: Cash -> Show Success Modal
                     lastOrderId = data.order_id;
                     checkoutModal.hide();
                     document.getElementById('successTotal').innerText = document.getElementById('modalTotalAmount').innerText;

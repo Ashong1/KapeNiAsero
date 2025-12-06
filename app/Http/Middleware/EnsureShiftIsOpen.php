@@ -30,8 +30,6 @@ class EnsureShiftIsOpen
                             ->exists();
 
         // 3. Define routes that are allowed even without a shift
-        // We must allow them to access the "Open Register" page and "Logout", 
-        // otherwise they will be trapped in a redirect loop.
         $excludedRoutes = [
             'shifts.create', // The page to open register
             'shifts.store',  // The action to submit the open register form
@@ -41,9 +39,9 @@ class EnsureShiftIsOpen
 
         // 4. If no active shift AND the user is trying to go somewhere else (like /products)
         if (!$activeShift && !in_array($request->route()->getName(), $excludedRoutes)) {
-            // Redirect to Open Register page with a warning
+            // Redirect to Open Register page with a specific error message
             return redirect()->route('shifts.create')
-                             ->with('error', 'You must open the register before making sales.');
+                             ->with('error', 'You must open the register before accessing the system.');
         }
 
         return $next($request);

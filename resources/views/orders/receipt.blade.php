@@ -2,7 +2,6 @@
 <html>
 <head>
     <title>Receipt #{{ $order->id }}</title>
-    {{-- (Styles remain the same) --}}
     <style>
         body { font-family: 'Courier New', monospace; font-size: 12px; color: #000; }
         .container { width: 100%; max-width: 300px; margin: 0 auto; padding: 5px; }
@@ -25,7 +24,6 @@
 <body>
     <div class="container">
         <div class="header">
-            {{-- DYNAMIC STORE INFO --}}
             <h2>{{ \App\Models\Setting::get('store_name', 'Kape Ni Asero') }}</h2>
             <p>{{ \App\Models\Setting::get('store_address') }}</p>
             <p>TIN: {{ \App\Models\Setting::get('store_tin') }}</p> 
@@ -45,10 +43,9 @@
 
         <div class="divider"></div>
 
-        {{-- (Customer Info & Items Table remain the same) --}}
         <div class="customer-info">
-            <p>Customer: ________________________</p>
-            <p>Address: _________________________</p>
+            {{-- DISPLAY CUSTOMER NAME --}}
+            <p>Customer: <strong>{{ $order->customer_name ?? '________________________' }}</strong></p>
             <p>TIN: _____________________________</p>
         </div>
         <div class="divider"></div>
@@ -94,10 +91,8 @@
                 <tr><td colspan="2" style="height: 5px;"></td></tr>
 
                 @php
-                    // DYNAMIC VAT CALCULATION
                     $taxRate = (float) \App\Models\Setting::get('tax_rate', 12);
                     $vatDivisor = 1 + ($taxRate / 100);
-                    
                     $vatableSales = $order->total_price / $vatDivisor;
                     $vatAmount = $order->total_price - $vatableSales;
                 @endphp
@@ -143,7 +138,6 @@
         <div class="footer">
             <p>Thank you! Please come again.</p>
             <br>
-            {{-- DYNAMIC FOOTER INFO --}}
             <p>Accreditation No: {{ \App\Models\Setting::get('accreditation_no') }}</p>
             <p>Date Issued: {{ now()->startOfYear()->format('m/d/Y') }} | Valid Until: {{ now()->addYears(5)->format('m/d/Y') }}</p>
             <p>PTU No: {{ \App\Models\Setting::get('ptu_number') }}</p>

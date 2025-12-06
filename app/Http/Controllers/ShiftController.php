@@ -52,8 +52,11 @@ class ShiftController extends Controller
      */
     public function store(Request $request)
     {
+        // Validate input with a custom message for missing amount
         $request->validate([
             'start_cash' => 'required|numeric|min:0',
+        ], [
+            'start_cash.required' => 'You must input a starting amount to begin the shift.',
         ]);
 
         Shift::create([
@@ -79,7 +82,7 @@ class ShiftController extends Controller
 
         // Calculate Expected Cash
         $cashSales = Order::where('user_id', $shift->user_id)
-                          ->where('payment_mode', 'cash') // Assuming 'payment_mode' exists
+                          ->where('payment_mode', 'cash') 
                           ->where('status', 'completed')
                           ->whereBetween('created_at', [$shift->started_at, now()])
                           ->sum('total_price');

@@ -6,7 +6,7 @@ use Illuminate\Http\Request;
 use App\Models\Order;
 use App\Models\OrderItem;
 use App\Models\Product;
-use App\Models\ActivityLog; // [IMPORTED] Fixed missing import
+use App\Models\ActivityLog; 
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Http; 
 use Barryvdh\DomPDF\Facade\Pdf; 
@@ -16,7 +16,6 @@ class OrderController extends Controller
 {
     public function index()
     {
-        // Get all orders, latest first, 10 per page
         $orders = Order::with('user')->latest()->paginate(10);
         return view('orders.index', compact('orders'));
     }
@@ -30,14 +29,15 @@ class OrderController extends Controller
             'discount' => 'nullable|array',
             'discount.type' => 'nullable|in:fixed,percentage,none',
             'cash_tendered' => 'required|numeric|min:0', 
-            'payment_mode' => 'required|in:cash,gcash,card', 
+            'payment_mode' => 'required|in:cash,gcash,card',
+            'customer_name' => 'nullable|string|max:50', // <--- Validate Name
         ]);
 
         try {
             DB::beginTransaction();
             $subtotal = 0;
 
-            // 1. Stock Check & Subtotal Calculation
+            // 1. Stock Check & Subtotal
             foreach ($request->cart as $item) {
                 $product = Product::with('ingredients')->lockForUpdate()->find($item['id']);
                 $qtyOrdered = $item['quantity'];
@@ -76,10 +76,9 @@ class OrderController extends Controller
 
             $finalTotal = $subtotal - $discountAmount;
             
-            // 3. Create Order (Initially PENDING)
+            // 3. Create Order
             $cashTendered = floatval($request->cash_tendered);
             
-            // Check cash only if paying by cash
             if ($request->payment_mode === 'cash') {
                 if (round($cashTendered, 2) < round($finalTotal, 2)) {
                     DB::rollBack();
@@ -91,6 +90,7 @@ class OrderController extends Controller
 
             $order = Order::create([
                 'user_id' => auth()->id(),
+                'customer_name' => $request->customer_name, // <--- Save Name
                 'subtotal' => $subtotal,
                 'discount_name' => $discountName,
                 'discount_amount' => $discountAmount,
@@ -102,7 +102,7 @@ class OrderController extends Controller
                 'order_type' => $request->order_type ?? 'dine_in',
             ]);
 
-            // 4. Save Items & Deduct Inventory
+            // 4. Save Items
             foreach ($request->cart as $item) {
                 $product = Product::find($item['id']);
                 if (!$product->ingredients->isEmpty()) {
@@ -120,12 +120,11 @@ class OrderController extends Controller
                 ]);
             }
 
-            // 5. HANDLE PAYMENT MODES
+            // 5. Payment Handling
             if ($request->payment_mode === 'cash') {
                 $order->update(['status' => 'completed']);
                 DB::commit();
                 
-                // [FIXED] Log directly using Model
                 ActivityLog::create([
                     'user_id' => auth()->id(),
                     'action' => 'New Order',
@@ -134,7 +133,6 @@ class OrderController extends Controller
 
                 return response()->json(['success' => true, 'message' => 'Order complete!', 'order_id' => $order->id]);
             } else {
-                // --- PAYMONGO INTEGRATION ---
                 DB::commit(); 
                 
                 $response = Http::withHeaders([
@@ -149,7 +147,7 @@ class OrderController extends Controller
                             ],
                             'line_items' => [[
                                 'currency' => 'PHP',
-                                'amount' => (int) ($finalTotal * 100), // Convert to cents
+                                'amount' => (int) ($finalTotal * 100),
                                 'name' => 'Order #' . $order->id,
                                 'quantity' => 1,
                             ]],
@@ -184,7 +182,6 @@ class OrderController extends Controller
         if ($order->status === 'pending') {
             $order->update(['status' => 'completed']);
             
-            // [FIXED] Log directly using Model
             ActivityLog::create([
                 'user_id' => auth()->id(),
                 'action' => 'New Order',
@@ -195,7 +192,6 @@ class OrderController extends Controller
         return redirect()->route('orders.index')->with('success', "Payment Successful! Order #{$order->id} is completed.");
     }
 
-    // --- PDF RECEIPT ---
     public function downloadReceipt(Order $order)
     {
         $order->load(['items.product', 'user']);
@@ -203,7 +199,6 @@ class OrderController extends Controller
         return $pdf->stream('receipt-'.$order->id.'.pdf');
     }
 
-    // --- VOID REQUESTS ---
     public function requestVoid(Order $order)
     {
         if ($order->status !== 'completed') {
@@ -213,7 +208,6 @@ class OrderController extends Controller
         $order->update(['status' => 'void_pending']);
         $employeeName = auth()->user()->name;
 
-        // [FIXED] Log directly using Model
         ActivityLog::create([
             'user_id' => auth()->id(),
             'action' => 'Void Requested',
@@ -223,7 +217,6 @@ class OrderController extends Controller
         return redirect()->back()->with('success', 'Void request submitted for Admin approval.');
     }
 
-    // --- ADMIN VOID APPROVAL ---
     public function voidOrder(Order $order)
     {
         if ($order->status === 'voided') {
@@ -242,7 +235,6 @@ class OrderController extends Controller
 
         $order->update(['status' => 'voided']);
         
-        // [FIXED] Log directly using Model
         ActivityLog::create([
             'user_id' => auth()->id(),
             'action' => 'Void Order',

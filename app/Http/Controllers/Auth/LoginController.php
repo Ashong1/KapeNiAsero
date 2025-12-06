@@ -4,9 +4,10 @@ namespace App\Http\Controllers\Auth;
 
 use App\Http\Controllers\Controller;
 use Illuminate\Foundation\Auth\AuthenticatesUsers;
-use Illuminate\Http\Request;                    // Import Request
-use Illuminate\Validation\ValidationException;  // Import ValidationException
-use App\Models\User;                            // Import User Model
+use Illuminate\Http\Request;                    
+use Illuminate\Validation\ValidationException;  
+use App\Models\User;                            
+use App\Models\Shift; // Import Shift model
 
 class LoginController extends Controller
 {
@@ -14,21 +15,9 @@ class LoginController extends Controller
     |--------------------------------------------------------------------------
     | Login Controller
     |--------------------------------------------------------------------------
-    |
-    | This controller handles authenticating users for the application and
-    | redirecting them to your home screen. The controller uses a trait
-    | to conveniently provide its functionality to your applications.
-    |
     */
 
     use AuthenticatesUsers;
-
-    /**
-     * Where to redirect users after login.
-     *
-     * @var string
-     */
-    //protected $redirectTo = '/home';
 
     /**
      * Create a new controller instance.
@@ -45,25 +34,21 @@ class LoginController extends Controller
 
     /**
      * Determine the maximum number of attempts to allow.
-     * Returns 3 for Admins, 5 for others.
      */
     public function maxAttempts()
     {
-        // Get the email from the request to check the user role
         $email = request()->input($this->username());
         $user = User::where('email', $email)->first();
 
-        // Check if user exists and is an Admin
         if ($user && $user->role === 'admin') {
-            return 3; // Lock after 3 failed tries
+            return 3; 
         }
 
-        return 5; // Default for employees
+        return 5; 
     }
 
     /**
      * Determine how many minutes to lock the user out.
-     * Admins get locked for 30 minutes. Others for 1 minute.
      */
     public function decayMinutes()
     {
@@ -71,43 +56,51 @@ class LoginController extends Controller
         $user = User::where('email', $email)->first();
 
         if ($user && $user->role === 'admin') {
-            return 30; // Lockout duration in minutes
+            return 30; 
         }
 
-        return 1; // Default duration
+        return 1; 
     }
 
-    /**
-     * Custom response for failed login to show remaining attempts.
-     * This overrides the default method in the AuthenticatesUsers trait.
-     */
     protected function sendFailedLoginResponse(Request $request)
     {
-        // Get the rate limiter key
         $key = $this->throttleKey($request);
-        
-        // Get max attempts (using the dynamic function above)
         $maxAttempts = $this->maxAttempts();
-        
-        // Calculate remaining attempts
-        // 'retriesLeft' automatically calculates (Max - Current Hits)
         $remaining = $this->limiter()->retriesLeft($key, $maxAttempts);
 
         throw ValidationException::withMessages([
             $this->username() => [
-                trans('auth.failed'), // "These credentials do not match our records."
+                trans('auth.failed'), 
                 "Warning: You have {$remaining} attempt(s) remaining."
             ],
         ]);
     }
+    
+    /**
+     * The user has been authenticated.
+     * We override the redirect path logic here.
+     */
     public function redirectTo()
     {
-        // Admins go to Dashboard
-        if (auth()->user()->role === 'admin') {
+        $user = auth()->user();
+
+        // 1. Admins go to Dashboard
+        if ($user->role === 'admin') {
             return '/home';
         }
 
-        // Employees go to /home so HomeController can check if they have a shift
+        // 2. Employees: Check if they have an active shift
+        $activeShift = Shift::where('user_id', $user->id)
+                            ->whereNull('ended_at')
+                            ->exists();
+        
+        // 3. If NO active shift, send them directly to Start Shift page
+        // This prevents the Middleware from flashing an error message on /home
+        if (!$activeShift) {
+            return route('shifts.create');
+        }
+
+        // 4. If they DO have a shift, go to /home (or POS)
         return '/home'; 
     }
 }

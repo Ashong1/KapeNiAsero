@@ -6,22 +6,26 @@
         <div class="card card-custom p-4">
             
             <div class="text-center mb-4">
-                <div class="bg-warning-subtle rounded-circle d-inline-flex p-3 mb-3 shadow-sm">
-                    <i class="fas fa-edit fa-2x text-warning-emphasis"></i>
+                {{-- Changed Icon and Color to Green/Primary for "Create" context --}}
+                <div class="bg-success-subtle rounded-circle d-inline-flex p-3 mb-3 shadow-sm">
+                    <i class="fas fa-plus fa-2x text-success"></i>
                 </div>
-                <h4 class="fw-bold text-dark">Edit Category</h4>
-                <p class="text-secondary small">Update category details</p>
+                <h4 class="fw-bold text-dark">New Category</h4>
+                <p class="text-secondary small">Create a new menu category</p>
             </div>
 
-            <form action="{{ route('categories.update', $category->id) }}" method="POST">
+            {{-- FIXED: Route points to 'store', removed ID parameter --}}
+            <form action="{{ route('categories.store') }}" method="POST">
                 @csrf 
-                @method('PUT')
+                {{-- REMOVED: @method('PUT') is only for updates --}}
                 
                 <div class="mb-4">
                     <label class="form-label text-uppercase small fw-bold text-secondary">Category Name</label>
+                    {{-- FIXED: Value uses old('name') to keep input if validation fails, instead of $category->name --}}
                     <input type="text" name="name" 
-                           value="{{ $category->name }}" 
+                           value="{{ old('name') }}" 
                            class="form-control form-control-lg fs-6" 
+                           placeholder="e.g. Iced Coffee"
                            required 
                            style="border-radius: 12px; padding: 0.8rem;">
                 </div>
@@ -33,10 +37,11 @@
                        Cancel
                     </a>
                     
+                    {{-- Changed button color to Coffee/Primary for consistency --}}
                     <button type="submit" 
-                            class="btn btn-warning w-50 fw-bold d-flex align-items-center justify-content-center text-dark" 
-                            style="border-radius: 12px; padding: 0.8rem; background-color: #ffc107; border: none;">
-                        Update
+                            class="btn btn-primary-coffee w-50 fw-bold d-flex align-items-center justify-content-center text-white" 
+                            style="border-radius: 12px; padding: 0.8rem; background: var(--primary-coffee); border: none;">
+                        Create
                     </button>
                 </div>
 

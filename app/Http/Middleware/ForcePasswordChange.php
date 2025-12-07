@@ -18,7 +18,7 @@ class ForcePasswordChange
             
             // Allow them to access the change password routes and logout
             if ($request->routeIs('password.change') || 
-                $request->routeIs('password.update') || 
+                $request->routeIs('password.change.update') || // FIX: Added new route name
                 $request->routeIs('logout')) {
                 return $next($request);
             }

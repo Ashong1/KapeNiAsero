@@ -10,9 +10,31 @@
                 </div>
 
                 <div class="card-body">
+                    {{-- Alert Messages --}}
+                    @if (session('status'))
+                        <div class="alert alert-success" role="alert">
+                            {{ session('status') }}
+                        </div>
+                    @endif
+                    @if (session('warning'))
+                        <div class="alert alert-warning" role="alert">
+                            <strong>Notice:</strong> {{ session('warning') }}
+                        </div>
+                    @endif
+                    @if ($errors->any())
+                        <div class="alert alert-danger">
+                            <ul class="mb-0">
+                                @foreach ($errors->all() as $error)
+                                    <li>{{ $error }}</li>
+                                @endforeach
+                            </ul>
+                        </div>
+                    @endif
+
                     <p class="mb-4">Since this is your first time logging in (or your account was reset), you must create a new secure password.</p>
 
-                    <form method="POST" action="{{ route('password.update') }}">
+                    {{-- FIX: Updated route name --}}
+                    <form method="POST" action="{{ route('password.change.update') }}">
                         @csrf
 
                         <div class="row mb-3">

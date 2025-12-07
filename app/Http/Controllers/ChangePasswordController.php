@@ -28,9 +28,14 @@ class ChangePasswordController extends Controller
 
         $user = Auth::user();
         
-        $user->password = Hash::make($request->password);
-        $user->must_change_password = false; // Turn off the flag
-        $user->save();
+        // FIX: Use forceFill to ensure must_change_password saves correctly
+        $user->forceFill([
+            'password' => Hash::make($request->password),
+            'must_change_password' => 0, 
+        ])->save();
+
+        // Refresh the user session to prevent logout issues
+        Auth::setUser($user);
 
         // Redirect based on role
         $route = $user->role === 'admin' ? 'home' : 'orders.index';

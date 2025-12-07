@@ -23,7 +23,7 @@ use App\Http\Controllers\ChangePasswordController;
 
 // API Controllers (For Internal Use)
 use App\Http\Controllers\Api\PosApiController; 
-use App\Http\Controllers\Api\InventoryApiController; // <--- 1. ADD THIS IMPORT
+use App\Http\Controllers\Api\InventoryApiController;
 
 Route::get('/', function () { return redirect('/login'); });
 
@@ -41,7 +41,8 @@ Route::middleware(['auth'])->group(function () {
 
     // 1. CHANGE PASSWORD ROUTES
     Route::get('/change-password', [ChangePasswordController::class, 'show'])->name('password.change');
-    Route::post('/change-password', [ChangePasswordController::class, 'update'])->name('password.update');
+    // FIX: Renamed this route to avoid conflict with default Laravel password reset
+    Route::post('/change-password', [ChangePasswordController::class, 'update'])->name('password.change.update');
 
     // 2. LOGOUT ACTION
     Route::get('/logout-action', [ShiftController::class, 'handleLogout'])->name('logout.action');
@@ -76,7 +77,6 @@ Route::middleware(['auth'])->group(function () {
         // --- ADMIN ONLY ROUTES ---
         Route::middleware(['admin'])->group(function () {
             
-            // <--- 2. ADD INVENTORY API ROUTES HERE
             Route::prefix('internal-api')->group(function() {
                 Route::put('/ingredients/{id}', [InventoryApiController::class, 'update']);
             });

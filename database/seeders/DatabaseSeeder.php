@@ -17,6 +17,7 @@ class DatabaseSeeder extends Seeder
                 'name' => 'Admin User',
                 'password' => Hash::make('password'),
                 'role' => 'admin',
+                'must_change_password' => true,
             ]
         );
 
@@ -27,6 +28,7 @@ class DatabaseSeeder extends Seeder
                 'name' => 'Staff User',
                 'password' => Hash::make('password'),
                 'role' => 'employee',
+                'must_change_password' => true, 
             ]
         );
 
@@ -34,8 +36,8 @@ class DatabaseSeeder extends Seeder
         $this->call([
             SettingSeeder::class,
             ProductSeeder::class,
-            RecipeSeeder::class,   // Ensure this is added
-            SupplierSeeder::class, // Add this line
+            RecipeSeeder::class,   
+            SupplierSeeder::class, 
         ]);
     }
 }

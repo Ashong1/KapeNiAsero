@@ -241,7 +241,7 @@
                     <div class="vr d-none d-xl-block mx-1 opacity-25"></div>
                     
                     <a href="{{ route('products.index') }}" class="btn btn-action btn-pos">
-                        <i class="fas fa-cash-register"></i> <span class="d-none d-md-inline">Open POS</span>
+                        <i class="fas fa-cash-register"></i> <span>Open POS</span>
                     </a>
 
                     @if(Auth::user()->role === 'admin')

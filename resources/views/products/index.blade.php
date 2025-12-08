@@ -66,6 +66,14 @@
     .success-animation { animation: popIn 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275); }
     @keyframes popIn { 0% { transform: scale(0); opacity: 0; } 100% { transform: scale(1); opacity: 1; } }
 
+    /* --- CRITICAL: Z-Index Fix for ALL Modals & SweetAlerts --- */
+    /* This ensures Hold Order, Recall, Checkout modals, AND SweetAlerts appear ON TOP of the mobile cart */
+    .modal { z-index: 2050 !important; }
+    .modal-backdrop { z-index: 2040 !important; }
+    
+    /* ADDED: SweetAlert Container Z-Index (Higher than modals and cart) */
+    .swal2-container { z-index: 3000 !important; }
+
     @media (max-width: 991px) {
         body { overflow: auto !important; height: auto !important; }
         .container { height: auto; display: block; }
@@ -74,7 +82,9 @@
         .pos-layout { flex-direction: column; overflow: visible; height: auto; padding-bottom: 80px; }
         .product-section { height: auto; overflow: visible; border-radius: 0; box-shadow: none; }
         .product-scroll-area { overflow: visible; padding: 1.5rem; }
-        .cart-section { width: 100%; border-radius: 24px 24px 0 0; position: fixed; bottom: 0; left: 0; height: auto; transform: translateY(calc(100% - 85px)); transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1); box-shadow: 0 -5px 30px rgba(0,0,0,0.15); border-left: none; }
+        
+        /* Mobile Cart: High Z-Index to cover Navbar, but Modals (2050) & Alerts (3000) will cover this (2000) */
+        .cart-section { width: 100%; border-radius: 24px 24px 0 0; position: fixed; bottom: 0; left: 0; height: auto; transform: translateY(calc(100% - 85px)); transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1); box-shadow: 0 -5px 30px rgba(0,0,0,0.15); border-left: none; z-index: 2000; }
         .cart-section.expanded { transform: translateY(0); height: 85vh; }
         .cart-body { padding-bottom: 2rem; }
     }

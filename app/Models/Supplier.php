@@ -9,9 +9,9 @@ class Supplier extends Model
 {
     use HasFactory;
 
-    protected $fillable = ['name', 'contact_person', 'email', 'phone'];
+    // UPDATED: Added 'country' to fillable
+    protected $fillable = ['name', 'contact_person', 'email', 'phone', 'country'];
 
-    // A supplier supplies many ingredients
     public function ingredients()
     {
         return $this->hasMany(Ingredient::class);

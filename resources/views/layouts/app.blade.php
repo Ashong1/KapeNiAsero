@@ -189,7 +189,7 @@
 
             <div class="collapse navbar-collapse mt-3 mt-xl-0" id="mainNav">
                 @auth
-                <div class="ms-auto d-flex flex-column flex-xl-row align-items-stretch align-items-xl-center gap-2 gap-xl-3">
+                <div class="ms-xl-auto d-flex flex-column flex-xl-row align-items-stretch align-items-xl-center gap-2 gap-xl-3">
                     
                     <div class="d-flex flex-column flex-xl-row gap-1 bg-light p-1 rounded-4 border border-light">
                         @if(Auth::user()->role == 'admin')
@@ -225,7 +225,7 @@
                                    data-bs-toggle="dropdown" aria-expanded="false">
                                     <i class="fas fa-clipboard-list"></i> Logs
                                 </a>
-                                <ul class="dropdown-menu border-0 shadow-lg rounded-4 p-2 mt-2 dropdown-menu-end">
+                                <ul class="dropdown-menu border-0 shadow-lg rounded-4 p-2 mt-2 dropdown-menu-xl-end">
                                     <li><a class="dropdown-item mb-1 px-3 py-2" href="{{ route('reports.index') }}"><i class="fas fa-chart-line me-2 text-primary"></i> Sales Reports</a></li>
                                     <li><a class="dropdown-item mb-1 px-3 py-2" href="{{ route('shifts.index') }}"><i class="fas fa-clock me-2 text-secondary"></i> Shift History</a></li>
                                     <li><a class="dropdown-item px-3 py-2" href="{{ route('activity-logs.index') }}"><i class="fas fa-shield-alt me-2 text-secondary"></i> Audit Logs</a></li>
